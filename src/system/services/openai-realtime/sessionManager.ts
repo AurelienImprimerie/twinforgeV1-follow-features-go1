@@ -6,11 +6,17 @@
 import logger from '../../../lib/utils/logger';
 import type { RealtimeConfig, RealtimeMessage, ChatMode } from './types';
 import { DataChannelManager } from './dataChannelManager';
+import { conversationMemoryManager } from '../../head/memory';
 
 export class SessionManager {
   private dataChannelManager: DataChannelManager;
   private config: RealtimeConfig | null = null;
   private lastSpeechDetectedAt: number | null = null;
+  private userId: string | null = null;
+  private sessionId: string | null = null;
+  private appContext: any = null;
+  private currentTranscription: string = '';
+  private currentResponse: string = '';
 
   constructor(dataChannelManager: DataChannelManager) {
     this.dataChannelManager = dataChannelManager;
@@ -21,6 +27,21 @@ export class SessionManager {
    */
   setConfig(config: RealtimeConfig): void {
     this.config = config;
+  }
+
+  /**
+   * Set user context for conversation persistence
+   */
+  setUserContext(userId: string, sessionId?: string, appContext?: any): void {
+    this.userId = userId;
+    this.sessionId = sessionId || null;
+    this.appContext = appContext || null;
+
+    logger.debug('REALTIME_SESSION', 'User context set for voice persistence', {
+      userId,
+      sessionId,
+      hasAppContext: !!appContext
+    });
   }
 
   /**
@@ -101,12 +122,64 @@ export class SessionManager {
   }
 
   /**
-   * Handle message (for speech detection tracking)
+   * Handle message (for speech detection tracking and conversation persistence)
    */
-  handleMessage(message: RealtimeMessage): void {
+  async handleMessage(message: RealtimeMessage): Promise<void> {
     if (message.type === 'input_audio_buffer.speech_started') {
       this.lastSpeechDetectedAt = Date.now();
       logger.info('REALTIME_SESSION', '🎤 Speech detected');
+    }
+
+    // Handle user transcription (input)
+    if (message.type === 'conversation.item.input_audio_transcription.completed') {
+      this.currentTranscription = (message as any).transcript || '';
+
+      // Persist user voice message
+      if (this.userId && this.currentTranscription) {
+        await conversationMemoryManager.saveMessage({
+          userId: this.userId,
+          sessionId: this.sessionId || undefined,
+          role: 'user',
+          content: this.currentTranscription,
+          messageType: 'voice',
+          context: this.appContext,
+          timestamp: Date.now()
+        });
+
+        logger.debug('REALTIME_SESSION', '💾 User voice message persisted', {
+          userId: this.userId,
+          transcriptionLength: this.currentTranscription.length
+        });
+      }
+    }
+
+    // Handle assistant response text (output)
+    if (message.type === 'response.audio_transcript.delta') {
+      this.currentResponse += (message as any).delta || '';
+    }
+
+    // Handle response completion - persist full assistant message
+    if (message.type === 'response.audio_transcript.done') {
+      if (this.userId && this.currentResponse) {
+        await conversationMemoryManager.saveMessage({
+          userId: this.userId,
+          sessionId: this.sessionId || undefined,
+          role: 'assistant',
+          content: this.currentResponse,
+          messageType: 'voice',
+          context: this.appContext,
+          timestamp: Date.now()
+        });
+
+        logger.debug('REALTIME_SESSION', '💾 Assistant voice response persisted', {
+          userId: this.userId,
+          responseLength: this.currentResponse.length
+        });
+      }
+
+      // Reset for next message
+      this.currentResponse = '';
+      this.currentTranscription = '';
     }
   }
 
@@ -122,5 +195,10 @@ export class SessionManager {
    */
   reset(): void {
     this.lastSpeechDetectedAt = null;
+    this.currentTranscription = '';
+    this.currentResponse = '';
+    this.userId = null;
+    this.sessionId = null;
+    this.appContext = null;
   }
 }

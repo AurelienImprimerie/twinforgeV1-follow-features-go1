@@ -151,6 +151,13 @@ class OpenAIRealtimeService {
   }
 
   /**
+   * Set user context for conversation persistence
+   */
+  setUserContext(userId: string, sessionId?: string, appContext?: any): void {
+    this.sessionManager.setUserContext(userId, sessionId, appContext);
+  }
+
+  /**
    * Send text message
    */
   sendTextMessage(text: string): void {

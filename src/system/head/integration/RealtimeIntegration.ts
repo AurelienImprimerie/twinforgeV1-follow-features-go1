@@ -30,11 +30,12 @@ export class RealtimeIntegration {
     try {
       // Get current brain context
       const context = await brainCore.getContext();
+      const userId = brainCore.getCurrentUserId();
 
       logger.info('REALTIME_INTEGRATION', 'Building realtime system prompt', {
         mode,
         sessionActive: context.session.isActive,
-        userId: brainCore.getCurrentUserId()
+        userId
       });
 
       // Build enriched prompt
@@ -58,6 +59,40 @@ export class RealtimeIntegration {
 
       // Return base prompt on error
       return basePrompt;
+    }
+  }
+
+  /**
+   * Set user context for voice conversation persistence
+   */
+  async setUserContextForVoice(realtimeService: any): Promise<void> {
+    try {
+      const userId = brainCore.getCurrentUserId();
+      if (!userId) {
+        logger.warn('REALTIME_INTEGRATION', 'Cannot set voice context: no user ID');
+        return;
+      }
+
+      const context = await brainCore.getContext();
+      const sessionId = context.session.isActive ? context.session.sessionId : undefined;
+      const appContext = {
+        currentRoute: context.app.currentRoute,
+        activityState: context.app.activityState,
+        sessionType: context.session.isActive ? context.session.sessionType : undefined,
+        exerciseName: context.session.currentExercise,
+      };
+
+      realtimeService.setUserContext(userId, sessionId, appContext);
+
+      logger.debug('REALTIME_INTEGRATION', 'Voice context set for conversation persistence', {
+        userId,
+        sessionId,
+        activityState: context.app.activityState
+      });
+    } catch (error) {
+      logger.error('REALTIME_INTEGRATION', 'Failed to set voice context', {
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
   }
 

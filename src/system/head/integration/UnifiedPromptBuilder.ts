@@ -226,85 +226,222 @@ export class UnifiedPromptBuilder {
       }
     }
 
-    // Body Scan
-    if (user.bodyScan.hasData) {
-      parts.push('\n### COMPOSITION CORPORELLE');
-      if (user.bodyScan.recentScans.length > 0) {
-        parts.push(`Scans récents: ${user.bodyScan.recentScans.length}`);
+    // Body Scan & Avatar (Enhanced)
+    if (user.bodyScan.hasData || user.profile.hasCompletedBodyScan) {
+      parts.push('\n### AVATAR & COMPOSITION CORPORELLE');
+
+      // Avatar Status
+      if (user.profile.hasCompletedBodyScan) {
+        parts.push(`🎯 Avatar 3D: ${user.profile.avatarStatus === 'ready' ? 'Généré et disponible' : 'En traitement'}`);
+        if (user.profile.portraitUrl) {
+          parts.push(`📸 Portrait: Disponible`);
+        }
       }
+
+      // Body Scan Data
+      if (user.bodyScan.recentScans.length > 0) {
+        const lastScanDate = user.bodyScan.lastScanDate
+          ? new Date(user.bodyScan.lastScanDate).toLocaleDateString('fr-FR')
+          : 'N/A';
+        parts.push(`📊 Scans récents: ${user.bodyScan.recentScans.length} (dernier: ${lastScanDate})`);
+      }
+
+      // Latest Measurements with Context
       if (user.bodyScan.latestMeasurements) {
         const m = user.bodyScan.latestMeasurements;
-        if (m.weight) parts.push(`Poids actuel: ${m.weight}kg`);
-        if (m.bodyFat) parts.push(`Masse grasse: ${m.bodyFat}%`);
-        if (m.muscleMass) parts.push(`Masse musculaire: ${m.muscleMass}kg`);
+        parts.push('📏 Mesures actuelles:');
+        if (m.weight) {
+          const weightDiff = user.profile.targetWeight
+            ? (m.weight - user.profile.targetWeight).toFixed(1)
+            : null;
+          parts.push(`  - Poids: ${m.weight}kg${weightDiff ? ` (objectif: ${weightDiff > 0 ? '+' : ''}${weightDiff}kg)` : ''}`);
+        }
+        if (m.bodyFat) {
+          const bfCategory = m.bodyFat < 10 ? 'très faible' :
+                            m.bodyFat < 15 ? 'athlétique' :
+                            m.bodyFat < 20 ? 'normal' :
+                            m.bodyFat < 25 ? 'modéré' : 'élevé';
+          parts.push(`  - Masse grasse: ${m.bodyFat}% (${bfCategory})`);
+        }
+        if (m.muscleMass) parts.push(`  - Masse musculaire: ${m.muscleMass}kg`);
+        if (m.waist) parts.push(`  - Tour de taille: ${m.waist}cm`);
+        if (m.chest) parts.push(`  - Tour de poitrine: ${m.chest}cm`);
+        if (m.arms) parts.push(`  - Tour de bras: ${m.arms}cm`);
+        if (m.legs) parts.push(`  - Tour de cuisses: ${m.legs}cm`);
       }
+
+      // Progression Trend with Coaching Advice
       if (user.bodyScan.progressionTrend) {
-        const trendText = user.bodyScan.progressionTrend === 'improving' ? 'en amélioration' :
-                          user.bodyScan.progressionTrend === 'declining' ? 'en baisse' : 'stable';
+        const trendText = user.bodyScan.progressionTrend === 'improving' ? '📈 En amélioration (continue comme ça!)' :
+                          user.bodyScan.progressionTrend === 'declining' ? '📉 En baisse (ajuste ton approche)' :
+                          '➡️ Stable (maintiens le cap)';
         parts.push(`Tendance: ${trendText}`);
       }
+
+      // Coaching Context from Avatar Data
+      if (user.profile.objective) {
+        const objectiveMap = {
+          'fat_loss': 'Tu veux perdre du gras - focus cardio et déficit calorique',
+          'muscle_gain': 'Tu veux prendre du muscle - focus force et surplus calorique',
+          'recomp': 'Tu veux recomposer ton corps - équilibre force et cardio'
+        };
+        parts.push(`🎯 Objectif actuel: ${objectiveMap[user.profile.objective] || user.profile.objective}`);
+      }
     }
 
-    // Energy / Biometrics
+    // Energy / Biometrics (Enhanced with Proactive Alerts)
     if (user.energy && user.energy.hasData) {
-      parts.push('\n### ÉNERGIE & BIOMÉTRIE');
+      parts.push('\n### ⚡ ÉNERGIE & BIOMÉTRIE');
       if (user.energy.hasWearableConnected) {
-        parts.push(`Wearable connecté: ${user.energy.connectedDevices[0]?.deviceName || 'Oui'}`);
+        parts.push(`💪 Wearable connecté: ${user.energy.connectedDevices[0]?.deviceName || 'Oui'}`);
       }
-      if (user.energy.biometrics.hrResting) {
-        parts.push(`FC repos: ${user.energy.biometrics.hrResting} bpm`);
+
+      // Heart Rate Context
+      if (user.energy.biometrics.hrResting || user.energy.biometrics.hrMax) {
+        parts.push('❤️ Fréquence cardiaque:');
+        if (user.energy.biometrics.hrResting) {
+          const hrRestingStatus = user.energy.biometrics.hrResting < 60 ? '(excellent)' :
+                                  user.energy.biometrics.hrResting < 70 ? '(bon)' : '(normal)';
+          parts.push(`  - Repos: ${user.energy.biometrics.hrResting} bpm ${hrRestingStatus}`);
+        }
+        if (user.energy.biometrics.hrMax) {
+          parts.push(`  - Max observée: ${user.energy.biometrics.hrMax} bpm`);
+        }
+        if (user.energy.biometrics.hrAvg) {
+          parts.push(`  - Moyenne effort: ${user.energy.biometrics.hrAvg} bpm`);
+        }
       }
-      if (user.energy.biometrics.hrMax) {
-        parts.push(`FC max: ${user.energy.biometrics.hrMax} bpm`);
-      }
+
+      // HRV with Interpretation
       if (user.energy.biometrics.hrvAvg) {
-        parts.push(`HRV moyen: ${user.energy.biometrics.hrvAvg} ms`);
+        const hrvStatus = user.energy.biometrics.hrvAvg > 70 ? '(excellente récupération)' :
+                         user.energy.biometrics.hrvAvg > 50 ? '(bonne récupération)' :
+                         user.energy.biometrics.hrvAvg > 30 ? '(récupération moyenne)' : '(fatigue détectée)';
+        parts.push(`🫀 HRV moyen: ${user.energy.biometrics.hrvAvg} ms ${hrvStatus}`);
       }
+
+      // VO2max with Fitness Level
       if (user.energy.biometrics.vo2maxEstimated) {
-        parts.push(`VO2max estimé: ${user.energy.biometrics.vo2maxEstimated} ml/kg/min`);
+        const vo2Status = user.energy.biometrics.vo2maxEstimated > 50 ? '(niveau excellent)' :
+                         user.energy.biometrics.vo2maxEstimated > 40 ? '(niveau bon)' :
+                         user.energy.biometrics.vo2maxEstimated > 30 ? '(niveau moyen)' : '(niveau à améliorer)';
+        parts.push(`🏃 VO2max estimé: ${user.energy.biometrics.vo2maxEstimated} ml/kg/min ${vo2Status}`);
       }
-      parts.push(`Score récupération: ${user.energy.recoveryScore}/100`);
-      parts.push(`Score fatigue: ${user.energy.fatigueScore}/100`);
+
+      // Recovery & Fatigue with Proactive Coaching
+      const recoveryEmoji = user.energy.recoveryScore >= 70 ? '💚' :
+                            user.energy.recoveryScore >= 50 ? '🟡' : '🔴';
+      const fatigueEmoji = user.energy.fatigueScore <= 30 ? '💚' :
+                          user.energy.fatigueScore <= 60 ? '🟡' : '🔴';
+
+      parts.push(`${recoveryEmoji} Score récupération: ${user.energy.recoveryScore}/100`);
+      parts.push(`${fatigueEmoji} Score fatigue: ${user.energy.fatigueScore}/100`);
+
+      // PROACTIVE COACHING ALERTS
+      if (user.energy.fatigueScore > 70) {
+        parts.push('⚠️ ALERTE: Fatigue élevée détectée - recommande repos ou séance légère');
+      } else if (user.energy.recoveryScore < 30) {
+        parts.push('⚠️ ALERTE: Récupération faible - propose étirements ou mobilité');
+      } else if (user.energy.recoveryScore >= 80 && user.energy.fatigueScore <= 30) {
+        parts.push('✅ OPTIMAL: Forme excellente - parfait pour pousser intensité');
+      }
+
+      // Training Load with Context
       if (user.energy.trainingLoad7d > 0) {
-        const loadStatus = user.energy.trainingLoad7d > 2000 ? 'élevée' :
+        const loadStatus = user.energy.trainingLoad7d > 2000 ? 'très élevée' :
+                          user.energy.trainingLoad7d > 1500 ? 'élevée' :
                           user.energy.trainingLoad7d > 1000 ? 'modérée' : 'légère';
-        parts.push(`Charge d'entraînement 7j: ${user.energy.trainingLoad7d} (${loadStatus})`);
+        const loadEmoji = user.energy.trainingLoad7d > 2000 ? '🔥' :
+                         user.energy.trainingLoad7d > 1000 ? '💪' : '📊';
+        parts.push(`${loadEmoji} Charge d'entraînement 7j: ${user.energy.trainingLoad7d} (${loadStatus})`);
+
+        if (user.energy.trainingLoad7d > 2500) {
+          parts.push('⚠️ Charge très élevée - surveille les signes de surentraînement');
+        }
       }
+
       if (user.energy.recentActivities.length > 0) {
-        parts.push(`Activités récentes: ${user.energy.recentActivities.length} enregistrées`);
+        const lastActivityDate = user.energy.lastActivityDate
+          ? new Date(user.energy.lastActivityDate).toLocaleDateString('fr-FR')
+          : 'N/A';
+        parts.push(`📱 Activités récentes: ${user.energy.recentActivities.length} (dernière: ${lastActivityDate})`);
       }
     }
 
-    // Temporal / Planning
+    // Temporal / Planning (Enhanced with Proactive Suggestions)
     if (user.temporal && user.temporal.hasData) {
-      parts.push('\n### PATTERNS TEMPORELS');
+      parts.push('\n### ⏰ PATTERNS TEMPORELS & PLANIFICATION');
+
+      // Weekly Frequency with Coaching
       if (user.temporal.weeklyFrequency > 0) {
-        parts.push(`Fréquence hebdomadaire: ${user.temporal.weeklyFrequency} séances/semaine`);
+        const frequencyStatus = user.temporal.weeklyFrequency >= 5 ? '(très actif)' :
+                                user.temporal.weeklyFrequency >= 3 ? '(bon rythme)' :
+                                user.temporal.weeklyFrequency >= 2 ? '(modéré)' : '(à augmenter)';
+        parts.push(`📊 Fréquence hebdomadaire: ${user.temporal.weeklyFrequency} séances/semaine ${frequencyStatus}`);
       }
+
+      // Preferred Time with Context
       if (user.temporal.preferredTimeOfDay) {
         const timeMap = { morning: 'matin', afternoon: 'après-midi', evening: 'soir' };
-        parts.push(`Horaire préféré: ${timeMap[user.temporal.preferredTimeOfDay]}`);
+        const timeEmoji = { morning: '🌅', afternoon: '☀️', evening: '🌙' };
+        parts.push(`${timeEmoji[user.temporal.preferredTimeOfDay]} Horaire préféré: ${timeMap[user.temporal.preferredTimeOfDay]}`);
       }
+
+      // Session Duration
       if (user.temporal.averageSessionDuration > 0) {
-        parts.push(`Durée moyenne séance: ${user.temporal.averageSessionDuration} min`);
+        const durationStatus = user.temporal.averageSessionDuration >= 60 ? '(séances complètes)' :
+                               user.temporal.averageSessionDuration >= 45 ? '(durée optimale)' : '(séances courtes)';
+        parts.push(`⏱️ Durée moyenne séance: ${user.temporal.averageSessionDuration} min ${durationStatus}`);
       }
+
+      // Consistency Score with Motivation
       if (user.temporal.consistencyScore > 0) {
-        const consistencyText = user.temporal.consistencyScore >= 70 ? 'excellente' :
-                                user.temporal.consistencyScore >= 50 ? 'bonne' : 'à améliorer';
-        parts.push(`Consistance: ${user.temporal.consistencyScore}/100 (${consistencyText})`);
+        const consistencyEmoji = user.temporal.consistencyScore >= 70 ? '🏆' :
+                                 user.temporal.consistencyScore >= 50 ? '💪' : '📈';
+        const consistencyText = user.temporal.consistencyScore >= 70 ? 'excellente - continue!' :
+                                user.temporal.consistencyScore >= 50 ? 'bonne - maintiens le cap' : 'à améliorer - reste régulier';
+        parts.push(`${consistencyEmoji} Consistance: ${user.temporal.consistencyScore}/100 (${consistencyText})`);
       }
+
+      // Main Training Pattern
       if (user.temporal.trainingPatterns.length > 0) {
         const topPattern = user.temporal.trainingPatterns[0];
         const dayNames = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
         const timeMap = { morning: 'matin', afternoon: 'après-midi', evening: 'soir' };
-        parts.push(`Pattern principal: ${dayNames[topPattern.dayOfWeek]} ${timeMap[topPattern.timeOfDay]} (${topPattern.frequency}x)`);
+        parts.push(`📅 Pattern principal: ${dayNames[topPattern.dayOfWeek]} ${timeMap[topPattern.timeOfDay]} (${topPattern.frequency}x)`);
+
+        // PROACTIVE SCHEDULING SUGGESTION
+        const now = new Date();
+        const currentDay = now.getDay();
+        const currentHour = now.getHours();
+
+        if (topPattern.dayOfWeek === currentDay) {
+          const isOptimalTime = (topPattern.timeOfDay === 'morning' && currentHour >= 6 && currentHour < 12) ||
+                               (topPattern.timeOfDay === 'afternoon' && currentHour >= 12 && currentHour < 17) ||
+                               (topPattern.timeOfDay === 'evening' && currentHour >= 17 && currentHour < 22);
+          if (isOptimalTime) {
+            parts.push('⏰ SUGGESTION: C\'est ton créneau habituel - bon moment pour t\'entraîner!');
+          }
+        }
       }
+
+      // Rest Days Pattern
       if (user.temporal.restDayPatterns.preferredRestDays.length > 0) {
         const dayNames = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
         const restDays = user.temporal.restDayPatterns.preferredRestDays
           .map(d => dayNames[d])
           .join(', ');
-        parts.push(`Jours de repos préférés: ${restDays}`);
+        parts.push(`😴 Jours de repos habituels: ${restDays}`);
+      }
+
+      // Optimal Training Times
+      if (user.temporal.optimalTrainingTimes && user.temporal.optimalTrainingTimes.length > 0) {
+        parts.push('\n🎯 Créneaux optimaux détectés:');
+        user.temporal.optimalTrainingTimes.slice(0, 3).forEach((optimal, idx) => {
+          const dayNames = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+          const timeMap = { morning: 'matin', afternoon: 'après-midi', evening: 'soir' };
+          parts.push(`  ${idx + 1}. ${dayNames[optimal.dayOfWeek]} ${timeMap[optimal.timeOfDay]} (score: ${optimal.score})`);
+        });
       }
     }
 
