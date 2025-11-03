@@ -15,7 +15,8 @@ import {
 } from './index.ts';
 
 /**
- * Validate morphology shape parameters (0-1 range)
+ * Validate morphology shape parameters (trust upstream services)
+ * CRITICAL: Only validates structure, NOT ranges - upstream services (AI refinement, blend) are trusted
  */
 export function validateShapeParams(
   shapeParams: any
@@ -31,17 +32,18 @@ export function validateShapeParams(
     return keysResult;
   }
 
-  // Validate each value is in 0-1 range
+  // Validate each value is a valid number - NO RANGE VALIDATION
+  // Morphs can have negative values (e.g., emaciated: -2 to +2)
+  // Trust upstream services that already validated and clamped these values
   const sanitizedParams: Record<string, number> = {};
   for (const [key, value] of Object.entries(shapeParams)) {
-    const numResult = validateNumber(value, 'morph_value', { required: true });
-    if (!numResult.isValid) {
+    if (typeof value !== 'number' || !Number.isFinite(value)) {
       return {
         isValid: false,
-        error: `Invalid morph value for key "${key}": ${numResult.error}`
+        error: `Invalid morph value for key "${key}": must be a finite number`
       };
     }
-    sanitizedParams[key] = numResult.sanitizedValue as number;
+    sanitizedParams[key] = value;
   }
 
   return {

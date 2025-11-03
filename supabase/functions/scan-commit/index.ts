@@ -9,6 +9,13 @@ import { createSecurityLogger } from '../_shared/securityLogger.ts';
  * Scan Commit Edge Function - Final Persistence
  * Stores complete scan results with all metadata
  */
+
+// Initialize Supabase client at module level to avoid initialization errors
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
+const securityLogger = createSecurityLogger(supabase);
+
 Deno.serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -60,11 +67,6 @@ Deno.serve(async (req) => {
 
       // Sprint 3 Phase 4.2: Log validation failure
       try {
-        const supabaseUrl = Deno.env.get('SUPABASE_URL');
-        const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-        const supabase = createClient(supabaseUrl, supabaseServiceKey);
-        const securityLogger = createSecurityLogger(supabase);
-
         await securityLogger.logValidationError(
           'scan-commit',
           validationError,

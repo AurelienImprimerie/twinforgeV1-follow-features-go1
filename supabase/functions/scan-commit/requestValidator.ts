@@ -2,8 +2,9 @@
  * Request Validation - scan-commit
  * Enhanced with unified validation system (Sprint 3 Phase 3.2)
  *
- * RÈGLE CRITIQUE: Validation des données de scan UNIQUEMENT.
- * Ne touche PAS aux résultats des AI agents (estimate, semantic, refinement).
+ * RÈGLE CRITIQUE: Trust upstream services completely.
+ * Only validate structure and types, NOT value ranges.
+ * AI refinement, blend, and estimate services already validated and clamped all values.
  */
 
 import {
@@ -46,21 +47,8 @@ export function validateCommitRequest(request: any): string | null {
     return 'Valid estimate_result is required';
   }
 
-  // Validate shape_params from estimate (ranges only)
-  if (estimate_result.shape_params) {
-    const shapeResult = validateShapeParams(estimate_result.shape_params);
-    if (!shapeResult.isValid) {
-      return `Estimate shape params: ${shapeResult.error}`;
-    }
-  }
-
-  // Validate limb_masses from estimate (ranges only)
-  if (estimate_result.limb_masses) {
-    const limbResult = validateLimbMasses(estimate_result.limb_masses);
-    if (!limbResult.isValid) {
-      return `Estimate limb masses: ${limbResult.error}`;
-    }
-  }
+  // Trust estimate_result from upstream - structure validation only
+  // Values are already validated and clamped by scan-estimate service
 
   // Validate match_result exists (DB output - don't deep validate)
   if (!match_result || typeof match_result !== 'object') {
@@ -72,16 +60,25 @@ export function validateCommitRequest(request: any): string | null {
     return 'Valid semantic_result is required';
   }
 
-  // CRITICAL: Validate final_shape_params (post-AI refinement or blend)
+  // Trust final_shape_params and final_limb_masses from upstream services
+  // These values are post-AI refinement or blend, already validated and clamped
+  // Only validate structure (object type and keys)
   if (final_shape_params) {
+    if (typeof final_shape_params !== 'object') {
+      return 'Final shape params must be an object';
+    }
+    // Light structure validation - trust the values
     const finalShapeResult = validateShapeParams(final_shape_params);
     if (!finalShapeResult.isValid) {
       return `Final shape params: ${finalShapeResult.error}`;
     }
   }
 
-  // CRITICAL: Validate final_limb_masses (post-AI refinement or blend)
   if (final_limb_masses) {
+    if (typeof final_limb_masses !== 'object') {
+      return 'Final limb masses must be an object';
+    }
+    // Light structure validation - trust the values
     const finalLimbResult = validateLimbMasses(final_limb_masses);
     if (!finalLimbResult.isValid) {
       return `Final limb masses: ${finalLimbResult.error}`;
