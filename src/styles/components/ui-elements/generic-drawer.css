@@ -1,0 +1,44 @@
+/**
+ * Generic Drawer / Modal Component Styles
+ * Responsive modal with proper z-index and bottom bar avoidance
+ */
+
+/* Ensure modal is above everything including bottom bar */
+.generic-drawer-overlay {
+  z-index: 10000 !important;
+}
+
+/* Mobile: Full screen, avoid bottom bar interference */
+@media (max-width: 639px) {
+  .generic-drawer-content {
+    /* Use safe area insets for mobile devices */
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Ensure content doesn't go behind bottom bar */
+  .generic-drawer-scrollable {
+    /* Account for bottom bar height (typically 64px) + safe area */
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Tablet and Desktop: Centered modal with rounded corners */
+@media (min-width: 640px) {
+  .generic-drawer-content {
+    border-radius: 16px;
+    overflow: hidden;
+  }
+}
+
+/* Smooth scroll behavior */
+.generic-drawer-scrollable {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
+
+/* Backdrop blur enhancement */
+.generic-drawer-backdrop {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}

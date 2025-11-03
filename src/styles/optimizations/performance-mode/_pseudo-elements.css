@@ -1,0 +1,41 @@
+/* =========================================
+   PERFORMANCE MODE - Pseudo Elements
+   Decorative effects disabled
+   ========================================= */
+
+/* Disable ALL decorative ::before and ::after EXCEPT critical ones */
+.performance-mode *::before:not(header [class*="logo"] *)::before,
+.performance-mode *::after:not(header [class*="logo"] *)::after {
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Glass sheen effects */
+.performance-mode .glass-sheen::before,
+.performance-mode .glass-sheen::after,
+.performance-mode [class*="sheen"]::before,
+.performance-mode [class*="sheen"]::after {
+  opacity: 0 !important;
+  display: none !important;
+}
+
+/* Thermal distortion overlays */
+.performance-mode .thermal-distortion::before,
+.performance-mode .thermal-distortion::after,
+.performance-mode [class*="distortion"]::before,
+.performance-mode [class*="distortion"]::after {
+  opacity: 0 !important;
+  display: none !important;
+}
+
+/* Ambient gradient effects */
+.performance-mode .ambient-glow::before,
+.performance-mode .ambient-glow::after,
+.performance-mode [class*="ambient"]::before,
+.performance-mode [class*="ambient"]::after {
+  opacity: 0 !important;
+  display: none !important;
+}

@@ -1,0 +1,162 @@
+/* =========================================
+   GLASS CARD INTERACTIONS - Phase 10.0 Harmonized
+   Standardized interaction states using centralized variables
+   ========================================= */
+
+/* Hoverable child cards - DESKTOP UNIQUEMENT */
+@media (hover: hover) and (pointer: fine) {
+  .glass-card-child.hoverable:hover {
+    background: var(--glass-opacity-lg);
+    border-color: var(--glass-hover-border);
+    filter: var(--ambient-shadow-hover);
+    box-shadow:
+      var(--glass-3d-hover-external),
+      var(--glass-3d-hover-inset-top),
+      var(--glass-3d-hover-inset-bottom);
+    backdrop-filter: blur(var(--glass-blur-lg)) saturate(var(--glass-saturate-lg));
+    transition:
+      transform var(--glass-transition-fast),
+      background var(--glass-transition-fast),
+      border-color var(--glass-transition-fast),
+      box-shadow var(--glass-transition-fast),
+      filter var(--glass-transition-fast),
+      backdrop-filter var(--glass-transition-fast);
+  }
+}
+
+/* Premium sparkle effect on hover for child cards - DESKTOP UNIQUEMENT */
+@media (hover: hover) and (pointer: fine) {
+  .glass-card-child.hoverable:hover::before {
+    background: var(--glass-sparkle);
+    opacity: 0.2;
+  }
+}
+
+/* Active state for child cards - uses centralized variables */
+.glass-card-child.hoverable:active {
+  background: var(--glass-opacity-md);
+  opacity: var(--interaction-opacity-active);
+  transform: scale(var(--interaction-scale-active));
+  transition: 
+    transform var(--animation-duration-fast), 
+    opacity var(--animation-duration-fast), 
+    background var(--animation-duration-fast);
+  box-shadow:
+    var(--glass-3d-active-external),
+    var(--glass-3d-active-inset-top),
+    var(--glass-3d-active-inset-bottom);
+}
+
+/* ACIER SUR VERRE - Flash effect réduit au clic - DESKTOP UNIQUEMENT */
+@media (hover: hover) and (pointer: fine) {
+  .glass-card:active::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--glass-ember-flash);
+    opacity: 0.8;
+    animation: flash-active 0.06s ease-out forwards;
+    z-index: 1;
+    pointer-events: none;
+  }
+}
+
+/* Désactiver le flash sur mobile pour performance */
+@media (hover: none), (pointer: coarse) {
+  .glass-card:active::before {
+    display: none !important;
+  }
+}
+
+@keyframes flash-active {
+  0% {
+    opacity: 0.8;
+    transform: scale(1) translateZ(0);
+  }
+  30% {
+    opacity: 0.6;
+    transform: scale(1.01) translateZ(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1) translateZ(0);
+  }
+}
+
+/* Press Ring – Touch Feedback using centralized variables */
+.card-press-ring {
+  position: relative;
+}
+
+.card-press-ring::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: var(--glass-press-ring);
+  opacity: 0;
+  transition: 
+    box-shadow var(--animation-duration-medium) var(--animation-ease-glass), 
+    opacity var(--animation-duration-medium) var(--animation-ease-glass);
+}
+
+[data-pressed="true"] .card-press-ring::after {
+  opacity: 1;
+  box-shadow: var(--glass-press-ring-active);
+}
+
+/* Feature-specific glass card variants using centralized color system */
+.glass-card--body-scan {
+  background: 
+    radial-gradient(circle at 30% 20%, var(--color-body-scan-tint) 0%, transparent 60%),
+    var(--glass-opacity-base);
+  border-color: var(--color-body-scan-border);
+  box-shadow: 
+    var(--glass-shadow-base),
+    0 0 20px var(--color-body-scan-glow);
+}
+
+.glass-card--nutrition {
+  background: 
+    radial-gradient(circle at 30% 20%, var(--color-nutrition-tint) 0%, transparent 60%),
+    var(--glass-opacity-base);
+  border-color: var(--color-nutrition-border);
+  box-shadow: 
+    var(--glass-shadow-base),
+    0 0 20px var(--color-nutrition-glow);
+}
+
+.glass-card--activity {
+  background: 
+    radial-gradient(circle at 30% 20%, var(--color-activity-tint) 0%, transparent 60%),
+    var(--glass-opacity-base);
+  border-color: var(--color-activity-border);
+  box-shadow: 
+    var(--glass-shadow-base),
+    0 0 20px var(--color-activity-glow);
+}
+
+/* Enhanced mobile feedback - Feedback réduit */
+@media (hover: none), (pointer: coarse) {
+  /* Désactiver hover sur cartes spécialisées */
+  .glass-card--body-scan:hover,
+  .glass-card--nutrition:hover,
+  .glass-card--activity:hover {
+    background: initial !important;
+    transform: none !important;
+    border-color: initial !important;
+    box-shadow: initial !important;
+  }
+
+  /* Feedback réduit au tap */
+  .glass-card--body-scan:active,
+  .glass-card--nutrition:active,
+  .glass-card--activity:active {
+    background: var(--glass-mobile-active-bg) !important;
+    transform: scale(0.98) translateZ(0) !important;
+    opacity: 0.95 !important;
+    box-shadow: var(--glass-mobile-shadow) !important;
+    transition: all 80ms ease-out !important;
+  }
+}

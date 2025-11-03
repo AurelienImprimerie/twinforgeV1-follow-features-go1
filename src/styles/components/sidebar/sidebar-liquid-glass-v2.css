@@ -1,0 +1,23 @@
+/* =========================================
+   SIDEBAR LIQUID GLASS V2 - VisionOS 26 Premium
+   Modular architecture for maintainability
+
+   Structure:
+   - _container.css: Base container with liquid glass effects
+   - _sections.css: Section titles and separators
+   - _nav-items.css: Core navigation item structure
+   - _hierarchy.css: Primary, Twin, and Forge level navigation
+   - _submenus.css: Submenu system with expansion animations
+   - _token-widget.css: Token balance widget
+   - _performance.css: Performance mode optimizations (balanced/high-performance)
+   - _responsive.css: Responsive adjustments and accessibility
+   ========================================= */
+
+@import './_modules/_container.css';
+@import './_modules/_sections.css';
+@import './_modules/_nav-items.css';
+@import './_modules/_hierarchy.css';
+@import './_modules/_submenus.css';
+@import './_modules/_token-widget.css';
+@import './_modules/_performance.css';
+@import './_modules/_responsive.css';

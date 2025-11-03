@@ -1,0 +1,412 @@
+/* =========================================
+   PERFORMANCE MODES - 3-TIER SYSTEM
+   Variables et remplacements pour chaque mode
+   ========================================= */
+
+/* =========================================
+   MODE: HIGH-PERFORMANCE (Mobile Default)
+   0% effets couteux, 100% performance
+   ========================================= */
+
+.mode-high-performance {
+  /* Backdrop-filter: DESACTIVE */
+  --mobile-backdrop-filter: none;
+  --mobile-backdrop-filter-header: none;
+  --mobile-backdrop-filter-bottombar: none;
+  --mobile-backdrop-filter-card: none;
+  --mobile-backdrop-filter-drawer: none;
+
+  /* Background: Couleurs 100% OPAQUES */
+  --mobile-bg-header: rgb(11, 14, 23);
+  --mobile-bg-bottombar: rgb(11, 14, 23);
+  --mobile-bg-card: rgba(11, 14, 23, 0.85);
+  --mobile-bg-drawer: rgba(11, 14, 23, 0.95);
+  --mobile-bg-modal: rgba(11, 14, 23, 0.98);
+
+  /* Box-shadow: Simple et leger */
+  --mobile-shadow-header: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --mobile-shadow-bottombar: 0 -2px 8px rgba(0, 0, 0, 0.15);
+  --mobile-shadow-card: 0 2px 8px rgba(0, 0, 0, 0.12);
+  --mobile-shadow-drawer: 0 4px 16px rgba(0, 0, 0, 0.2);
+  --mobile-shadow-modal: 0 8px 24px rgba(0, 0, 0, 0.25);
+
+  /* Gradients: DESACTIVES - couleurs solides */
+  --mobile-gradient-disabled: 1;
+
+  /* Animations: DESACTIVEES sauf essentielles */
+  --mobile-animations-disabled: 1;
+
+  /* Border: Simple et visible */
+  --mobile-border: 1px solid rgba(255, 255, 255, 0.1);
+  --mobile-border-active: 1px solid rgba(24, 227, 255, 0.4);
+}
+
+/* Classes d'animation conditionnelles pour mode performance */
+.mode-high-performance .urgent-forge-glow-css,
+.mode-high-performance .dynamic-particle-css,
+.mode-high-performance .shimmer-effect,
+.mode-high-performance .pulse-ring-animation {
+  animation: none !important;
+  opacity: 0.5;
+}
+
+.mode-high-performance .urgent-forge-glow-css {
+  filter: blur(10px) !important;
+}
+
+/* Shimmer désactivé en mode performance */
+.mode-high-performance [style*="celebration-cta-shimmer-movement"] {
+  animation: none !important;
+  opacity: 0;
+}
+
+/* =========================================
+   LOGO BRANDING - Optimisations Mode Performance
+   Désactivation complète des animations et effets
+   ========================================= */
+
+/* Désactiver toutes les animations SVG dans le ForgeHammerIcon */
+.mode-high-performance svg animate,
+.mode-high-performance svg [attributeName] {
+  animation: none !important;
+  animation-play-state: paused !important;
+  animation-duration: 0s !important;
+}
+
+/* Supprimer les filtres SVG coûteux */
+.mode-high-performance svg filter,
+.mode-high-performance svg feGaussianBlur,
+.mode-high-performance svg feMerge {
+  display: none !important;
+}
+
+/* Désactiver tous les drop-shadow sur le logo */
+.mode-high-performance [class*="TwinForgeLogo"],
+.mode-high-performance svg {
+  filter: none !important;
+}
+
+/* Forcer les transitions à none sur le logo */
+.mode-high-performance [class*="TwinForgeLogo"] *,
+.mode-high-performance [class*="TwinForgeLogo"] span {
+  transition: none !important;
+  transition-duration: 0s !important;
+  animation: none !important;
+}
+
+/* Supprimer les transformations coûteuses */
+.mode-high-performance [class*="TwinForgeLogo"] {
+  transform: none !important;
+  will-change: auto !important;
+  backface-visibility: visible !important;
+}
+
+/* Appliquer backdrop-filter: none sur tous les elements */
+.mode-high-performance *[class*="glass"],
+.mode-high-performance .header-liquid-glass,
+.mode-high-performance .new-mobile-bottom-bar-container,
+.mode-high-performance .glass-card,
+.mode-high-performance .btn-glass,
+.mode-high-performance .new-bottom-bar-icon-container,
+.mode-high-performance .glass-orb-button {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Remplacer backgrounds avec couleurs solides - 100% OPAQUE */
+body.mode-high-performance .header-liquid-glass,
+.mode-high-performance .header-liquid-glass,
+html.mode-high-performance .header-liquid-glass {
+  background: rgb(11, 14, 23) !important;
+  background-color: rgb(11, 14, 23) !important;
+  background-image: none !important;
+  box-shadow: var(--mobile-shadow-header) !important;
+  opacity: 1 !important;
+}
+
+.mode-high-performance .new-mobile-bottom-bar-container {
+  background: var(--mobile-bg-bottombar) !important;
+  box-shadow: var(--mobile-shadow-bottombar) !important;
+}
+
+.mode-high-performance .glass-card {
+  background: var(--mobile-bg-card) !important;
+  box-shadow: var(--mobile-shadow-card) !important;
+}
+
+/* Fix: Alléger les GlassCard en mode performance pour éviter le layer sombre */
+.mode-high-performance .settings-tabs .glass-card,
+.mode-high-performance [class*="settings"] .glass-card {
+  background: rgba(11, 14, 23, 0.75) !important;
+  opacity: 1 !important;
+}
+
+.mode-high-performance .new-bottom-bar-icon-container,
+.mode-high-performance .glass-orb-button {
+  background: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: var(--mobile-shadow-card) !important;
+}
+
+/* Supprimer tous les pseudo-elements decoratifs SAUF ::before du header qui sert de backdrop opaque */
+body.mode-high-performance .header-liquid-glass::before,
+.mode-high-performance .header-liquid-glass::before,
+html.mode-high-performance .header-liquid-glass::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: rgb(11, 14, 23) !important;
+  background-color: rgb(11, 14, 23) !important;
+  background-image: none !important;
+  border-radius: inherit !important;
+  z-index: -1 !important;
+  display: block !important;
+  pointer-events: none !important;
+  opacity: 1 !important;
+  animation: none !important;
+  -webkit-mask: none !important;
+  mask: none !important;
+}
+
+body.mode-high-performance .header-liquid-glass::after,
+.mode-high-performance .header-liquid-glass::after,
+html.mode-high-performance .header-liquid-glass::after,
+.mode-high-performance .new-mobile-bottom-bar-container::before,
+.mode-high-performance .new-mobile-bottom-bar-container::after,
+.mode-high-performance .glass-card::before,
+.mode-high-performance .glass-card::after,
+.mode-high-performance .new-bottom-bar-icon-container::before {
+  display: none !important;
+  content: none !important;
+  opacity: 0 !important;
+}
+
+/* Desactiver toutes les animations decoratives */
+.mode-high-performance .breathing-icon,
+.mode-high-performance .icon-pulse-css,
+.mode-high-performance .icon-breathing-css,
+.mode-high-performance .particle-css,
+.mode-high-performance .glass-shimmer,
+.mode-high-performance .breathing-glow,
+.mode-high-performance .particle-float,
+.mode-high-performance .forge-particle,
+.mode-high-performance .cosmic-forge-particles {
+  animation: none !important;
+  transform: translateZ(0) !important;
+  transition: none !important;
+  opacity: 0 !important;
+}
+
+/* Garder uniquement les loaders essentiels */
+.mode-high-performance .loader-essential {
+  animation: icon-spin-css 2s linear infinite !important;
+  opacity: 1 !important;
+}
+
+/* Simplifier les transitions */
+.mode-high-performance * {
+  transition-duration: 150ms !important;
+  transition-property: background-color, color, transform !important;
+  transition-timing-function: ease !important;
+}
+
+/* Desactiver hover effects */
+.mode-high-performance .glass-card:hover,
+.mode-high-performance .btn-glass:hover,
+.mode-high-performance .hover-lift:hover {
+  transform: translateZ(0) !important;
+  box-shadow: var(--mobile-shadow-card) !important;
+}
+
+/* Remplacer gradients par couleurs solides */
+.mode-high-performance *[style*="linear-gradient"],
+.mode-high-performance *[style*="radial-gradient"] {
+  background: var(--mobile-bg-card) !important;
+}
+
+/* =========================================
+   MODE: BALANCED (Tablet / Mid-Range)
+   25-50% effets, equilibre performance/qualite
+   ========================================= */
+
+.mode-balanced {
+  /* Backdrop-filter: Leger (6px) */
+  --balanced-backdrop-filter: blur(6px);
+  --balanced-backdrop-filter-header: blur(8px) saturate(120%);
+  --balanced-backdrop-filter-bottombar: blur(8px) saturate(120%);
+  --balanced-backdrop-filter-card: blur(6px) saturate(110%);
+  --balanced-backdrop-filter-drawer: blur(10px) saturate(130%);
+
+  /* Background: Mix couleurs solides + leger blur */
+  --balanced-bg-header: rgba(11, 14, 23, 0.75);
+  --balanced-bg-bottombar: rgba(11, 14, 23, 0.75);
+  --balanced-bg-card: rgba(11, 14, 23, 0.65);
+  --balanced-bg-drawer: rgba(11, 14, 23, 0.85);
+  --balanced-bg-modal: rgba(11, 14, 23, 0.90);
+
+  /* Box-shadow: 1-2 layers */
+  --balanced-shadow-header: 0 2px 12px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  --balanced-shadow-bottombar: 0 -2px 12px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  --balanced-shadow-card: 0 2px 12px rgba(0, 0, 0, 0.15);
+  --balanced-shadow-drawer: 0 4px 20px rgba(0, 0, 0, 0.22);
+  --balanced-shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.28);
+
+  /* Gradients: Simplifies (2 couleurs max) */
+  --balanced-gradient-disabled: 0;
+
+  /* Animations: Loaders uniquement */
+  --balanced-animations-disabled: 0.5;
+}
+
+.mode-balanced .header-liquid-glass,
+.mode-balanced .new-mobile-bottom-bar-container {
+  backdrop-filter: var(--balanced-backdrop-filter-header) !important;
+  -webkit-backdrop-filter: var(--balanced-backdrop-filter-header) !important;
+  background: var(--balanced-bg-header) !important;
+  box-shadow: var(--balanced-shadow-header) !important;
+}
+
+.mode-balanced .glass-card {
+  backdrop-filter: var(--balanced-backdrop-filter-card) !important;
+  -webkit-backdrop-filter: var(--balanced-backdrop-filter-card) !important;
+  background: var(--balanced-bg-card) !important;
+  box-shadow: var(--balanced-shadow-card) !important;
+}
+
+/* Desactiver la plupart des animations decoratives */
+.mode-balanced .breathing-icon,
+.mode-balanced .icon-pulse-css,
+.mode-balanced .particle-css,
+.mode-balanced .glass-shimmer {
+  animation: none !important;
+  opacity: 0.6 !important;
+}
+
+/* Garder loaders et feedbacks */
+.mode-balanced .loader-essential {
+  animation: icon-spin-css 1.5s linear infinite !important;
+  opacity: 1 !important;
+}
+
+/* Simplifier pseudo-elements (garder uniquement ::before) */
+.mode-balanced .header-liquid-glass::after,
+.mode-balanced .new-mobile-bottom-bar-container::after,
+.mode-balanced .glass-card::after {
+  display: none !important;
+}
+
+/* =========================================
+   MODE: QUALITY (Desktop / High-End)
+   100% effets, qualite maximale
+   ========================================= */
+
+.mode-quality {
+  /* Backdrop-filter: Complet */
+  --quality-backdrop-filter: blur(24px) saturate(160%);
+  --quality-backdrop-filter-header: blur(24px) saturate(160%);
+  --quality-backdrop-filter-bottombar: blur(24px) saturate(160%);
+  --quality-backdrop-filter-card: blur(16px) saturate(150%);
+  --quality-backdrop-filter-drawer: blur(32px) saturate(180%);
+
+  /* Background: Couleurs d'origine */
+  --quality-bg-header: rgba(11, 14, 23, 0.45);
+  --quality-bg-bottombar: rgba(11, 14, 23, 0.45);
+  --quality-bg-card: rgba(11, 14, 23, 0.35);
+  --quality-bg-drawer: rgba(11, 14, 23, 0.55);
+  --quality-bg-modal: rgba(11, 14, 23, 0.65);
+
+  /* Gradients: Tous actifs */
+  --quality-gradient-disabled: 0;
+
+  /* Animations: Toutes actives */
+  --quality-animations-disabled: 0;
+}
+
+.mode-quality .header-liquid-glass,
+.mode-quality .new-mobile-bottom-bar-container {
+  backdrop-filter: var(--quality-backdrop-filter-header) !important;
+  -webkit-backdrop-filter: var(--quality-backdrop-filter-header) !important;
+}
+
+.mode-quality .glass-card {
+  backdrop-filter: var(--quality-backdrop-filter-card) !important;
+  -webkit-backdrop-filter: var(--quality-backdrop-filter-card) !important;
+}
+
+/* Garder tous les effets */
+.mode-quality .breathing-icon,
+.mode-quality .icon-pulse-css,
+.mode-quality .particle-css,
+.mode-quality .glass-shimmer,
+.mode-quality .forge-particle {
+  animation: inherit !important;
+  opacity: inherit !important;
+}
+
+/* =========================================
+   PROTECTION ELEMENTS FIXED
+   S'applique a TOUS les modes
+   ========================================= */
+
+.header-liquid-glass,
+.new-mobile-bottom-bar {
+  position: fixed !important;
+  transform: translateZ(0) !important;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+  will-change: auto !important;
+  contain: layout style paint !important;
+  isolation: isolate !important;
+}
+
+.header-liquid-glass {
+  top: 8px !important;
+  left: 24px !important;
+  right: 24px !important;
+  z-index: 9999 !important;
+}
+
+.new-mobile-bottom-bar {
+  bottom: max(4px, env(safe-area-inset-bottom, 2px)) !important;
+  left: 8px !important;
+  right: 8px !important;
+  z-index: 9996 !important;
+}
+
+/* =========================================
+   UTILITIES POUR TRANSITIONS ENTRE MODES
+   ========================================= */
+
+/* Smooth transition quand on change de mode */
+body {
+  transition: background-color 0.3s ease !important;
+}
+
+.header-liquid-glass,
+.new-mobile-bottom-bar-container,
+.glass-card {
+  transition:
+    background 0.3s ease,
+    backdrop-filter 0.3s ease,
+    box-shadow 0.3s ease !important;
+}
+
+/* Reduced motion: appliquer high-performance */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --mobile-animations-disabled: 1 !important;
+  }
+
+  * {
+    animation: none !important;
+    transition-duration: 0.1s !important;
+  }
+
+  .loader-essential {
+    animation: icon-spin-css 3s linear infinite !important;
+  }
+}
+
+/* =========================================
+   DEBUG HELPER - REMOVED
+   Pseudo-elements removed to prevent overlay issues
+   ========================================= */

@@ -1,0 +1,44 @@
+/* =========================================
+   PERFORMANCE MODE - Modals & Drawers
+   Clean Apple-like elevation
+   ========================================= */
+
+.performance-mode [class*="modal"],
+.performance-mode [class*="drawer"],
+.performance-mode [class*="dialog"],
+.performance-mode .mobile-drawer {
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.25),
+    0 4px 16px rgba(0, 0, 0, 0.15) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.performance-mode [class*="modal"].opening,
+.performance-mode [class*="drawer"].opening,
+.performance-mode .mobile-drawer.opening {
+  animation: slideInUp-essential 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  animation-play-state: running !important;
+}
+
+@keyframes slideInUp-essential {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.performance-mode .mobile-drawer,
+.performance-mode .global-chat-drawer,
+.performance-mode .unified-coach-drawer {
+  background: #0F1927 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.25),
+    0 4px 16px rgba(0, 0, 0, 0.15) !important;
+}

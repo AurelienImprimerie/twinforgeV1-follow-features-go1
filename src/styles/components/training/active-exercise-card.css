@@ -1,0 +1,124 @@
+/**
+ * Active Exercise Card - Mobile Optimizations
+ * VisionOS 26 inspired glassmorphism avec shimmer effect
+ * Optimisé pour visibilité maximale sur mobile
+ */
+
+/* Base active exercise card styles */
+.active-exercise-card {
+  position: relative;
+  transition:
+    transform var(--liquid-transition-medium),
+    box-shadow var(--liquid-transition-medium),
+    border-color var(--liquid-transition-fast);
+}
+
+/* Mobile optimizations - Enhanced visibility */
+@media (max-width: 768px) {
+  .active-exercise-card {
+    border-width: 3px !important;
+  }
+
+  /* Stronger glow on mobile */
+  .active-exercise-card::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 22px;
+    background: inherit;
+    filter: blur(8px);
+    opacity: 0.4;
+    z-index: -1;
+    pointer-events: none;
+    animation: mobile-glow-pulse 2s ease-in-out infinite;
+  }
+}
+
+@keyframes mobile-glow-pulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1.02);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.04);
+  }
+}
+
+/* Small mobile devices - Extra visibility boost */
+@media (max-width: 480px) {
+  .active-exercise-card {
+    border-width: 3px !important;
+  }
+
+  /* Shimmer slightly slower and more visible on small screens */
+  .active-exercise-card .absolute.inset-0 > div {
+    animation-duration: 3.5s !important;
+    width: 50% !important;
+  }
+}
+
+/* Tablet landscape - Balanced approach */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .active-exercise-card {
+    border-width: 2.5px !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .active-exercise-card {
+    border-width: 3px !important;
+  }
+
+  .active-exercise-card::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border-radius: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    pointer-events: none;
+    z-index: 3;
+  }
+}
+
+/* Reduced motion - Disable shimmer but keep pulse */
+@media (prefers-reduced-motion: reduce) {
+  .active-exercise-card .absolute.inset-0 > div {
+    animation: none !important;
+    opacity: 0.2 !important;
+  }
+
+  .active-exercise-card::after {
+    animation: none !important;
+  }
+}
+
+/* Focus visible for accessibility */
+.active-exercise-card:focus-within {
+  outline: 3px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 4px;
+}
+
+/* Performance optimizations */
+.active-exercise-card,
+.active-exercise-card * {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* GPU acceleration hints */
+.active-exercise-card {
+  transform: translateZ(0);
+  will-change: transform, box-shadow;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Shimmer container optimizations */
+.active-exercise-card > .absolute.inset-0 {
+  transform: translateZ(0);
+  contain: layout style paint;
+  isolation: isolate;
+}

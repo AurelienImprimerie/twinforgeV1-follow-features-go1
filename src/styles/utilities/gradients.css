@@ -1,0 +1,448 @@
+/**
+ * ================================================================
+ * CENTRALIZED GRADIENT UTILITIES
+ * Système de gradients réutilisables pour remplacer les inline styles
+ * ================================================================
+ */
+
+/* ================================================================
+   BRAND GRADIENTS - Logo et éléments de marque
+   ================================================================ */
+
+.gradient-brand-orange {
+  background: linear-gradient(135deg, #FF6B35 0%, #F7931E 50%, #FDC830 100%);
+}
+
+.gradient-brand-orange-simple {
+  background: linear-gradient(135deg, #F7931E 0%, #FDC830 100%);
+}
+
+.gradient-brand-orange-hover {
+  background: linear-gradient(135deg, #FFA500 0%, #FFD700 100%);
+}
+
+.gradient-brand-cyan {
+  background: linear-gradient(135deg, #06B6D4 0%, #18E3FF 100%);
+}
+
+.gradient-brand-indigo {
+  background: linear-gradient(135deg, #3D13B3 0%, #6366F1 100%);
+}
+
+.gradient-brand-violet {
+  background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+}
+
+/* ================================================================
+   GLASS EFFECT GRADIENTS
+   ================================================================ */
+
+.gradient-glass-primary {
+  background: linear-gradient(
+    135deg,
+    rgba(61, 19, 179, 0.3) 0%,
+    rgba(24, 227, 255, 0.25) 100%
+  );
+}
+
+.gradient-glass-secondary {
+  background: linear-gradient(
+    135deg,
+    rgba(24, 227, 255, 0.3) 0%,
+    rgba(255, 107, 53, 0.2) 100%
+  );
+}
+
+.gradient-glass-tricolor {
+  background: linear-gradient(
+    135deg,
+    rgba(61, 19, 179, 0.3) 0%,
+    rgba(24, 227, 255, 0.3) 50%,
+    rgba(255, 107, 53, 0.2) 100%
+  );
+}
+
+.gradient-glass-light {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    transparent 100%
+  );
+}
+
+.gradient-glass-ambient {
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(255, 255, 255, 0.08) 0%,
+    transparent 70%
+  );
+}
+
+/* ================================================================
+   STATUS GRADIENTS
+   ================================================================ */
+
+.gradient-success {
+  background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+}
+
+.gradient-warning {
+  background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+}
+
+.gradient-error {
+  background: linear-gradient(135deg, #EF4444 0%, #F87171 100%);
+}
+
+.gradient-info {
+  background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+}
+
+/* ================================================================
+   FEATURE-SPECIFIC GRADIENTS
+   ================================================================ */
+
+.gradient-training {
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.2) 0%,
+    rgba(37, 99, 235, 0.15) 100%
+  );
+}
+
+.gradient-nutrition {
+  background: linear-gradient(
+    135deg,
+    rgba(34, 197, 94, 0.2) 0%,
+    rgba(22, 163, 74, 0.15) 100%
+  );
+}
+
+.gradient-activity {
+  background: linear-gradient(
+    135deg,
+    rgba(249, 115, 22, 0.2) 0%,
+    rgba(234, 88, 12, 0.15) 100%
+  );
+}
+
+.gradient-fasting {
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.2) 0%,
+    rgba(124, 58, 237, 0.15) 100%
+  );
+}
+
+.gradient-avatar {
+  background: linear-gradient(
+    135deg,
+    rgba(236, 72, 153, 0.2) 0%,
+    rgba(219, 39, 119, 0.15) 100%
+  );
+}
+
+/* ================================================================
+   BACKGROUND GRADIENTS
+   ================================================================ */
+
+.gradient-bg-dark {
+  background: linear-gradient(
+    135deg,
+    #0F1927 0%,
+    #1A2332 100%
+  );
+}
+
+.gradient-bg-darker {
+  background: linear-gradient(
+    135deg,
+    #0B0E17 0%,
+    #0F1927 100%
+  );
+}
+
+.gradient-bg-ambient {
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(24, 227, 255, 0.05) 0%,
+    transparent 60%
+  );
+}
+
+.gradient-bg-spotlight {
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(255, 255, 255, 0.03) 0%,
+    transparent 50%
+  );
+}
+
+/* ================================================================
+   SHIMMER & LOADING GRADIENTS
+   ================================================================ */
+
+.gradient-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  background-size: 200% 100%;
+}
+
+.gradient-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  background-size: 200% 100%;
+}
+
+/* ================================================================
+   RADIAL GRADIENTS - Highlights & Glows
+   ================================================================ */
+
+.gradient-radial-highlight {
+  background: radial-gradient(
+    circle at 20% 20%,
+    rgba(255, 255, 255, 0.4) 0%,
+    transparent 60%
+  );
+}
+
+.gradient-radial-glow-cyan {
+  background: radial-gradient(
+    circle at center,
+    rgba(24, 227, 255, 0.3) 0%,
+    transparent 70%
+  );
+}
+
+.gradient-radial-glow-orange {
+  background: radial-gradient(
+    circle at center,
+    rgba(247, 147, 30, 0.3) 0%,
+    transparent 70%
+  );
+}
+
+.gradient-radial-glow-indigo {
+  background: radial-gradient(
+    circle at center,
+    rgba(61, 19, 179, 0.3) 0%,
+    transparent 70%
+  );
+}
+
+/* ================================================================
+   HOVER STATE GRADIENTS
+   ================================================================ */
+
+.gradient-hover-lift {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+}
+
+.gradient-hover-glow {
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(24, 227, 255, 0.15) 0%,
+    transparent 60%
+  );
+}
+
+/* ================================================================
+   BORDER GRADIENTS
+   ================================================================ */
+
+.gradient-border-primary {
+  background: linear-gradient(
+    135deg,
+    rgba(61, 19, 179, 0.3) 0%,
+    rgba(24, 227, 255, 0.25) 100%
+  );
+}
+
+.gradient-border-glow {
+  background: linear-gradient(
+    135deg,
+    rgba(24, 227, 255, 0.4) 0%,
+    rgba(61, 19, 179, 0.3) 100%
+  );
+}
+
+.gradient-border-active {
+  background: linear-gradient(
+    135deg,
+    rgba(24, 227, 255, 0.5) 0%,
+    rgba(255, 107, 53, 0.4) 100%
+  );
+}
+
+/* ================================================================
+   TEXT GRADIENTS
+   ================================================================ */
+
+.gradient-text-brand {
+  background: linear-gradient(135deg, #FF6B35 0%, #F7931E 50%, #FDC830 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-cyan {
+  background: linear-gradient(135deg, #06B6D4 0%, #18E3FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-premium {
+  background: linear-gradient(
+    135deg,
+    #FFFFFF 0%,
+    rgba(255, 255, 255, 0.8) 50%,
+    #FFFFFF 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ================================================================
+   PERFORMANCE MODE OVERRIDES
+   ================================================================ */
+
+.performance-mode .gradient-glass-tricolor,
+.performance-mode .gradient-bg-ambient,
+.performance-mode .gradient-bg-spotlight,
+.performance-mode .gradient-radial-highlight,
+.performance-mode .gradient-radial-glow-cyan,
+.performance-mode .gradient-radial-glow-orange,
+.performance-mode .gradient-radial-glow-indigo {
+  background: rgba(15, 25, 39, 0.85) !important;
+}
+
+.performance-mode .gradient-shimmer,
+.performance-mode .gradient-skeleton {
+  background: rgba(255, 255, 255, 0.05) !important;
+  animation: none !important;
+}
+
+.performance-mode .gradient-hover-lift,
+.performance-mode .gradient-hover-glow {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ================================================================
+   ANIMATED GRADIENTS
+   ================================================================ */
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes gradient-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.gradient-animated {
+  background-size: 200% 200%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+.gradient-shimmer-animated {
+  animation: gradient-shimmer 2s ease-in-out infinite;
+}
+
+/* ================================================================
+   UTILITY CLASSES
+   ================================================================ */
+
+/* Apply gradient as border using pseudo-element */
+.gradient-border-wrapper {
+  position: relative;
+  background: transparent;
+}
+
+.gradient-border-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--gradient-border, linear-gradient(135deg, rgba(61, 19, 179, 0.3), rgba(24, 227, 255, 0.25)));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Fade gradient to transparency */
+.gradient-fade-top {
+  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+}
+
+.gradient-fade-bottom {
+  mask-image: linear-gradient(to top, black 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, black 60%, transparent 100%);
+}
+
+.gradient-fade-sides {
+  mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+}
+
+/* ================================================================
+   MOBILE OPTIMIZATIONS
+   ================================================================ */
+
+@media (max-width: 768px) {
+  /* Simplify complex gradients on mobile */
+  .gradient-glass-tricolor {
+    background: linear-gradient(135deg, rgba(61, 19, 179, 0.3), rgba(24, 227, 255, 0.25));
+  }
+
+  .gradient-brand-orange {
+    background: linear-gradient(135deg, #F7931E, #FDC830);
+  }
+
+  /* Disable animated gradients on mobile */
+  .gradient-animated {
+    animation: none;
+    background-position: 0% 50%;
+  }
+}
+
+/* ================================================================
+   DARK MODE ADJUSTMENTS
+   ================================================================ */
+
+@media (prefers-color-scheme: dark) {
+  .gradient-bg-dark {
+    background: linear-gradient(135deg, #0B0E17 0%, #0F1927 100%);
+  }
+
+  .gradient-glass-light {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, transparent 100%);
+  }
+}

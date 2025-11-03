@@ -1,0 +1,82 @@
+/* =========================================
+   SIDEBAR SECTIONS - Section Titles and Separators
+   Visual organization for sidebar content
+   ========================================= */
+
+/* Section titles */
+.sidebar-section-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0.375rem 0 0.25rem -0.625rem;
+  padding-left: 0.625rem;
+  text-transform: uppercase;
+  position: relative;
+}
+
+/* Section title spécifique pour les catégories de forges */
+.sidebar-section--forge-category {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-top: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Séparateur visuel pour les catégories */
+.sidebar-category-separator {
+  height: 1px;
+  margin: 0.75rem -0.625rem 0.625rem -0.625rem;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 20%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.1) 80%,
+    transparent 100%
+  );
+  position: relative;
+}
+
+.sidebar-category-separator::after {
+  content: '';
+  position: absolute;
+  inset: -1px 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(24, 227, 255, 0.1) 50%,
+    transparent 100%
+  );
+  filter: blur(2px);
+}
+
+/* Séparateur sous le Tableau de Bord - Jaune/Orange harmonisé */
+.sidebar-primary-separator {
+  height: 1px;
+  margin: 0.625rem -0.625rem 0.75rem -0.625rem;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(253, 200, 48, 0.2) 20%,
+    rgba(253, 200, 48, 0.25) 50%,
+    rgba(253, 200, 48, 0.2) 80%,
+    transparent 100%
+  );
+  position: relative;
+}
+
+.sidebar-primary-separator::after {
+  content: '';
+  position: absolute;
+  inset: -1px 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(253, 200, 48, 0.15) 50%,
+    transparent 100%
+  );
+  filter: blur(2px);
+}

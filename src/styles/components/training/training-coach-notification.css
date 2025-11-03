@@ -1,0 +1,221 @@
+/**
+ * Training Coach Notification Bubble Styles
+ * VisionOS 26 inspired glassmorphism notification pour training
+ * Aligné avec ChatNotificationBubble: banner pleine largeur au-dessus de la bottom bar sur mobile/tablette
+ * Petit popup à gauche du chat button sur desktop
+ */
+
+.training-coach-notification-bubble {
+  position: fixed;
+  z-index: 9997;
+  pointer-events: auto;
+  cursor: pointer;
+
+  border-radius: 16px;
+
+  background:
+    radial-gradient(circle at 30% 30%, var(--notification-color, rgba(255,255,255,0.16)) 0%, transparent 50%),
+    radial-gradient(circle at 70% 70%, var(--notification-color, rgba(255,255,255,0.08)) 0%, transparent 60%),
+    var(--liquid-pill-bg);
+
+  border: 2px solid color-mix(in srgb, var(--notification-color, rgba(255,255,255,0.22)) 40%, transparent);
+
+  backdrop-filter: blur(var(--liquid-pill-blur)) saturate(var(--liquid-pill-saturate));
+  -webkit-backdrop-filter: blur(var(--liquid-pill-blur)) saturate(var(--liquid-pill-saturate));
+
+  box-shadow:
+    var(--liquid-pill-shadow),
+    0 0 24px color-mix(in srgb, var(--notification-color, rgba(0, 0, 0, 0.15)) 20%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+
+  isolation: isolate;
+  transform: translateZ(0);
+  will-change: transform, opacity;
+
+  transition:
+    transform var(--liquid-transition-medium),
+    background var(--liquid-transition-fast),
+    box-shadow var(--liquid-transition-fast),
+    border-color var(--liquid-transition-fast),
+    bottom 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Desktop version - popup à gauche du chat button */
+.training-coach-notification-bubble--desktop {
+  padding: 16px 20px;
+  border-radius: 16px;
+  margin-bottom: 4px;
+}
+
+/* Mobile/Tablet version - banner pleine largeur au-dessus de la bottombar */
+.training-coach-notification-bubble--mobile {
+  padding: 14px 20px;
+  border-radius: var(--new-bottom-bar-border-radius);
+  width: auto !important;
+  max-width: none !important;
+  /* Position fixe: réduit à 96px pour rapprocher de la bottombar */
+  bottom: 96px !important;
+  left: 8px !important;
+  right: 8px !important;
+  top: auto !important;
+  transform: none !important;
+}
+
+/* Removed step1 specific positioning - now consistent across all steps */
+
+.training-coach-notification-bubble::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 50%;
+  bottom: 50%;
+  border-radius: inherit;
+  background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.35) 0%, transparent 60%);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.training-coach-notification-bubble:hover {
+  background:
+    radial-gradient(circle at 30% 30%, var(--notification-color, rgba(255,255,255,0.20)) 0%, transparent 50%),
+    radial-gradient(circle at 70% 70%, var(--notification-color, rgba(255,255,255,0.12)) 0%, transparent 60%),
+    var(--liquid-pill-bg);
+  border-color: color-mix(in srgb, var(--notification-color, rgba(255,255,255,0.28)) 50%, transparent);
+  box-shadow:
+    var(--liquid-pill-shadow),
+    0 0 32px color-mix(in srgb, var(--notification-color, rgba(0, 0, 0, 0.2)) 30%, transparent),
+    0 4px 20px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.training-coach-notification-bubble--desktop:hover {
+  transform: scale(1.03) translateZ(0);
+}
+
+.training-coach-notification-bubble--mobile:hover {
+  transform: scale(1.01) translateZ(0);
+}
+
+.training-coach-notification-bubble:active {
+  transform: scale(0.98) translateZ(0);
+}
+
+.training-coach-notification-bubble__message {
+  position: relative;
+  z-index: 1;
+
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.95);
+
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.training-coach-notification-bubble__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+/* Desktop */
+@media (min-width: 1025px) {
+  .training-coach-notification-bubble--desktop {
+    padding: 16px 20px;
+  }
+
+  .training-coach-notification-bubble--desktop .training-coach-notification-bubble__message {
+    font-size: 14px;
+  }
+}
+
+/* Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .training-coach-notification-bubble--mobile {
+    padding: 16px 24px;
+    border-radius: var(--new-bottom-bar-border-radius);
+    left: 8px;
+    right: 8px;
+  }
+
+  .training-coach-notification-bubble--mobile .training-coach-notification-bubble__message {
+    font-size: 15px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .training-coach-notification-bubble--mobile {
+    padding: 14px 18px;
+    border-radius: var(--new-bottom-bar-border-radius);
+    left: 8px;
+    right: 8px;
+  }
+
+  .training-coach-notification-bubble--mobile .training-coach-notification-bubble__message {
+    font-size: 14px;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+  .training-coach-notification-bubble--mobile {
+    padding: 12px 16px;
+    border-radius: var(--new-bottom-bar-border-radius);
+    left: 8px;
+    right: 8px;
+    bottom: 96px !important;
+  }
+
+  .training-coach-notification-bubble--mobile .training-coach-notification-bubble__message {
+    font-size: 13px;
+  }
+}
+
+/**
+ * Z-Index Hierarchy:
+ * - Bottom Bar: 9996 (base layer)
+ * - Training/Chat Notifications: 9997 (middle layer)
+ * - FloatingGenerateButton: 9998 (top layer - primary CTA)
+ *
+ * Vertical Stacking on Mobile/Tablet:
+ * 1. Bottom Bar (base)
+ * 2. FloatingGenerateButton (above bottom bar)
+ * 3. TrainingCoachNotificationBubble (above CTA button)
+ *
+ * This ensures the primary CTA is always visible and clickable,
+ * while notifications remain accessible above it.
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  .training-coach-notification-bubble {
+    transition: none;
+  }
+
+  .training-coach-notification-bubble:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .training-coach-notification-bubble {
+    border-width: 2.5px;
+    border-color: color-mix(in srgb, var(--notification-color, rgba(255, 255, 255, 0.5)) 60%, transparent);
+  }
+}
+
+.training-coach-notification-bubble:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--notification-color, rgba(24, 227, 255, 0.6)) 80%, transparent);
+  outline-offset: 4px;
+  box-shadow:
+    var(--liquid-pill-shadow),
+    0 0 0 6px color-mix(in srgb, var(--notification-color, rgba(24, 227, 255, 0.2)) 40%, transparent);
+}

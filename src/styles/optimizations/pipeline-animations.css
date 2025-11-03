@@ -1,0 +1,470 @@
+/* =========================================
+   PIPELINE ANIMATIONS OPTIMIZED - 60FPS Mobile
+   Pure CSS animations to replace framer-motion
+   GPU-accelerated, minimal repaints
+   ========================================= */
+
+:root {
+  /* Performance-adaptive variables */
+  --pipeline-blur: var(--glass-blur-adaptive, 12px);
+  --pipeline-duration: var(--animation-duration-adaptive, 250ms);
+  --pipeline-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --pipeline-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* =========================================
+   CORE KEYFRAMES - GPU OPTIMIZED
+   ========================================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: translateZ(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateZ(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateZ(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateZ(0);
+  }
+}
+
+@keyframes slideOutDown {
+  from {
+    opacity: 1;
+    transform: translateY(0) translateZ(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px) translateZ(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+  }
+}
+
+@keyframes scaleOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96) translateZ(0);
+  }
+}
+
+/* Shimmer effect for active cards */
+@keyframes shimmerPass {
+  from {
+    transform: translateX(-100%) translateZ(0);
+  }
+  to {
+    transform: translateX(200%) translateZ(0);
+  }
+}
+
+/* Pulse for borders (simplified) */
+@keyframes borderPulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1) translateZ(0);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.01) translateZ(0);
+  }
+}
+
+/* Countdown number animation */
+@keyframes countdownBounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateZ(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1) translateZ(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+  }
+}
+
+/* Progress bar fill */
+@keyframes progressFill {
+  from {
+    transform: scaleX(0) translateZ(0);
+    transform-origin: left;
+  }
+  to {
+    transform: scaleX(1) translateZ(0);
+    transform-origin: left;
+  }
+}
+
+/* Glow pulse (minimal) */
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.6;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 1;
+    filter: brightness(1.2);
+  }
+}
+
+/* =========================================
+   UTILITY CLASSES - COMPOSABLE
+   ========================================= */
+
+.animate-fadeIn {
+  animation: fadeIn var(--pipeline-duration) var(--pipeline-ease) forwards;
+  will-change: opacity;
+}
+
+.animate-fadeOut {
+  animation: fadeOut var(--pipeline-duration) var(--pipeline-ease) forwards;
+  will-change: opacity;
+}
+
+.animate-slideInUp {
+  animation: slideInUp var(--pipeline-duration) var(--pipeline-ease) forwards;
+  will-change: opacity, transform;
+}
+
+.animate-slideOutDown {
+  animation: slideOutDown var(--pipeline-duration) var(--pipeline-ease) forwards;
+  will-change: opacity, transform;
+}
+
+.animate-scaleIn {
+  animation: scaleIn var(--pipeline-duration) var(--pipeline-ease) forwards;
+  will-change: opacity, transform;
+}
+
+.animate-scaleOut {
+  animation: scaleOut var(--pipeline-duration) var(--pipeline-ease) forwards;
+  will-change: opacity, transform;
+}
+
+/* Delayed animations */
+.animate-delay-100 {
+  animation-delay: 100ms;
+}
+
+.animate-delay-200 {
+  animation-delay: 200ms;
+}
+
+.animate-delay-300 {
+  animation-delay: 300ms;
+}
+
+/* =========================================
+   PIPELINE SPECIFIC COMPONENTS
+   ========================================= */
+
+/* Step Container transitions */
+.step-container {
+  animation: fadeIn 300ms var(--pipeline-ease);
+  will-change: opacity;
+  contain: layout style paint;
+}
+
+.step-container.exiting {
+  animation: fadeOut 200ms var(--pipeline-ease);
+}
+
+/* Exercise Card Active State */
+.exercise-card-active {
+  animation: scaleIn 400ms var(--pipeline-ease);
+  contain: layout style paint;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.exercise-card-active::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Shimmer effect - only on high-end devices */
+.perf-high .exercise-card-active::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: shimmerPass 3s ease-in-out infinite;
+  will-change: transform;
+  transform: translateZ(0);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Border pulse - simplified, only medium and high */
+.perf-high .exercise-card-active::before,
+.perf-medium .exercise-card-active::before {
+  border: 2px solid currentColor;
+  opacity: 0.5;
+  animation: borderPulse 2s ease-in-out infinite;
+}
+
+/* Disable all shimmer and pulse on low */
+.perf-low .exercise-card-active::after,
+.perf-low .exercise-card-active::before {
+  display: none !important;
+}
+
+/* Countdown styles */
+.countdown-number {
+  animation: countdownBounce 300ms var(--pipeline-ease-bounce);
+  will-change: opacity, transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.countdown-go {
+  animation: scaleIn 400ms var(--pipeline-ease-bounce);
+  will-change: opacity, transform;
+}
+
+/* Progress circles */
+.progress-circle {
+  transform: translateZ(0);
+  will-change: stroke-dashoffset;
+  transition: stroke-dashoffset 0.3s ease-out;
+}
+
+/* Timer card - minimal animations */
+.timer-card {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  contain: layout style paint;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.timer-card:active {
+  transform: scale(0.98) translateZ(0);
+}
+
+/* =========================================
+   MODAL & OVERLAY ANIMATIONS
+   ========================================= */
+
+.modal-overlay {
+  animation: fadeIn 200ms ease-out;
+  will-change: opacity;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.modal-overlay.closing {
+  animation: fadeOut 200ms ease-in;
+}
+
+.modal-content {
+  animation: scaleIn 300ms var(--pipeline-ease);
+  will-change: opacity, transform;
+}
+
+.modal-content.closing {
+  animation: scaleOut 200ms ease-in;
+}
+
+/* Full screen countdown overlay */
+.fullscreen-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  animation: fadeIn 200ms ease-out;
+  will-change: opacity;
+  contain: layout style paint;
+}
+
+.fullscreen-overlay.closing {
+  animation: fadeOut 200ms ease-in;
+}
+
+/* =========================================
+   HOVER & INTERACTIVE STATES
+   ========================================= */
+
+.card-hover {
+  transition: transform 150ms ease, box-shadow 150ms ease;
+  will-change: transform;
+}
+
+@media (hover: hover) {
+  .card-hover:hover {
+    transform: translateY(-2px) translateZ(0);
+  }
+
+  .card-hover:active {
+    transform: translateY(0) translateZ(0);
+  }
+}
+
+.button-press {
+  transition: transform 100ms ease, opacity 100ms ease;
+  will-change: transform;
+}
+
+.button-press:active {
+  transform: scale(0.96) translateZ(0);
+  opacity: 0.9;
+}
+
+/* =========================================
+   PERFORMANCE MODES
+   ========================================= */
+
+/* Disable expensive effects on low performance */
+.perf-low .shimmer-effect,
+.perf-low .glow-effect,
+.perf-low .pulse-effect {
+  animation: none !important;
+  opacity: 0.7 !important;
+}
+
+.perf-low .card-hover:hover {
+  transform: none !important;
+}
+
+.perf-low .backdrop-blur {
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+}
+
+/* Simplified animations on medium */
+.perf-medium .shimmer-effect {
+  animation: none !important;
+}
+
+.perf-medium .backdrop-blur {
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* =========================================
+   MOBILE OPTIMIZATIONS
+   ========================================= */
+
+@media (max-width: 768px) {
+  /* Faster animations on mobile */
+  :root {
+    --pipeline-duration: 200ms;
+  }
+
+  /* Disable all shimmer effects */
+  .exercise-card-active::after {
+    display: none !important;
+  }
+
+  /* Simplify hover states */
+  .card-hover:hover {
+    transform: none !important;
+  }
+
+  /* Reduce blur on mobile */
+  .backdrop-blur {
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+  }
+
+  /* Disable border pulse on mobile */
+  .exercise-card-active::before {
+    animation: none !important;
+  }
+}
+
+/* =========================================
+   REDUCED MOTION SUPPORT
+   ========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .exercise-card-active::after,
+  .exercise-card-active::before {
+    display: none !important;
+  }
+
+  .card-hover:hover {
+    transform: none !important;
+  }
+}
+
+/* =========================================
+   CLEANUP & WILL-CHANGE MANAGEMENT
+   ========================================= */
+
+/* Remove will-change after animation completes */
+.animate-fadeIn.animation-complete,
+.animate-fadeOut.animation-complete,
+.animate-slideInUp.animation-complete,
+.animate-slideOutDown.animation-complete,
+.animate-scaleIn.animation-complete,
+.animate-scaleOut.animation-complete {
+  will-change: auto;
+}
+
+/* Contain paint for all animated elements */
+.animate-fadeIn,
+.animate-fadeOut,
+.animate-slideInUp,
+.animate-slideOutDown,
+.animate-scaleIn,
+.animate-scaleOut,
+.exercise-card-active,
+.countdown-number,
+.timer-card,
+.modal-content {
+  contain: layout style paint;
+}

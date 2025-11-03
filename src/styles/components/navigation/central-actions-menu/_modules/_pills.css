@@ -1,0 +1,228 @@
+/* =========================================
+   PILL BUTTONS SYSTEM - Icon Containers
+   Harmonized with bottom bar & sidebar
+   ========================================= */
+
+/* Pill button base - maintenant avec couleur de fond complète */
+.central-actions-panel .glass-card {
+  position: relative;
+  overflow: visible !important;
+  border-radius: 12px;
+  isolation: isolate;
+  transform: translateZ(0);
+
+  /* Base transparente pour laisser l'icon-container briller */
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
+
+  transition:
+    transform var(--liquid-transition-medium);
+}
+
+/* Icon container dans les pills - système harmonisé */
+.central-actions-panel .glass-card .w-6.h-6 {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 10px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: visible;
+  flex-shrink: 0;
+
+  /* Liquid glass pill effect avec couleur dynamique - HARMONISÉ */
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.22) 0%, transparent 60%),
+    radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--pill-circuit-color, #18E3FF) 18%, transparent) 0%, transparent 70%),
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--pill-circuit-color, #18E3FF) 28%, transparent),
+      color-mix(in srgb, var(--pill-circuit-color, #18E3FF) 16%, transparent));
+
+  border: 1.5px solid color-mix(in srgb, var(--pill-circuit-color, #18E3FF) 45%, transparent) !important;
+
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 0 20px color-mix(in srgb, var(--pill-circuit-color, #18E3FF) 25%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.25) !important;
+
+  transition:
+    transform var(--liquid-transition-medium),
+    background var(--liquid-transition-fast),
+    box-shadow var(--liquid-transition-fast),
+    border-color var(--liquid-transition-fast);
+
+  transform: translateZ(0);
+  will-change: transform, filter;
+}
+
+/* Corner highlight effect on pill icon containers */
+.central-actions-panel .glass-card .w-6.h-6::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 50%;
+  bottom: 50%;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at 20% 20%,
+    rgba(255,255,255,0.5) 0%,
+    transparent 60%
+  );
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Icône colorée dans l'icon-container */
+.central-actions-panel .glass-card .w-6.h-6 svg {
+  color: var(--pill-circuit-color, #18E3FF) !important;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--pill-circuit-color, #18E3FF) 50%, transparent)) !important;
+  transition: filter 0.2s ease;
+}
+
+/* Hover effect harmonisé - focus sur l'icon-container */
+@media (hover: hover) and (pointer: fine) {
+  .central-actions-panel .glass-card:hover {
+    transform: translateY(-1px) translateZ(0);
+  }
+
+  .central-actions-panel .glass-card:hover .w-6.h-6 {
+    transform: scale(1.08) translateZ(0);
+    box-shadow:
+      0 4px 16px rgba(0, 0, 0, 0.2),
+      0 0 28px color-mix(in srgb, var(--pill-circuit-color, #18E3FF) 32%, transparent),
+      0 0 56px color-mix(in srgb, var(--pill-circuit-color, #18E3FF) 18%, transparent),
+      inset 0 1px 0 rgba(255,255,255,0.3);
+    border-color: color-mix(in srgb, var(--pill-circuit-color, #18E3FF) 60%, transparent) !important;
+  }
+
+  .central-actions-panel .glass-card:hover .w-6.h-6 svg {
+    filter: drop-shadow(0 0 10px color-mix(in srgb, var(--pill-circuit-color, #18E3FF) 70%, transparent)) !important;
+  }
+}
+
+/* Active state - subtle press */
+.central-actions-panel .glass-card:active {
+  transform: translateY(0) translateZ(0);
+}
+
+.central-actions-panel .glass-card:active .w-6.h-6 {
+  transform: scale(0.96) translateZ(0);
+  transition-duration: 0.1s;
+}
+
+/* Icon container glass enhancement */
+.central-actions-panel .glass-card > div > div:first-child {
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+  border-radius: inherit;
+}
+
+/* Ripple effect on click */
+@keyframes tileRipple {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.central-actions-panel .glass-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.3) 0%,
+    transparent 70%
+  );
+  opacity: 0;
+  pointer-events: none;
+}
+
+.central-actions-panel .glass-card:active::after {
+  animation: tileRipple 0.6s ease-out;
+}
+
+/* Pill buttons enhancement */
+.central-actions-panel button[class*="rounded-xl"] {
+  position: relative;
+  overflow: hidden;
+
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.12) 0%, transparent 60%),
+    var(--liquid-pill-bg);
+
+  backdrop-filter: blur(var(--liquid-pill-blur)) saturate(var(--liquid-pill-saturate));
+  -webkit-backdrop-filter: blur(var(--liquid-pill-blur)) saturate(var(--liquid-pill-saturate));
+
+  transition:
+    transform var(--liquid-transition-fast),
+    box-shadow var(--liquid-transition-fast),
+    border-color var(--liquid-transition-fast);
+}
+
+/* Pill hover state */
+@media (hover: hover) and (pointer: fine) {
+  .central-actions-panel button[class*="rounded-xl"]:hover {
+    transform: scale(1.04) translateY(-1px) translateZ(0);
+  }
+}
+
+/* Pill active state */
+.central-actions-panel button[class*="rounded-xl"]:active {
+  transform: scale(0.96) translateZ(0);
+}
+
+/* Pill icon container enhancement - FIXED: no white overflow */
+.central-actions-panel button[class*="rounded-xl"] > div:first-child {
+  backdrop-filter: blur(6px);
+  overflow: hidden;
+  border-radius: inherit;
+  position: relative;
+}
+
+/* Remove any white gradient bleeding */
+.central-actions-panel button[class*="rounded-xl"] > div:first-child::before {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  right: 55%;
+  bottom: 55%;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at 20% 20%,
+    rgba(255, 255, 255, 0.12) 0%,
+    transparent 50%
+  );
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+/* Home button glass enhancement */
+.central-actions-panel button[class*="rounded-full"] {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 60%),
+    var(--liquid-pill-bg);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border-color: rgba(24, 227, 255, 0.3) !important;
+  transition: all var(--liquid-transition-fast);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .central-actions-panel button[class*="rounded-full"]:hover {
+    transform: scale(1.05) translateZ(0);
+    border-color: rgba(24, 227, 255, 0.5) !important;
+  }
+}

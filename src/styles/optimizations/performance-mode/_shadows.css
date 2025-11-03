@@ -1,0 +1,55 @@
+/* =========================================
+   PERFORMANCE MODE - Shadows
+   Apple-like simplified shadows
+   ========================================= */
+
+/* Remove all colored shadows and glows */
+.performance-mode [class*="shadow"]:not(.sidebar-item-icon-container--active) {
+  filter: none !important;
+}
+
+/* Generic shadow simplification */
+.performance-mode [style*="box-shadow"]:not(header [class*="logo"] *):not(header .breathing-icon *):not(.sidebar-glass-enhanced):not(.sidebar-item-icon-container--active) {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Remove excessive inset shadows except for inputs and page header icons */
+.performance-mode *:not(input):not(textarea):not(select):not(header .breathing-icon):not(header .breathing-icon *):not(header .flex-shrink-0 *):not(header [role="img"]) {
+  box-shadow: none !important;
+}
+
+/* Restore simple shadow for cards and interactive elements */
+.performance-mode .glass-card,
+.performance-mode button,
+.performance-mode [role="button"],
+.performance-mode [class*="modal"],
+.performance-mode [class*="drawer"] {
+  box-shadow: inherit !important;
+}
+
+/* Input fields keep subtle inset for depth */
+.performance-mode input,
+.performance-mode textarea,
+.performance-mode select {
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Focus states: simple ring */
+.performance-mode *:focus-visible {
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25) !important;
+}
+
+/* Remove blur effects from shadows */
+.performance-mode [style*="blur"] {
+  filter: none !important;
+}
+
+/* Text shadow simplified */
+.performance-mode * {
+  text-shadow: none !important;
+}
+
+.performance-mode .page-header-title,
+.performance-mode h1 {
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6) !important;
+}

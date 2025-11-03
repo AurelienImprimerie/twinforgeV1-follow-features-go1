@@ -1,0 +1,166 @@
+/**
+ * Exercise Card Skeleton Animations
+ * VisionOS-style shimmer wave effect
+ */
+
+.exercise-card-skeleton {
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-shimmer {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    transparent 100%
+  );
+  animation: shimmer-wave 2s infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes shimmer-wave {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 200%;
+  }
+}
+
+.skeleton-bar,
+.skeleton-stat-box,
+.skeleton-button {
+  position: relative;
+  overflow: hidden;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.skeleton-bar::after,
+.skeleton-stat-box::after,
+.skeleton-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    transparent 100%
+  );
+  animation: shimmer-wave-local 2.5s infinite;
+}
+
+@keyframes shimmer-wave-local {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 200%;
+  }
+}
+
+.skeleton-stat-box {
+  animation-delay: 0.1s;
+}
+
+.skeleton-stat-box:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.skeleton-stat-box:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* Highlighted Card Animation */
+.highlighted-card {
+  animation: highlight-pulse 2s ease-in-out;
+}
+
+@keyframes highlight-pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  }
+  15% {
+    transform: scale(1.02);
+    box-shadow:
+      0 8px 32px rgba(59, 130, 246, 0.4),
+      0 0 40px rgba(59, 130, 246, 0.3),
+      inset 0 0 20px rgba(59, 130, 246, 0.1);
+  }
+  30% {
+    transform: scale(1.01);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow:
+      0 8px 32px rgba(59, 130, 246, 0.4),
+      0 0 40px rgba(59, 130, 246, 0.3),
+      inset 0 0 20px rgba(59, 130, 246, 0.1);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  }
+}
+
+/* Training Prescription Card Responsive Styles */
+.training-prescription-card {
+  /* Ensure proper spacing and overflow handling */
+}
+
+/* Responsive 3-button grid for feedback */
+@media (max-width: 640px) {
+  .training-prescription-card .grid.grid-cols-1.sm\:grid-cols-3 {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .training-prescription-card .grid.grid-cols-1.sm\:grid-cols-3 button {
+    width: 100%;
+    justify-content: center;
+    padding: 0.875rem 1rem;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  .training-prescription-card .grid.grid-cols-1.sm\:grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+
+  .training-prescription-card .grid.grid-cols-1.sm\:grid-cols-3 button {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.8125rem;
+  }
+
+  .training-prescription-card .grid.grid-cols-1.sm\:grid-cols-3 button span {
+    font-size: 0.8125rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .training-prescription-card .grid.grid-cols-1.sm\:grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+}

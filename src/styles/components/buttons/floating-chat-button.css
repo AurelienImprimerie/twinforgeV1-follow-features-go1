@@ -1,0 +1,156 @@
+/**
+ * Floating Chat Button Styles
+ * VisionOS 26 inspired responsive styles
+ * IMPORTANT: Visible sur toutes les plateformes, positionné au-dessus du coin droit de la bottom bar
+ * Sur desktop, reste en bas à droite de l'écran
+ */
+
+/* ============================================================
+   FLOATING CHAT BUTTON - BASE STYLES
+   ============================================================ */
+
+.floating-chat-button {
+  /* Visible sur toutes les plateformes */
+  display: flex !important;
+  width: 56px !important;
+  height: 56px !important;
+  position: fixed !important;
+  overflow: visible !important;
+
+  /* Position par défaut (mobile/tablette) : au-dessus du coin droit de la bottom bar */
+  right: 8px !important;
+  bottom: calc(var(--new-bottom-bar-height) + var(--new-bottom-bar-bottom-offset) + 8px) !important;
+}
+
+/* Mode High Performance - Disable expensive effects */
+.mode-high-performance .floating-chat-button {
+  animation: none !important;
+  transform: none !important;
+  will-change: auto !important;
+}
+
+/* ============================================================
+   DESKTOP OPTIMIZATIONS
+   ============================================================ */
+
+@media (min-width: 1025px) {
+  .floating-chat-button {
+    /* Position différente sur desktop : en bas à droite de l'écran */
+    right: 24px !important;
+    bottom: 24px !important;
+    /* Taille plus grande sur desktop */
+    width: 60px !important;
+    height: 60px !important;
+  }
+
+  /* Amélioration du hover sur desktop */
+  .floating-chat-button:hover {
+    border-width: 1.5px;
+    border-color: rgba(255, 255, 255, 0.28);
+  }
+}
+
+/* ============================================================
+   TABLET OPTIMIZATIONS
+   ============================================================ */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .floating-chat-button {
+    /* Visible sur tablette - au-dessus du coin droit de la bottom bar */
+    display: flex !important;
+    width: 58px !important;
+    height: 58px !important;
+    right: 8px !important;
+    bottom: calc(var(--new-bottom-bar-height) + var(--new-bottom-bar-bottom-offset) + 8px) !important;
+  }
+}
+
+/* ============================================================
+   LARGE DESKTOP OPTIMIZATIONS
+   ============================================================ */
+
+@media (min-width: 1440px) {
+  .floating-chat-button {
+    /* Taille optimale pour grand écran */
+    width: 64px !important;
+    height: 64px !important;
+  }
+}
+
+/* ============================================================
+   ANIMATION OPTIMIZATIONS
+   ============================================================ */
+
+/* Amélioration de la fluidité des animations sur mobile */
+@media (max-width: 768px) {
+  .floating-chat-button {
+    /* Visible sur mobile - au-dessus du coin droit de la bottom bar */
+    display: flex !important;
+    width: 56px !important;
+    height: 56px !important;
+    right: 8px !important;
+    bottom: calc(var(--new-bottom-bar-height) + var(--new-bottom-bar-bottom-offset) + 8px) !important;
+
+    /* Optimisation GPU pour mobile */
+    transform: translateZ(0) !important;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Réduction des animations sur batterie faible */
+@media (prefers-reduced-motion: reduce) {
+  .floating-chat-button {
+    transition: right 250ms linear !important;
+  }
+}
+
+/* ============================================================
+   ACCESSIBILITY
+   ============================================================ */
+
+/* Focus visible pour navigation clavier */
+.floating-chat-button:focus-visible {
+  outline: 3px solid rgba(24, 227, 255, 0.6);
+  outline-offset: 4px;
+  box-shadow:
+    var(--liquid-pill-shadow),
+    0 0 0 6px rgba(24, 227, 255, 0.2) !important;
+}
+
+/* ============================================================
+   HIGH CONTRAST MODE
+   ============================================================ */
+
+@media (prefers-contrast: high) {
+  .floating-chat-button {
+    border-width: 2px !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+  }
+}
+
+/* ============================================================
+   NOTIFICATION BADGE POSITIONING
+   ============================================================ */
+
+/* Badge positioning - Base (Mobile) */
+.floating-chat-badge {
+  top: -4px !important;
+  right: -4px !important;
+}
+
+/* Badge positioning - Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .floating-chat-badge {
+    top: -4px !important;
+    right: -4px !important;
+  }
+}
+
+/* Badge positioning - Desktop */
+@media (min-width: 1025px) {
+  .floating-chat-badge {
+    top: -4px !important;
+    right: -4px !important;
+  }
+}

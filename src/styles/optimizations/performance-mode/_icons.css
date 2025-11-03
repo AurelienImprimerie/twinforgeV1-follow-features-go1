@@ -1,0 +1,89 @@
+/* =========================================
+   PERFORMANCE MODE - Icons
+   Simplified but functional
+   ========================================= */
+
+.performance-mode .spatial-icon,
+.performance-mode .icon-container {
+  filter: none !important;
+  background: #1A2332 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+  display: inline-flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: inherit !important;
+}
+
+.performance-mode .spatial-icon:hover {
+  filter: none !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.performance-mode .spatial-icon > div[class*="absolute"] {
+  display: none !important;
+}
+
+/* ================== PAGE HEADER ICONS ================== */
+
+.performance-mode header .flex-shrink-0,
+.performance-mode header .breathing-icon,
+.performance-mode header [class*="breathing"] {
+  opacity: 1 !important;
+  display: flex !important;
+  visibility: visible !important;
+  animation: none !important;
+}
+
+.performance-mode header .flex-shrink-0 > div,
+.performance-mode header .breathing-icon > div {
+  opacity: 1 !important;
+  display: flex !important;
+  visibility: visible !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.performance-mode header .spatial-icon {
+  opacity: 1 !important;
+  display: inline-flex !important;
+  visibility: visible !important;
+  filter: none !important;
+  background: transparent !important;
+}
+
+.performance-mode header .spatial-icon svg,
+.performance-mode header .spatial-icon path,
+.performance-mode header .spatial-icon * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  fill: currentColor !important;
+  display: inline !important;
+}
+
+.performance-mode header [role="img"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: flex !important;
+}
+
+.performance-mode header [role="img"] * {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.performance-mode header .breathing-icon,
+.performance-mode header .breathing-icon *,
+.performance-mode header .breathing-icon > div,
+.performance-mode header .breathing-icon [role="img"] {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: inherit !important;
+  background: inherit !important;
+  border: inherit !important;
+  box-shadow: inherit !important;
+  color: inherit !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  animation: none !important;
+}

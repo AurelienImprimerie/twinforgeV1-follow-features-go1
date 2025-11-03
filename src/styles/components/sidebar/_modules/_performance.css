@@ -1,0 +1,297 @@
+/* =========================================
+   PERFORMANCE MODE - OPTIMIZATIONS SIDEBAR
+   HIGH-PERFORMANCE MODE: Remove decorative inner circles and simplify effects
+   BALANCED MODE: Blue-toned professional style, distinct from quality premium
+   QUALITY MODE: Full premium glassmorphism effects
+   ========================================= */
+
+/* =========================================
+   MODE BALANCED - Blue Professional Style
+   Sidebar avec aspect bleu sobre, différencié du mode qualité premium
+   ========================================= */
+
+/* Sidebar container en mode balanced - Bleu sobre sans animations */
+.mode-balanced .sidebar-glass-enhanced {
+  background:
+    radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 70% 80%, rgba(24, 227, 255, 0.06) 0%, transparent 50%),
+    rgba(11, 14, 23, 0.75) !important;
+  backdrop-filter: blur(8px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(120%) !important;
+  border: 1.5px solid rgba(59, 130, 246, 0.25) !important;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.22),
+    0 0 20px rgba(59, 130, 246, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Désactiver les pseudo-éléments décoratifs en mode balanced */
+.mode-balanced .sidebar-glass-enhanced::before,
+.mode-balanced .sidebar-glass-enhanced::after {
+  display: none !important;
+}
+
+/* Simplifier les icon containers en mode balanced - Bleu sobre */
+.mode-balanced .sidebar-item-icon-container {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15) 0%, transparent 55%),
+    rgba(59, 130, 246, 0.12) !important;
+  border: 1.5px solid rgba(59, 130, 246, 0.25) !important;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  animation: none !important;
+}
+
+/* Dashboard (primary) en mode balanced - Jaune/Orange simple */
+.mode-balanced .sidebar-item--primary .sidebar-item-icon-container {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 50%),
+    rgba(247, 147, 30, 0.18) !important;
+  border: 1.5px solid rgba(247, 147, 30, 0.35) !important;
+  box-shadow:
+    0 2px 10px rgba(247, 147, 30, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Twin en mode balanced - Violet simple */
+.mode-balanced .sidebar-item--twin .sidebar-item-icon-container {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15) 0%, transparent 50%),
+    rgba(139, 92, 246, 0.15) !important;
+  border: 1.5px solid rgba(139, 92, 246, 0.3) !important;
+  box-shadow:
+    0 2px 8px rgba(139, 92, 246, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Active state en mode balanced - Bleu lumineux simple */
+.mode-balanced .sidebar-item[aria-current="page"] .sidebar-item-icon-container {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.22) 0%, transparent 55%),
+    color-mix(in srgb, var(--item-circuit-color, #3B82F6) 20%, rgba(11, 14, 23, 0.85)) !important;
+  border: 2px solid color-mix(in srgb, var(--item-circuit-color, #3B82F6) 45%, transparent) !important;
+  box-shadow:
+    0 2px 12px color-mix(in srgb, var(--item-circuit-color, #3B82F6) 25%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  transform: scale(1.03) translateZ(0) !important;
+  animation: none !important;
+}
+
+/* Submenu items en mode balanced */
+.mode-balanced .sidebar-submenu-item-icon-container {
+  background: rgba(59, 130, 246, 0.1) !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.12) !important;
+}
+
+.mode-balanced .sidebar-submenu-item--active .sidebar-submenu-item-icon-container {
+  background: color-mix(in srgb, var(--submenu-color) 18%, rgba(11, 14, 23, 0.85)) !important;
+  border: 1.5px solid color-mix(in srgb, var(--submenu-color) 40%, transparent) !important;
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--submenu-color) 20%, transparent) !important;
+}
+
+/* Simplifier les hover en mode balanced */
+@media (hover: hover) and (pointer: fine) {
+  .mode-balanced .sidebar-item:hover .sidebar-item-icon-container {
+    transform: scale(1.04) translateZ(0) !important;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 55%),
+      rgba(59, 130, 246, 0.18) !important;
+    border-color: rgba(59, 130, 246, 0.35) !important;
+    box-shadow: 0 2px 10px rgba(59, 130, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  }
+
+  .mode-balanced .sidebar-item--primary:hover .sidebar-item-icon-container {
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25) 0%, transparent 50%),
+      rgba(247, 147, 30, 0.25) !important;
+    box-shadow:
+      0 2px 12px rgba(247, 147, 30, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  }
+
+  .mode-balanced .sidebar-item--twin:hover .sidebar-item-icon-container {
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 50%),
+      rgba(139, 92, 246, 0.22) !important;
+    box-shadow:
+      0 2px 10px rgba(139, 92, 246, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  }
+}
+
+/* Désactiver toutes les animations en mode balanced */
+.mode-balanced .sidebar-glass-enhanced *,
+.mode-balanced .sidebar-item *,
+.mode-balanced .sidebar-item-icon-container *,
+.mode-balanced .sidebar-submenu * {
+  animation: none !important;
+  transition: background-color 0.2s ease, transform 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
+}
+
+/* Token widget en mode balanced */
+.mode-balanced .sidebar-token-widget {
+  animation: none !important;
+  transition: background-color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+  background: rgba(59, 130, 246, 0.08) !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15) !important;
+}
+
+/* =========================================
+   MODE HIGH-PERFORMANCE - Optimizations
+   ========================================= */
+
+/* Simplifier les icon containers en mode high-performance */
+.mode-high-performance .sidebar-item-icon-container {
+  /* Simplify to solid colors - remove inner decorative circles */
+  background: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Simplify primary (Dashboard) icon container */
+.mode-high-performance .sidebar-item--primary .sidebar-item-icon-container {
+  background: rgba(247, 147, 30, 0.2) !important;
+  border: 2px solid rgba(247, 147, 30, 0.5) !important;
+  box-shadow:
+    0 2px 10px rgba(247, 147, 30, 0.25),
+    0 2px 6px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Simplify twin icon container */
+.mode-high-performance .sidebar-item--twin .sidebar-item-icon-container {
+  background: rgba(139, 92, 246, 0.2) !important;
+  border: 1.5px solid rgba(139, 92, 246, 0.4) !important;
+  box-shadow:
+    0 2px 8px rgba(139, 92, 246, 0.2),
+    0 2px 6px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Simplify forge icon container */
+.mode-high-performance .sidebar-item--forge .sidebar-item-icon-container {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Simplify active state - remove decorative inner circles */
+.mode-high-performance .sidebar-item[aria-current="page"] .sidebar-item-icon-container {
+  background: color-mix(in srgb, var(--item-circuit-color, var(--color-plasma-cyan)) 25%, rgba(11, 14, 23, 0.85)) !important;
+  border: 2px solid color-mix(in srgb, var(--item-circuit-color, var(--color-plasma-cyan)) 60%, transparent) !important;
+  box-shadow:
+    0 2px 10px color-mix(in srgb, var(--item-circuit-color, var(--color-plasma-cyan)) 30%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  animation: none !important;
+  transform: scale(1.02) translateZ(0) !important;
+}
+
+/* Simplify submenu icon containers */
+.mode-high-performance .sidebar-submenu-item-icon-container {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Simplify submenu active state */
+.mode-high-performance .sidebar-submenu-item--active .sidebar-submenu-item-icon-container {
+  background: color-mix(in srgb, var(--submenu-color) 20%, rgba(11, 14, 23, 0.85)) !important;
+  border: 1.5px solid color-mix(in srgb, var(--submenu-color) 50%, transparent) !important;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--submenu-color) 25%, transparent) !important;
+  animation: none !important;
+}
+
+/* Disable all animations in performance mode */
+.mode-high-performance .sidebar-glass-enhanced *,
+.mode-high-performance .sidebar-item *,
+.mode-high-performance .sidebar-item-icon-container *,
+.mode-high-performance .sidebar-submenu * {
+  animation: none !important;
+  transition: background-color 0.15s ease, transform 0.15s ease, color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+/* Simplify hover states in performance mode */
+@media (hover: hover) and (pointer: fine) {
+  .mode-high-performance .sidebar-item:hover .sidebar-item-icon-container {
+    transform: scale(1.03) translateZ(0) !important;
+    background: rgba(255, 255, 255, 0.18) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  }
+
+  .mode-high-performance .sidebar-item--primary:hover .sidebar-item-icon-container {
+    background: rgba(247, 147, 30, 0.3) !important;
+    box-shadow:
+      0 2px 12px rgba(247, 147, 30, 0.35),
+      0 2px 8px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  }
+
+  .mode-high-performance .sidebar-item--twin:hover .sidebar-item-icon-container {
+    background: rgba(139, 92, 246, 0.3) !important;
+    box-shadow:
+      0 2px 10px rgba(139, 92, 246, 0.3),
+      0 2px 8px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .mode-high-performance .sidebar-submenu-item:hover .sidebar-submenu-item-icon-container {
+    transform: scale(1.03) translateZ(0) !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  }
+}
+
+/* Remove all decorative pseudo-elements in performance mode */
+.mode-high-performance .sidebar-glass-enhanced::before,
+.mode-high-performance .sidebar-glass-enhanced::after {
+  display: none !important;
+}
+
+/* Simplify sidebar main container in performance mode */
+.mode-high-performance .sidebar-glass-enhanced {
+  background: rgba(11, 14, 23, 0.95) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Performance mode token widget optimizations */
+.mode-high-performance .sidebar-token-widget {
+  animation: none !important;
+  transition: background-color 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+.mode-high-performance .sidebar-token-widget-balance {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+.mode-high-performance .sidebar-token-widget-label {
+  color: rgba(255, 255, 255, 0.75) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+}
+
+.mode-high-performance .sidebar-token-widget--low,
+.mode-high-performance .sidebar-token-widget--critical {
+  background: rgba(247, 147, 30, 0.2) !important;
+  border-color: rgba(247, 147, 30, 0.4) !important;
+  box-shadow: 0 2px 10px rgba(247, 147, 30, 0.2) !important;
+}
+
+.mode-high-performance .sidebar-token-widget--low .sidebar-token-widget-balance,
+.mode-high-performance .sidebar-token-widget--critical .sidebar-token-widget-balance {
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+}
+
+.mode-high-performance .sidebar-token-widget--low .sidebar-token-widget-label,
+.mode-high-performance .sidebar-token-widget--critical .sidebar-token-widget-label {
+  color: rgba(255, 255, 255, 0.85) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}

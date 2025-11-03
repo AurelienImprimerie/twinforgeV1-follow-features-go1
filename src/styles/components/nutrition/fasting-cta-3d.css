@@ -1,0 +1,158 @@
+/**
+ * Styles 3D pour les boutons CTA de la Forge du Temps
+ * Effets de profondeur, shadow et highlight pour un look premium
+ */
+
+/* Bouton CTA 3D de base */
+.btn-fasting-cta-3d {
+  position: relative;
+  padding: 0.875rem 2rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 1rem;
+  color: white;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+  will-change: transform;
+
+  /* Effet 3D avec shadow multiple */
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 8px 24px rgba(0, 0, 0, 0.2),
+    inset 0 2px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Hover - Accentue l'effet 3D */
+.btn-fasting-cta-3d:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.35),
+    0 12px 32px rgba(0, 0, 0, 0.25),
+    inset 0 3px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* Active - Effet de pression */
+.btn-fasting-cta-3d:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.35),
+    0 4px 16px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Variantes de couleur pour chaque onglet */
+
+/* Vert pour Insights */
+.btn-fasting-cta-3d--green {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  border: 2px solid color-mix(in srgb, #10B981 60%, transparent);
+}
+
+.btn-fasting-cta-3d--green:hover {
+  background: linear-gradient(135deg, #10B981 0%, #047857 100%);
+  border-color: #10B981;
+  box-shadow:
+    0 6px 16px rgba(16, 185, 129, 0.4),
+    0 12px 32px rgba(16, 185, 129, 0.3),
+    inset 0 3px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* Cyan pour Progression */
+.btn-fasting-cta-3d--cyan {
+  background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
+  border: 2px solid color-mix(in srgb, #06B6D4 60%, transparent);
+}
+
+.btn-fasting-cta-3d--cyan:hover {
+  background: linear-gradient(135deg, #06B6D4 0%, #0e7490 100%);
+  border-color: #06B6D4;
+  box-shadow:
+    0 6px 16px rgba(6, 182, 212, 0.4),
+    0 12px 32px rgba(6, 182, 212, 0.3),
+    inset 0 3px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* Violet pour Historique */
+.btn-fasting-cta-3d--purple {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+  border: 2px solid color-mix(in srgb, #8B5CF6 60%, transparent);
+}
+
+.btn-fasting-cta-3d--purple:hover {
+  background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+  border-color: #8B5CF6;
+  box-shadow:
+    0 6px 16px rgba(139, 92, 246, 0.4),
+    0 12px 32px rgba(139, 92, 246, 0.3),
+    inset 0 3px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* Shimmer effect pour les boutons 3D */
+.btn-fasting-cta-3d::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  transition: left 0.5s ease;
+}
+
+.btn-fasting-cta-3d:hover::before {
+  left: 100%;
+}
+
+/* Animation pour les carrés décoratifs */
+@keyframes cornerSquarePulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.2);
+  }
+}
+
+/* Responsive - Ajustements mobiles */
+@media (max-width: 768px) {
+  .btn-fasting-cta-3d {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9375rem;
+  }
+}
+
+/* Mode réduit pour préférences d'accessibilité */
+@media (prefers-reduced-motion: reduce) {
+  .btn-fasting-cta-3d,
+  .btn-fasting-cta-3d:hover,
+  .btn-fasting-cta-3d:active {
+    transition: none;
+    transform: none;
+  }
+
+  .btn-fasting-cta-3d::before {
+    display: none;
+  }
+
+  @keyframes cornerSquarePulse {
+    0%, 100% {
+      opacity: 0.6;
+      transform: none;
+    }
+  }
+}

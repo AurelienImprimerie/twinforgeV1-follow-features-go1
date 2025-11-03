@@ -1,0 +1,226 @@
+/**
+ * Profile Performance-Adaptive Styles
+ * CSS fallbacks for animations when framer-motion is disabled
+ */
+
+/* Fallback animations for low-end devices */
+.profile-motion-fallback {
+  animation: profileFadeIn var(--animation-duration-adaptive, 300ms) ease-out;
+}
+
+@keyframes profileFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Performance-based transition utilities */
+.profile-transition {
+  transition: all var(--animation-duration-adaptive, 300ms) ease-out;
+}
+
+.profile-transition-colors {
+  transition: color var(--animation-duration-adaptive, 300ms) ease-out,
+              background-color var(--animation-duration-adaptive, 300ms) ease-out,
+              border-color var(--animation-duration-adaptive, 300ms) ease-out;
+}
+
+/* Adaptive glass effects */
+.profile-glass-card {
+  backdrop-filter: blur(var(--glass-blur-adaptive, 12px));
+  background: var(--glass-opacity);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Disable expensive effects on low-end */
+.perf-low .profile-glass-card {
+  backdrop-filter: none;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Disable shadows on mobile low-end */
+.perf-low .profile-shadow,
+.is-mobile.perf-medium .profile-shadow {
+  box-shadow: none !important;
+}
+
+/* Simplify gradients on low-end */
+.perf-low .profile-gradient {
+  background: var(--fallback-solid-color, rgba(255, 255, 255, 0.05)) !important;
+}
+
+/* Disable hover effects on mobile */
+.is-mobile .profile-hover-effect:hover {
+  transform: none;
+}
+
+/* Performance-adaptive progress bars */
+.profile-progress-bar {
+  transition: width var(--animation-duration-adaptive, 300ms) ease-out;
+}
+
+.perf-low .profile-progress-bar {
+  transition: none;
+}
+
+/* Checkbox field optimizations */
+.profile-checkbox-field {
+  transition: background-color var(--animation-duration-adaptive, 200ms) ease-out;
+}
+
+.perf-low .profile-checkbox-field {
+  transition: none;
+}
+
+/* Section save button optimizations */
+.profile-save-button {
+  transition: transform 150ms ease-out,
+              opacity var(--animation-duration-adaptive, 200ms) ease-out;
+}
+
+.perf-low .profile-save-button,
+.disable-pulse .profile-save-button {
+  animation: none !important;
+}
+
+/* Disable glow on low-end */
+.perf-low .profile-glow,
+.disable-glow .profile-glow {
+  box-shadow: none !important;
+}
+
+/* Icon spin animations */
+.profile-icon-spin {
+  animation: profileSpin 1s linear infinite;
+}
+
+@keyframes profileSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Adaptive stagger for lists */
+.profile-stagger-container > * {
+  opacity: 0;
+  animation: profileStaggerIn var(--animation-duration-adaptive, 300ms) ease-out forwards;
+}
+
+.profile-stagger-container > *:nth-child(1) { animation-delay: 0ms; }
+.profile-stagger-container > *:nth-child(2) { animation-delay: 50ms; }
+.profile-stagger-container > *:nth-child(3) { animation-delay: 100ms; }
+.profile-stagger-container > *:nth-child(4) { animation-delay: 150ms; }
+.profile-stagger-container > *:nth-child(5) { animation-delay: 200ms; }
+.profile-stagger-container > *:nth-child(n+6) { animation-delay: 250ms; }
+
+@keyframes profileStaggerIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Disable stagger on low-end */
+.perf-low .profile-stagger-container > * {
+  animation: none;
+  opacity: 1;
+  transform: none;
+}
+
+/* Content visibility optimization for off-screen sections */
+.profile-section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .profile-motion-fallback,
+  .profile-transition,
+  .profile-transition-colors,
+  .profile-progress-bar,
+  .profile-checkbox-field,
+  .profile-save-button,
+  .profile-stagger-container > * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Loading skeleton optimizations */
+.profile-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  background-size: 200% 100%;
+  animation: profileSkeletonShimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes profileSkeletonShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.perf-low .profile-skeleton,
+.disable-shimmer .profile-skeleton {
+  animation: none;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Lazy load fade-in */
+.profile-lazy-load {
+  opacity: 0;
+  transition: opacity var(--animation-duration-adaptive, 300ms) ease-out;
+}
+
+.profile-lazy-load.loaded {
+  opacity: 1;
+}
+
+.perf-low .profile-lazy-load {
+  opacity: 1;
+  transition: none;
+}
+
+/* Button loading state */
+.profile-button-loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.profile-button-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: profileButtonSpin 0.6s linear infinite;
+}
+
+@keyframes profileButtonSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}

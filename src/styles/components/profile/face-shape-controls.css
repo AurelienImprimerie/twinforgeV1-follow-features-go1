@@ -1,0 +1,156 @@
+/* src/styles/components/face-shape-controls.css */
+/**
+ * Styles pour les contrôles de forme du visage
+ * Optimisé pour une expérience utilisateur fluide et intuitive
+ */
+
+/* Style de base pour les sliders */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 9999px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Style du thumb (poignée) pour WebKit (Chrome, Safari, Edge) */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #EC4899, #F472B6);
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow:
+    0 4px 12px rgba(236, 72, 153, 0.6),
+    0 0 20px rgba(236, 72, 153, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  transition: all 0.2s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow:
+    0 6px 16px rgba(236, 72, 153, 0.8),
+    0 0 30px rgba(236, 72, 153, 0.6),
+    inset 0 2px 4px rgba(255, 255, 255, 0.5);
+}
+
+input[type="range"]::-webkit-slider-thumb:active {
+  transform: scale(0.95);
+  box-shadow:
+    0 2px 8px rgba(236, 72, 153, 0.8),
+    0 0 15px rgba(236, 72, 153, 0.5),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+/* Style du thumb pour Firefox */
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #EC4899, #F472B6);
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow:
+    0 4px 12px rgba(236, 72, 153, 0.6),
+    0 0 20px rgba(236, 72, 153, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  transition: all 0.2s ease;
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.1);
+  box-shadow:
+    0 6px 16px rgba(236, 72, 153, 0.8),
+    0 0 30px rgba(236, 72, 153, 0.6),
+    inset 0 2px 4px rgba(255, 255, 255, 0.5);
+}
+
+input[type="range"]::-moz-range-thumb:active {
+  transform: scale(0.95);
+  box-shadow:
+    0 2px 8px rgba(236, 72, 153, 0.8),
+    0 0 15px rgba(236, 72, 153, 0.5),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+/* Track focus state */
+input[type="range"]:focus {
+  outline: none;
+}
+
+input[type="range"]:focus::-webkit-slider-thumb {
+  box-shadow:
+    0 6px 16px rgba(236, 72, 153, 0.8),
+    0 0 30px rgba(236, 72, 153, 0.6),
+    inset 0 2px 4px rgba(255, 255, 255, 0.5),
+    0 0 0 4px rgba(236, 72, 153, 0.2);
+}
+
+input[type="range"]:focus::-moz-range-thumb {
+  box-shadow:
+    0 6px 16px rgba(236, 72, 153, 0.8),
+    0 0 30px rgba(236, 72, 153, 0.6),
+    inset 0 2px 4px rgba(255, 255, 255, 0.5),
+    0 0 0 4px rgba(236, 72, 153, 0.2);
+}
+
+/* Animation de pulsation pour les valeurs modifiées */
+@keyframes pulse-modified {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.modified-indicator {
+  animation: pulse-modified 2s ease-in-out infinite;
+}
+
+/* Transition fluide pour le changement de couleur du track */
+input[type="range"]::-webkit-slider-runnable-track {
+  transition: background 0.2s ease;
+}
+
+input[type="range"]::-moz-range-track {
+  transition: background 0.2s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  input[type="range"]::-webkit-slider-thumb {
+    width: 24px;
+    height: 24px;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* État désactivé */
+input[type="range"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+input[type="range"]:disabled::-webkit-slider-thumb {
+  cursor: not-allowed;
+  background: rgba(236, 72, 153, 0.5);
+  box-shadow: none;
+}
+
+input[type="range"]:disabled::-moz-range-thumb {
+  cursor: not-allowed;
+  background: rgba(236, 72, 153, 0.5);
+  box-shadow: none;
+}

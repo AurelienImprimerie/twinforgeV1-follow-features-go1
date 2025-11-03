@@ -1,0 +1,827 @@
+/* =========================================
+   FORGE IMMERSIVE ANALYSIS - Stage 2
+   Animations de grille inspirées du tracker d'activité
+   GPU-optimized pour performances maximales
+   ========================================= */
+
+@import './forge-pipeline-variables.css';
+
+/* ==========================================
+   ANALYSIS CONTAINER
+   ========================================== */
+
+.forge-analysis-container {
+  position: relative;
+  width: 100%;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  transform: var(--gpu-transform);
+  contain: layout style paint;
+  animation: forgeSlideInUp var(--anim-duration-base) var(--anim-ease-smooth);
+}
+
+/* Mobile bottom bar spacing adjustment */
+@media (max-width: 1024px) {
+  .immersive-analysis-container {
+    padding-bottom: calc(var(--new-bottom-bar-height, 80px) + var(--new-bottom-bar-bottom-offset, 4px) + 24px) !important;
+  }
+}
+
+/* ==========================================
+   PHOTO PREVIEW GRID
+   ========================================== */
+
+.forge-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-4);
+  width: 100%;
+  transform: var(--gpu-transform);
+  contain: layout style;
+}
+
+@media (max-width: 640px) {
+  .forge-photo-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+}
+
+/* Photo Card */
+.forge-photo-card {
+  position: relative;
+  aspect-ratio: 3/4;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  transform: var(--gpu-transform);
+  contain: layout style paint;
+  animation: forgeScaleIn var(--anim-duration-base) var(--anim-ease-smooth);
+}
+
+.forge-photo-card:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.forge-photo-card:nth-child(2) {
+  animation-delay: 100ms;
+}
+
+.forge-photo-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: var(--gpu-transform);
+}
+
+/* Photo overlay with glass effect */
+.forge-photo-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.6) 100%);
+  backdrop-filter: blur(var(--glass-blur-minimal)) saturate(120%);
+  -webkit-backdrop-filter: blur(var(--glass-blur-minimal)) saturate(120%);
+  display: flex;
+  align-items: flex-end;
+  padding: var(--space-4);
+  transform: var(--gpu-transform);
+}
+
+.forge-photo-label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: white;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* ==========================================
+   ANALYSIS MODULE GRID
+   Inspirée du tracker d'activité
+   ========================================== */
+
+.forge-analysis-modules {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-4);
+  width: 100%;
+  transform: var(--gpu-transform);
+  contain: layout style;
+}
+
+@media (max-width: 640px) {
+  .forge-analysis-modules {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+}
+
+/* Analysis Module Card */
+.forge-analysis-module {
+  position: relative;
+  padding: var(--space-5);
+  border-radius: var(--radius-2xl);
+  backdrop-filter: blur(var(--glass-blur-medium)) saturate(var(--glass-saturate-medium));
+  -webkit-backdrop-filter: blur(var(--glass-blur-medium)) saturate(var(--glass-saturate-medium));
+  transform: var(--gpu-transform);
+  contain: layout style paint;
+  overflow: hidden;
+  animation: forgeScaleIn var(--anim-duration-base) var(--anim-ease-smooth);
+  transition: transform var(--anim-duration-fast) var(--anim-ease-smooth);
+}
+
+/* Staggered animation for modules */
+.forge-analysis-module:nth-child(1) { animation-delay: 0ms; }
+.forge-analysis-module:nth-child(2) { animation-delay: 150ms; }
+.forge-analysis-module:nth-child(3) { animation-delay: 300ms; }
+.forge-analysis-module:nth-child(4) { animation-delay: 450ms; }
+.forge-analysis-module:nth-child(5) { animation-delay: 600ms; }
+.forge-analysis-module:nth-child(6) { animation-delay: 750ms; }
+
+/* Hover effect */
+@media (hover: hover) {
+  .forge-analysis-module:hover {
+    transform: translateY(-4px) translateZ(0);
+  }
+}
+
+/* Energy theme */
+.forge-analysis-module--energy {
+  background: radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--forge-energy-primary) 12%, transparent) 0%, transparent 65%),
+              rgba(255, 255, 255, 0.06);
+  border: 2px solid color-mix(in srgb, var(--forge-energy-primary) 25%, rgba(255, 255, 255, 0.12));
+  box-shadow: var(--shadow-md),
+              0 0 20px color-mix(in srgb, var(--forge-energy-primary) 10%, transparent),
+              inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* Body theme */
+.forge-analysis-module--body {
+  background: radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--forge-body-primary) 12%, transparent) 0%, transparent 65%),
+              rgba(255, 255, 255, 0.06);
+  border: 2px solid color-mix(in srgb, var(--forge-body-primary) 25%, rgba(255, 255, 255, 0.12));
+  box-shadow: var(--shadow-md),
+              0 0 20px color-mix(in srgb, var(--forge-body-primary) 10%, transparent),
+              inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* Face theme */
+.forge-analysis-module--face {
+  background: radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--forge-face-primary) 12%, transparent) 0%, transparent 65%),
+              rgba(255, 255, 255, 0.06);
+  border: 2px solid color-mix(in srgb, var(--forge-face-primary) 25%, rgba(255, 255, 255, 0.12));
+  box-shadow: var(--shadow-md),
+              0 0 20px color-mix(in srgb, var(--forge-face-primary) 10%, transparent),
+              inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* Processing state with shimmer */
+.forge-analysis-module--processing {
+  position: relative;
+  overflow: hidden;
+}
+
+.forge-analysis-module--processing::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  animation: forgeShimmerPass 2s ease-in-out infinite;
+  will-change: transform;
+  transform: var(--gpu-transform);
+  pointer-events: none;
+}
+
+/* Module Header */
+.forge-module-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.forge-module-icon {
+  width: var(--step-icon-sm);
+  height: var(--step-icon-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(var(--glass-blur-light));
+  -webkit-backdrop-filter: blur(var(--glass-blur-light));
+  transform: var(--gpu-transform);
+  flex-shrink: 0;
+}
+
+.forge-module-icon--energy {
+  background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--forge-energy-primary) 35%, transparent) 0%, transparent 70%),
+              rgba(255, 255, 255, 0.1);
+  border: 2px solid color-mix(in srgb, var(--forge-energy-primary) 40%, transparent);
+  box-shadow: var(--shadow-energy-sm);
+}
+
+.forge-module-icon--body {
+  background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--forge-body-primary) 35%, transparent) 0%, transparent 70%),
+              rgba(255, 255, 255, 0.1);
+  border: 2px solid color-mix(in srgb, var(--forge-body-primary) 40%, transparent);
+  box-shadow: var(--shadow-body-sm);
+}
+
+.forge-module-icon--face {
+  background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--forge-face-primary) 35%, transparent) 0%, transparent 70%),
+              rgba(255, 255, 255, 0.1);
+  border: 2px solid color-mix(in srgb, var(--forge-face-primary) 40%, transparent);
+  box-shadow: var(--shadow-face-sm);
+}
+
+.forge-module-title {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: white;
+  line-height: 1.2;
+}
+
+/* Module Content */
+.forge-module-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.forge-module-label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.forge-module-value {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  line-height: 1.1;
+}
+
+.forge-module-value--energy {
+  color: var(--forge-energy-primary);
+  text-shadow: 0 0 16px color-mix(in srgb, var(--forge-energy-primary) 40%, transparent);
+}
+
+.forge-module-value--body {
+  color: var(--forge-body-primary);
+  text-shadow: 0 0 16px color-mix(in srgb, var(--forge-body-primary) 40%, transparent);
+}
+
+.forge-module-value--face {
+  color: var(--forge-face-primary);
+  text-shadow: 0 0 16px color-mix(in srgb, var(--forge-face-primary) 40%, transparent);
+}
+
+/* Module Progress Bar (mini) */
+.forge-module-progress {
+  width: 100%;
+  height: var(--progress-height-sm);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-top: var(--space-2);
+  transform: var(--gpu-transform);
+}
+
+.forge-module-progress-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width var(--anim-duration-base) var(--anim-ease-smooth);
+  will-change: width;
+  transform: var(--gpu-transform);
+}
+
+.forge-module-progress-fill--energy {
+  background: var(--forge-energy-primary);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--forge-energy-primary) 50%, transparent);
+}
+
+.forge-module-progress-fill--body {
+  background: var(--forge-body-primary);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--forge-body-primary) 50%, transparent);
+}
+
+.forge-module-progress-fill--face {
+  background: var(--forge-face-primary);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--forge-face-primary) 50%, transparent);
+}
+
+/* ==========================================
+   CENTRAL ANALYSIS LOADER
+   ========================================== */
+
+.forge-analysis-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  padding: var(--space-8);
+  animation: forgeFadeIn var(--anim-duration-base) var(--anim-ease-smooth);
+}
+
+.forge-analysis-spinner {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-full);
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top-color: currentColor;
+  animation: forgeRotateGlow 1s linear infinite;
+  transform: var(--gpu-transform);
+  will-change: transform;
+}
+
+.forge-analysis-spinner--energy {
+  border-top-color: var(--forge-energy-primary);
+  box-shadow: 0 0 25px color-mix(in srgb, var(--forge-energy-primary) 20%, transparent);
+}
+
+.forge-analysis-spinner--body {
+  border-top-color: var(--forge-body-primary);
+  box-shadow: 0 0 25px color-mix(in srgb, var(--forge-body-primary) 20%, transparent);
+}
+
+.forge-analysis-spinner--face {
+  border-top-color: var(--forge-face-primary);
+  box-shadow: 0 0 25px color-mix(in srgb, var(--forge-face-primary) 20%, transparent);
+}
+
+.forge-analysis-text {
+  text-align: center;
+  max-width: 400px;
+}
+
+.forge-analysis-title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: white;
+  margin-bottom: var(--space-2);
+}
+
+.forge-analysis-subtitle {
+  font-size: var(--text-sm);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ==========================================
+   MOBILE OPTIMIZATIONS
+   ========================================== */
+
+@media (max-width: 768px) {
+  .forge-analysis-container {
+    gap: var(--space-4);
+  }
+
+  .forge-analysis-module {
+    padding: var(--space-4);
+  }
+
+  .forge-module-value {
+    font-size: var(--text-xl);
+  }
+
+  /* Disable shimmer effect on mobile */
+  .forge-analysis-module--processing::after {
+    display: none;
+  }
+
+  /* Disable hover effects */
+  .forge-analysis-module:hover {
+    transform: translateZ(0) !important;
+  }
+}
+
+/* ==========================================
+   PERFORMANCE MODES
+   ========================================== */
+
+/* Low performance mode */
+.perf-low .forge-analysis-module--processing::after,
+.perf-low .forge-analysis-module:hover {
+  animation: none !important;
+  transform: translateZ(0) !important;
+}
+
+.perf-low .forge-analysis-module {
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .forge-analysis-container,
+  .forge-photo-card,
+  .forge-analysis-module {
+    animation: none !important;
+  }
+
+  .forge-analysis-module--processing::after {
+    display: none !important;
+  }
+
+  .forge-analysis-module:hover {
+    transform: none !important;
+  }
+
+  .forge-analysis-spinner {
+    animation: forgeRotateGlow 3s linear infinite !important;
+  }
+}
+
+/* ==========================================
+   ANALYSIS PHOTO CARD STYLES
+   ========================================== */
+
+.analysis-photo-card {
+  position: relative;
+  backdrop-filter: blur(var(--glass-blur-medium)) saturate(var(--glass-saturate-medium));
+  -webkit-backdrop-filter: blur(var(--glass-blur-medium)) saturate(var(--glass-saturate-medium));
+  transform: var(--gpu-transform);
+  contain: layout style paint;
+  will-change: transform, opacity;
+}
+
+.analysis-photo-card--front {
+  background:
+    radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--color-plasma-cyan) 10%, transparent) 0%, transparent 65%),
+    rgba(255, 255, 255, 0.06);
+  border: 2px solid color-mix(in srgb, var(--color-plasma-cyan) 25%, rgba(255, 255, 255, 0.12));
+  box-shadow:
+    var(--shadow-md),
+    0 0 25px color-mix(in srgb, var(--color-plasma-cyan) 12%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.analysis-photo-card--profile {
+  background:
+    radial-gradient(circle at 30% 20%, color-mix(in srgb, #A855F7 10%, transparent) 0%, transparent 65%),
+    rgba(255, 255, 255, 0.06);
+  border: 2px solid color-mix(in srgb, #A855F7 25%, rgba(255, 255, 255, 0.12));
+  box-shadow:
+    var(--shadow-md),
+    0 0 25px color-mix(in srgb, #A855F7 12%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.analysis-photo {
+  transform: var(--gpu-transform);
+  will-change: transform;
+}
+
+/* ==========================================
+   ANALYSIS STATUS BADGE
+   ========================================== */
+
+.analysis-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.status-dot {
+  background: var(--color-plasma-cyan);
+  box-shadow: 0 0 8px var(--color-plasma-cyan);
+  animation: status-pulse 2s ease-in-out infinite;
+}
+
+@keyframes status-pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 8px var(--color-plasma-cyan);
+  }
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 16px var(--color-plasma-cyan);
+  }
+}
+
+/* ==========================================
+   LIGHTWEIGHT SCAN ANIMATION FOR PERFORMANCE MODE
+   Pure CSS, zero GPU cost
+   ========================================== */
+
+.lightweight-scan-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 5;
+}
+
+.lightweight-scan-line {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(139, 92, 246, 0.3) 20%,
+    rgba(139, 92, 246, 0.8) 50%,
+    rgba(139, 92, 246, 0.3) 80%,
+    transparent 100%
+  );
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
+  animation: lightweightScanMove 3s ease-in-out infinite;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+@keyframes lightweightScanMove {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+/* ==========================================
+   SCAN LINES
+   ========================================== */
+
+.scan-line-vertical {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(180deg,
+    transparent,
+    var(--color-plasma-cyan) 50%,
+    transparent
+  );
+  box-shadow: 0 0 20px var(--color-plasma-cyan);
+  animation: scanLineVertical 3s linear infinite;
+  will-change: transform;
+  transform: var(--gpu-transform);
+}
+
+.scan-line-horizontal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent,
+    #A855F7 50%,
+    transparent
+  );
+  box-shadow: 0 0 20px #A855F7;
+  animation: scanLineHorizontal 3s linear infinite;
+  will-change: transform;
+  transform: var(--gpu-transform);
+}
+
+/* ==========================================
+   ANALYSIS GRID
+   ========================================== */
+
+.analysis-grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 1px;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.grid-cell {
+  background: color-mix(in srgb, var(--color-plasma-cyan) 3%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-plasma-cyan) 10%, transparent);
+  animation: gridCellPulse 2s ease-in-out infinite;
+  animation-delay: calc(var(--cell-index) * 0.1s);
+  will-change: opacity, background-color;
+}
+
+/* ==========================================
+   BODY KEYPOINTS
+   ========================================== */
+
+.body-keypoints {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.keypoint {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--color-plasma-cyan);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) translateZ(0);
+  box-shadow: 0 0 12px var(--color-plasma-cyan);
+  animation: keypointPulse 2s ease-in-out infinite;
+  animation-delay: calc(var(--keypoint-index) * 0.15s);
+  will-change: opacity, box-shadow;
+}
+
+.body-keypoints--front .keypoint {
+  background: var(--color-plasma-cyan);
+  box-shadow: 0 0 12px var(--color-plasma-cyan);
+}
+
+.body-keypoints--profile .keypoint {
+  background: #A855F7;
+  box-shadow: 0 0 12px #A855F7;
+}
+
+/* ==========================================
+   ANALYSIS ZONE
+   ========================================== */
+
+.analysis-zone {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle,
+    color-mix(in srgb, var(--color-plasma-cyan) calc(var(--zone-intensity) * 20%), transparent) 0%,
+    transparent 70%
+  );
+  border: 2px solid color-mix(in srgb, var(--color-plasma-cyan) calc(var(--zone-intensity) * 35%), transparent);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) translateZ(0);
+  animation: analysisZone 3s ease-in-out infinite;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* ==========================================
+   AI FOCUS OVERLAY
+   ========================================== */
+
+.ai-focus-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%,
+    transparent 30%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+  animation: aiFocus 4s ease-in-out infinite;
+  pointer-events: none;
+  will-change: opacity;
+}
+
+.ai-focus-overlay--front {
+  background: radial-gradient(circle at 50% 50%,
+    transparent 30%,
+    color-mix(in srgb, var(--color-plasma-cyan) 6%, transparent) 100%
+  );
+}
+
+.ai-focus-overlay--profile {
+  background: radial-gradient(circle at 50% 50%,
+    transparent 30%,
+    color-mix(in srgb, #A855F7 6%, transparent) 100%
+  );
+}
+
+/* ==========================================
+   DATA FLOW PARTICLES
+   ========================================== */
+
+.data-flow-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.data-particle {
+  position: absolute;
+  width: var(--data-particle-size, 10px);
+  height: var(--data-particle-size, 10px);
+  background: var(--color-plasma-cyan);
+  border-radius: 50%;
+  box-shadow: 0 0 16px var(--color-plasma-cyan);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: dataParticleFlow var(--data-particle-speed, 4s) ease-out infinite;
+  animation-delay: calc(var(--particle-index) * 0.3s);
+}
+
+@keyframes dataParticleFlow {
+  0% {
+    transform: translate(0, 0) translateZ(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(var(--particle-dx, 0), var(--particle-dy, -150px)) translateZ(0);
+    opacity: 0;
+  }
+}
+
+/* ==========================================
+   MOBILE OPTIMIZATIONS
+   ========================================== */
+
+@media (max-width: 768px) {
+  .analysis-grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+  }
+
+  .keypoint {
+    width: 10px;
+    height: 10px;
+  }
+
+  .analysis-zone {
+    width: 60px;
+    height: 60px;
+  }
+
+  .scan-line-vertical,
+  .scan-line-horizontal {
+    animation-duration: 4s;
+  }
+
+  .data-particle {
+    width: 8px;
+    height: 8px;
+  }
+
+  /* Simplify animations on mobile */
+  .grid-cell,
+  .keypoint {
+    animation-duration: 3s;
+  }
+}
+
+/* ==========================================
+   REDUCED MOTION - ANALYSIS ELEMENTS
+   ========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .scan-line-vertical,
+  .scan-line-horizontal,
+  .grid-cell,
+  .keypoint,
+  .analysis-zone,
+  .ai-focus-overlay,
+  .data-particle,
+  .status-dot {
+    animation: none !important;
+  }
+
+  .scan-line-vertical {
+    left: 50%;
+    opacity: 0.3;
+  }
+
+  .scan-line-horizontal {
+    top: 50%;
+    opacity: 0.3;
+  }
+
+  .grid-cell {
+    opacity: 0.2;
+  }
+
+  .keypoint {
+    opacity: 0.8;
+  }
+
+  .analysis-zone {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(1.1) translateZ(0);
+  }
+
+  .data-particle {
+    display: none;
+  }
+
+  .status-dot {
+    opacity: 1;
+  }
+}

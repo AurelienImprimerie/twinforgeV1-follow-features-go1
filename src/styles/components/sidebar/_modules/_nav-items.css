@@ -1,0 +1,138 @@
+/* =========================================
+   SIDEBAR NAV ITEMS - Base Navigation Items
+   Core navigation item structure with icon containers
+   ========================================= */
+
+/* Nav items - restructured with icon containers like bottom bar */
+.sidebar-item {
+  margin: 0.0625rem -0.625rem 0.0625rem 0;
+  transition: all var(--liquid-transition-fast);
+  border-radius: 16px;
+  padding: 0.5rem 0.5rem 0.5rem 0.625rem;
+  background: transparent;
+  border: 1px solid transparent;
+  position: relative;
+  transform: translateZ(0);
+  will-change: transform, background, border-color, box-shadow;
+  overflow: visible !important;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+/* Hover effects now focus on the icon container */
+@media (hover: hover) and (pointer: fine) {
+  .sidebar-item:hover {
+    background: transparent;
+    transform: translateY(-1px) translateZ(0);
+  }
+
+  .sidebar-item:hover .sidebar-item-icon-container {
+    transform: scale(1.08) translateZ(0);
+    box-shadow:
+      var(--liquid-pill-shadow),
+      0 0 20px rgba(255,255,255,0.15),
+      0 4px 16px rgba(0,0,0,0.2);
+    border-color: rgba(255,255,255,0.3);
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25) 0%, transparent 60%),
+      var(--liquid-pill-bg);
+  }
+}
+
+.sidebar-item-icon {
+  transition: color 200ms ease, filter 200ms ease;
+}
+
+.sidebar-item-label {
+  transition: color 200ms ease;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.75rem;
+}
+
+.sidebar-item-subtitle {
+  transition: color 200ms ease;
+  font-size: 0.625rem;
+}
+
+/* Active state - enhanced with icon container focus */
+.sidebar-item[aria-current="page"] {
+  background: transparent;
+  border-color: transparent;
+  transform: translateY(-1px) translateZ(0);
+  z-index: 20 !important;
+  overflow: visible !important;
+}
+
+.sidebar-item[aria-current="page"] .sidebar-item-icon-container {
+  /* Use the active class from liquid-glass-premium.css */
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.28) 0%, transparent 60%),
+    radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--item-circuit-color, var(--color-plasma-cyan)) 20%, transparent) 0%, transparent 70%),
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--item-circuit-color, var(--color-plasma-cyan)) 30%, transparent),
+      color-mix(in srgb, var(--item-circuit-color, var(--color-plasma-cyan)) 18%, transparent));
+
+  border: 1.5px solid color-mix(in srgb, var(--item-circuit-color, var(--color-plasma-cyan)) 50%, transparent);
+
+  box-shadow:
+    var(--liquid-pill-shadow),
+    0 0 24px color-mix(in srgb, var(--item-circuit-color, var(--color-plasma-cyan)) 30%, transparent),
+    0 0 48px color-mix(in srgb, var(--item-circuit-color, var(--color-plasma-cyan)) 18%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.3);
+
+  transform: scale(1.05) translateZ(0);
+}
+
+.sidebar-item[aria-current="page"] .sidebar-item-icon {
+  color: var(--item-circuit-color, var(--color-plasma-cyan)) !important;
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--item-circuit-color, var(--color-plasma-cyan)) 40%, transparent)) !important;
+}
+
+.sidebar-item[aria-current="page"] .sidebar-item-label {
+  color: #fff !important;
+  font-weight: 600 !important;
+}
+
+.sidebar-item[aria-current="page"]:hover .sidebar-item-icon-container {
+  transform: scale(1.1) translateZ(0);
+  box-shadow:
+    var(--liquid-pill-shadow),
+    0 0 30px color-mix(in srgb, var(--item-circuit-color, var(--color-plasma-cyan)) 35%, transparent),
+    0 0 60px color-mix(in srgb, var(--item-circuit-color, var(--color-plasma-cyan)) 22%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.35);
+  border-color: color-mix(in srgb, var(--item-circuit-color, var(--color-plasma-cyan)) 60%, transparent);
+}
+
+/* Badge d'action sur les forges */
+.sidebar-item-action-badge {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0.06));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.75);
+  transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+  white-space: nowrap;
+}
+
+.sidebar-item-action-badge--active {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--item-circuit-color) 25%, transparent),
+    color-mix(in srgb, var(--item-circuit-color) 15%, transparent));
+  border-color: color-mix(in srgb, var(--item-circuit-color) 35%, transparent);
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 0 16px color-mix(in srgb, var(--item-circuit-color) 20%, transparent);
+}
+
+/* Touch target optimization for accessibility */
+.sidebar-item--primary {
+  /* Ensure minimum 44x44px touch target on mobile */
+  min-height: auto;
+}

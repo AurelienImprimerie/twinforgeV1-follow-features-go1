@@ -1,0 +1,298 @@
+/**
+ * Training Hero Animations - 60 FPS Optimized
+ * GPU-accelerated animations for training components
+ * VisionOS 2.6 Apple-like smooth animations
+ */
+
+/* ============================================
+   CORNER PARTICLES SYSTEM
+   ============================================ */
+
+.training-hero-corners {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.corner-particle {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  perspective: 1000px;
+}
+
+/* ============================================
+   3D BUTTON EFFECTS
+   ============================================ */
+
+@keyframes training-button-shine {
+  0% {
+    transform: translateX(-200%) translateZ(0);
+  }
+  100% {
+    transform: translateX(200%) translateZ(0);
+  }
+}
+
+@keyframes training-button-pulse-shadow {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1) translateZ(0);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05) translateZ(0);
+  }
+}
+
+/* Button hover states */
+.training-cta-button {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, box-shadow;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.training-cta-button:hover {
+  transform: translateY(-4px) translateZ(0);
+}
+
+.training-cta-button:active {
+  transform: translateY(0) translateZ(0);
+}
+
+/* ============================================
+   GLOW ICON ANIMATIONS
+   ============================================ */
+
+@keyframes glow-icon-breathe {
+  0%, 100% {
+    transform: scale(1) translateZ(0);
+    filter: drop-shadow(0 8px 32px rgba(24, 227, 255, 0.4));
+  }
+  50% {
+    transform: scale(1.08) translateY(-4px) translateZ(0);
+    filter: drop-shadow(0 12px 40px rgba(24, 227, 255, 0.6));
+  }
+}
+
+@keyframes glow-icon-rotate-gentle {
+  0% {
+    transform: rotate(0deg) translateZ(0);
+  }
+  25% {
+    transform: rotate(5deg) translateZ(0);
+  }
+  75% {
+    transform: rotate(-5deg) translateZ(0);
+  }
+  100% {
+    transform: rotate(0deg) translateZ(0);
+  }
+}
+
+.training-hero-icon {
+  animation: glow-icon-breathe 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform, filter;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* ============================================
+   BADGE MICRO-INTERACTIONS
+   ============================================ */
+
+@keyframes badge-flame-flicker {
+  0%, 100% {
+    transform: scale(1) rotate(0deg) translateZ(0);
+  }
+  25% {
+    transform: scale(1.2) rotate(10deg) translateZ(0);
+  }
+  75% {
+    transform: scale(1.2) rotate(-10deg) translateZ(0);
+  }
+}
+
+@keyframes badge-clock-rotate {
+  0% {
+    transform: rotate(0deg) translateZ(0);
+  }
+  100% {
+    transform: rotate(360deg) translateZ(0);
+  }
+}
+
+.training-badge {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.training-badge:hover {
+  transform: scale(1.05) translateY(-2px) translateZ(0);
+}
+
+/* ============================================
+   RECOVERY STATUS PULSE
+   ============================================ */
+
+@keyframes recovery-pulse {
+  0%, 100% {
+    transform: scale(1) translateZ(0);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2) translateZ(0);
+    opacity: 0.8;
+  }
+}
+
+.recovery-indicator {
+  animation: recovery-pulse 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* ============================================
+   PARALLAX BACKGROUND LAYERS
+   ============================================ */
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.training-hero-bg-animated {
+  background-size: 200% 200%;
+  animation: gradient-shift 15s ease infinite;
+  will-change: background-position;
+}
+
+/* ============================================
+   LOADING SKELETON SHIMMER
+   ============================================ */
+
+@keyframes training-skeleton-shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.training-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  background-size: 1000px 100%;
+  animation: training-skeleton-shimmer 2s infinite;
+  will-change: background-position;
+}
+
+/* ============================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================ */
+
+/* Force GPU acceleration on all animated elements */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform;
+}
+
+/* Smooth spring animations */
+@keyframes spring-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateZ(0);
+  }
+  50% {
+    transform: scale(1.05) translateZ(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+  }
+}
+
+/* Stagger animation delays */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+
+/* ============================================
+   REDUCED MOTION SUPPORT
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .training-hero-icon,
+  .corner-particle,
+  .recovery-indicator,
+  .training-badge {
+    animation: none !important;
+  }
+}
+
+/* ============================================
+   MOBILE OPTIMIZATIONS
+   ============================================ */
+
+@media (max-width: 768px) {
+  /* Reduce animation complexity on mobile */
+  .corner-particle {
+    animation-duration: 4s;
+  }
+
+  .training-hero-icon {
+    animation-duration: 5s;
+  }
+
+  /* Simplify shadows on mobile for better performance */
+  .training-cta-button {
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5),
+                0 2px 8px 0 rgba(24, 227, 255, 0.8);
+  }
+}
+
+/* ============================================
+   DARK MODE ADJUSTMENTS
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+  .corner-particle {
+    opacity: 0.9;
+  }
+
+  .training-cta-button {
+    box-shadow:
+      0 1px 0 0 rgba(255, 255, 255, 0.3) inset,
+      0 -1px 0 0 rgba(0, 0, 0, 0.3) inset,
+      0 20px 50px -10px rgba(24, 227, 255, 0.6),
+      0 10px 30px -5px rgba(0, 0, 0, 0.7),
+      0 2px 8px 0 rgba(24, 227, 255, 0.8);
+  }
+}

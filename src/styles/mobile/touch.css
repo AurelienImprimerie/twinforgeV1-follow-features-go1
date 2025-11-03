@@ -1,0 +1,250 @@
+/* =========================================
+   TOUCH OPTIMIZATION - Consolidated Mobile Touch Support
+   Fast, accessible touch interactions across devices
+   ========================================= */
+
+html{
+  -webkit-tap-highlight-color:transparent;
+  -webkit-touch-callout:none;
+  -webkit-user-select:none;
+  user-select:none;
+}
+input, textarea, [contenteditable]{ -webkit-user-select:auto; user-select:auto; }
+
+/* Touch feedback (CSS-only) - Réduit pour mobile */
+.touch-feedback{ transition:transform 80ms ease-out, opacity 80ms ease-out; }
+.touch-feedback:active{
+  transform:scale(.97) translateZ(0);
+  opacity:.92;
+  box-shadow:inset 0 3px 8px rgba(0,0,0,.3), inset 0 1px 2px rgba(0,0,0,.4);
+}
+.touch-feedback-css{ transition:transform 80ms ease-out, background 80ms ease-out; }
+.touch-feedback-css:active{
+  transform:scale(.98) translateZ(0);
+  background:rgba(255,255,255,.12) !important;
+}
+
+/* Buttons - Feedback réduit */
+.btn-touch-feedback:active{
+  transform:scale(.97) translateZ(0);
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.25) !important;
+  transition:all 80ms ease-out;
+}
+
+/* Targets & actions */
+button,[role="button"],.glass-card[data-interactive],.tabs-trigger,.sidebar-item,.nav-item,
+input[type="submit"],input[type="button"]{
+  min-width:var(--touch-target-min,44px) !important;
+  min-height:var(--touch-target-min,44px) !important;
+  position:relative;
+  touch-action:manipulation;
+}
+
+/* Expansion halos */
+.touch-extend::before,.touch-target-expanded::before{
+  content:""; position:absolute; inset:-8px; border-radius:inherit; z-index:-1;
+}
+.touch-target-enhanced{
+  min-width:var(--touch-target-recommended,48px);
+  min-height:var(--touch-target-recommended,48px);
+  display:inline-flex; align-items:center; justify-content:center; position:relative;
+}
+
+/* Scroll UX */
+.momentum-scroll-enhanced{
+  -webkit-overflow-scrolling:touch;
+  scroll-behavior:smooth;
+  overscroll-behavior:contain;
+  scroll-snap-type:y proximity;
+}
+.modal-scroll-lock{ overscroll-behavior:none; -webkit-overflow-scrolling:auto; }
+
+/* iOS */
+@supports (-webkit-touch-callout: none){
+  body{ overflow-x:hidden; overflow-y:auto; }
+  .ios-optimized{
+    -webkit-overflow-scrolling:touch;
+    -webkit-transform:translate3d(0,0,0);
+    -webkit-touch-callout:none;
+    -webkit-user-select:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .ios-keyboard-aware{ height:calc(100vh - env(keyboard-inset-height, 0px)); }
+  input,select,textarea{ font-size:16px !important; }
+}
+
+/* Android */
+@media (pointer:coarse) and (hover:none){
+  .android-optimized{ touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+  .glass-card:active{ background-color:rgba(255,255,255,.1); }
+}
+
+/* Desktop feedback for glass cards - FORGE HAMMER ONLY ON TAP */
+@media (min-width:641px) and (hover: hover) and (pointer: fine){
+  /* IMPORTANT: Pas de lueur orange au hover, seulement feedback subtil */
+  .glass-card:hover{
+    background: rgba(255,255,255,.08);
+    transition:background 120ms ease-out;
+  }
+
+  /* Lueur orange uniquement au clic/tap - effet réduit et plus subtil */
+  .glass-card:active{
+    background:
+      radial-gradient(circle at var(--mx, 50%) var(--my, 50%),
+        var(--color-ember-copper,#FF7A45) 8%,
+        rgba(255, 122, 69, 0.4) 20%,
+        transparent 65%
+      ),
+      rgba(255,255,255,.15) !important;
+    transform:scale(.98) translateZ(0) !important;
+    box-shadow:
+      inset 0 3px 8px rgba(0,0,0,.3),
+      0 0 20px rgba(255, 122, 69, 0.5),
+      0 0 40px rgba(255, 122, 69, 0.25) !important;
+    transition:all 80ms ease-out !important;
+  }
+}
+
+/* Mobile feedback for glass cards - FORGE HAMMER IMPACT REDUIT */
+@media (max-width:640px), (hover: none), (pointer: coarse){
+  /* Désactiver complètement les effets hover sur mobile */
+  .glass-card:hover{
+    background: initial !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Lueur orange réduite uniquement au tap sur mobile */
+  .glass-card:active{
+    background:
+      radial-gradient(circle at center,
+        var(--color-ember-copper,#FF7A45) 6%,
+        rgba(255, 122, 69, 0.3) 20%,
+        transparent 60%
+      ),
+      rgba(255,255,255,.12) !important;
+    transform:scale(.98) translateZ(0) !important;
+    box-shadow:
+      inset 0 2px 6px rgba(0,0,0,.25) !important,
+      0 0 15px rgba(255, 122, 69, 0.4) !important,
+      0 0 30px rgba(255, 122, 69, 0.2) !important;
+    opacity:.95 !important;
+    transition:all 80ms ease-out !important;
+  }
+  .tab-content{
+    max-height:calc(100vh - var(--header-height,80px) - var(--tabs-height,60px));
+    overflow-y:auto; -webkit-overflow-scrolling:touch;
+  }
+  .glass-card-child{ padding:.75rem; }
+}
+
+/* Mobile full-width */
+@media (max-width:768px){
+  .responsive-content-container{padding:0 !important; position:static !important; transform:none !important; filter:none !important;}
+  .space-y-6 > *:not(.header-liquid-glass):not(.fab-nexus-forge){
+    margin-left:0 !important; margin-right:0 !important; position:static !important; transform:none !important;
+  }
+  .route-container{padding-left:0 !important; padding-right:0 !important; position:static !important; transform:none !important;}
+
+  /* IMPORTANT: garder les particules actives et visibles sur mobile */
+  .cosmic-forge-particles{ display:block !important; opacity:.8 !important; }
+  .forge-particle{ display:block !important; opacity:.6 !important; }
+  /* On laisse la durée aux variables JS (--duration) pour fluidité */
+}
+
+/* Accessibility */
+@media (prefers-contrast: high){
+  .touch-feedback:active,.touch-feedback-css:active{
+    outline:3px solid var(--brand-primary, #3D13B3);
+    outline-offset:2px;
+  }
+}
+
+/* Larger targets on reduced-data */
+@media (prefers-reduced-data: reduce){
+  button,[role="button"],.glass-card[data-interactive]{
+    min-width:calc(var(--touch-target-min,44px) * 1.2);
+    min-height:calc(var(--touch-target-min,44px) * 1.2);
+  }
+}
+
+/* Low-end throttle */
+.low-performance-device .touch-feedback:active,
+.low-performance-device .touch-feedback-css:active{
+  transform:none !important;
+  box-shadow:none !important;
+  background:rgba(255,255,255,.1) !important;
+  transition:background 100ms ease !important;
+}
+
+/* Gestures */
+.swipe-container{ touch-action:pan-x; -webkit-overflow-scrolling:touch; overscroll-behavior-x:none; }
+.swipe-vertical{ touch-action:pan-y; -webkit-overflow-scrolling:touch; overscroll-behavior-y:contain; }
+.pinch-zoom-enabled{ touch-action:pinch-zoom; }
+.touch-action-none{ touch-action:none; }
+
+/* Scrollbars */
+.touch-scroll-optimized{
+  -webkit-overflow-scrolling:touch; scroll-behavior:smooth; overscroll-behavior:contain;
+  scroll-snap-type:y proximity; scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.2) transparent;
+}
+.touch-scroll-optimized::-webkit-scrollbar{ width:8px; height:8px; }
+.touch-scroll-optimized::-webkit-scrollbar-track{ background:transparent; }
+.touch-scroll-optimized::-webkit-scrollbar-thumb{
+  background:rgba(255,255,255,.2); border-radius:4px; border:1px solid rgba(255,255,255,.1);
+}
+.touch-scroll-optimized::-webkit-scrollbar-thumb:active{ background:rgba(255,255,255,.3); }
+
+/* Ripple */
+.touch-ripple{ position:relative; overflow:hidden; }
+.touch-ripple::before{
+  content:""; position:absolute; top:50%; left:50%; width:0; height:0; border-radius:50%;
+  background:rgba(255,255,255,.3); transform:translate(-50%,-50%);
+  transition:width .3s ease, height .3s ease; pointer-events:none;
+}
+.touch-ripple:active::before{ width:200%; height:200%; }
+
+/* FORGE SPARKS - Particules d'étincelles réduites - DESKTOP UNIQUEMENT */
+@media (min-width: 641px) and (hover: hover) and (pointer: fine) {
+  .glass-card::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    background:
+      radial-gradient(1.5px 1.5px at 20% 30%, var(--color-ember-copper,#FF7A45) 100%, transparent),
+      radial-gradient(0.8px 0.8px at 80% 40%, rgba(255,255,255,.7) 100%, transparent),
+      radial-gradient(1px 1px at 50% 70%, var(--color-ember-copper,#FF7A45) 100%, transparent),
+      radial-gradient(0.8px 0.8px at 30% 60%, rgba(255,255,255,.6) 100%, transparent);
+    opacity:0;
+    pointer-events:none;
+    z-index:10;
+    transition:opacity 0.1s ease-out;
+  }
+
+  .glass-card:active::before{
+    animation:forge-sparks 0.15s ease-out;
+  }
+}
+
+/* Désactiver les sparks sur mobile pour performance */
+@media (max-width: 640px), (hover: none), (pointer: coarse) {
+  .glass-card::before{
+    display: none !important;
+  }
+}
+
+@keyframes forge-sparks{
+  0%{
+    opacity:0;
+    transform:scale(0.9);
+  }
+  50%{
+    opacity:0.8;
+    transform:scale(1.05);
+  }
+  100%{
+    opacity:0;
+    transform:scale(1.1);
+  }
+}

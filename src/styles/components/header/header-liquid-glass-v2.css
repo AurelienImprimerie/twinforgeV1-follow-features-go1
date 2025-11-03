@@ -1,0 +1,440 @@
+/* =========================================
+   HEADER LIQUID GLASS V2 - VisionOS 26 Premium
+   Alignement complet avec le système bottom bar
+   ========================================= */
+
+/* Main header container - ultra-transparent liquid glass */
+.header-liquid-glass {
+  position: fixed !important;
+  top: 8px !important;
+  left: 24px !important;
+  right: 24px !important;
+  height: 64px !important;
+  z-index: 9999 !important;
+  isolation: isolate !important;
+  border-radius: 20px !important;
+  overflow: visible !important;
+  transform: translateZ(0) !important;
+  will-change: transform, filter !important;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+
+  /* Ultra-transparent Liquid Glass matching bottom bar */
+  background:
+    var(--liquid-reflections-multi),
+    var(--liquid-highlight-ambient),
+    var(--liquid-glass-bg-base) !important;
+
+  backdrop-filter: blur(var(--liquid-blur-intense)) saturate(var(--liquid-saturate-intense)) !important;
+  -webkit-backdrop-filter: blur(var(--liquid-blur-intense)) saturate(var(--liquid-saturate-intense)) !important;
+
+  /* Enhanced shadow system */
+  box-shadow: var(--liquid-shadow-elevated) !important;
+
+  transition:
+    box-shadow var(--liquid-transition-medium),
+    border-color var(--liquid-transition-medium),
+    transform var(--liquid-transition-medium);
+
+  /* Safari rounded corners fix */
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  mask-image: radial-gradient(white, black);
+}
+
+/* Multi-color gradient border matching bottom bar - ÉPAISSIE POUR ROBUSTESSE */
+.header-liquid-glass::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  padding: 3px;
+  background: var(--liquid-border-gradient-tricolor);
+  background-size: 200% 200%;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.8;
+  z-index: 1;
+  /* Animation COMPLÈTEMENT désactivée */
+  animation: none !important;
+  animation-name: none !important;
+  animation-play-state: paused !important;
+}
+
+/* Ambient glow layer underneath matching bottom bar */
+.header-liquid-glass::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: calc(var(--header-radius, 20px) + 4px);
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    rgba(24, 227, 255, 0.15) 0%,
+    rgba(61, 19, 179, 0.1) 40%,
+    transparent 70%
+  );
+  opacity: 0.6;
+  z-index: -1;
+  pointer-events: none;
+  /* Animation COMPLÈTEMENT désactivée */
+  animation: none !important;
+  animation-name: none !important;
+  animation-play-state: paused !important;
+}
+
+/* Animations border et glow COMPLÈTEMENT désactivées - conservées pour référence */
+@keyframes borderPulse {
+  0%, 100% { opacity: 0.8; }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+}
+
+/* Hover state enhancement */
+@media (hover: hover) and (pointer: fine) {
+  .header-liquid-glass:hover {
+    box-shadow:
+      0 24px 80px rgba(0, 0, 0, 0.5),
+      0 0 50px color-mix(in srgb, var(--brand-primary, #7c3aed) 20%, transparent),
+      0 0 100px color-mix(in srgb, var(--color-plasma-cyan, #22d3ee) 18%, transparent),
+      inset 0 2px 0 rgba(255, 255, 255, 0.25) !important;
+  }
+}
+
+/* Active indicator dot - matching bottom bar style */
+.header-liquid-glass .absolute.-bottom-1.-right-1 {
+  background: var(--color-plasma-cyan) !important;
+  box-shadow:
+    0 0 8px var(--color-plasma-cyan),
+    0 0 16px color-mix(in srgb, var(--color-plasma-cyan) 40%, transparent) !important;
+}
+
+/* Mobile adaptations */
+@media (max-width: 768px) {
+  .header-liquid-glass {
+    left: 8px !important;
+    right: 8px !important;
+    top: 6px !important;
+  }
+
+  .header-liquid-glass::after {
+    filter: blur(8px);
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .header-liquid-glass {
+    left: 16px !important;
+    right: 16px !important;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .header-liquid-glass::before,
+  .header-liquid-glass::after {
+    animation: none !important;
+  }
+
+  .header-liquid-glass,
+  .header-liquid-glass button {
+    transition: background-color 0.2s ease, color 0.2s ease !important;
+  }
+
+  .header-liquid-glass button:hover {
+    transform: none !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .header-liquid-glass {
+    background: rgba(11, 14, 23, 0.95) !important;
+    border: 3px solid rgba(24, 227, 255, 0.8) !important;
+  }
+
+  .header-liquid-glass::before {
+    opacity: 1 !important;
+    padding: 3px;
+  }
+
+  .header-liquid-glass button {
+    border-width: 2px !important;
+    background: rgba(255, 255, 255, 0.18) !important;
+  }
+}
+
+/* =========================================
+   HEADER GLASS ORB BUTTONS
+   Matching bottom bar icon-container system exactly
+   ========================================= */
+
+/* All glass-orb-button in header should match bottom bar style */
+.header-liquid-glass .glass-orb-button {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  position: relative;
+  overflow: visible;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Exact match with bottom bar icon-container */
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.18) 0%, transparent 50%),
+    var(--liquid-pill-bg) !important;
+  backdrop-filter: blur(var(--liquid-pill-blur)) saturate(var(--liquid-pill-saturate)) !important;
+  -webkit-backdrop-filter: blur(var(--liquid-pill-blur)) saturate(var(--liquid-pill-saturate)) !important;
+
+  border: 1px solid rgba(255,255,255,0.2) !important;
+  box-shadow: var(--liquid-pill-shadow) !important;
+
+  transition:
+    transform var(--liquid-transition-medium),
+    background var(--liquid-transition-fast),
+    box-shadow var(--liquid-transition-fast),
+    border-color var(--liquid-transition-fast);
+
+  transform: translateZ(0);
+  will-change: transform, filter;
+}
+
+/* Corner highlight effect on header button pills */
+.header-liquid-glass .glass-orb-button::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 50%;
+  bottom: 50%;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at 20% 20%,
+    rgba(255,255,255,0.4) 0%,
+    transparent 60%
+  );
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Hover state matching bottom bar */
+@media (hover: hover) and (pointer: fine) {
+  .header-liquid-glass .glass-orb-button:hover {
+    transform: scale(1.08) translateZ(0) !important;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25) 0%, transparent 60%),
+      var(--liquid-pill-bg) !important;
+    box-shadow:
+      var(--liquid-pill-shadow),
+      0 0 20px rgba(255,255,255,0.15),
+      0 4px 16px rgba(0,0,0,0.2) !important;
+    border-color: rgba(255,255,255,0.3) !important;
+  }
+}
+
+/* Avatar variant specific styles */
+.header-liquid-glass .glass-orb-button--avatar {
+  overflow: hidden !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+
+  /* Force Safari to respect rounded corners */
+  -webkit-mask-image: -webkit-radial-gradient(circle, white 100%, black 100%);
+  mask-image: radial-gradient(circle, white 100%, black 100%);
+}
+
+.header-liquid-glass .glass-orb-button--avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+  transform: translateZ(0);
+}
+
+/* Maintenir les effets glass sur le conteneur même avec avatar */
+.header-liquid-glass .glass-orb-button--avatar::before {
+  z-index: 1;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+/* Hover state spécifique pour avatar */
+@media (hover: hover) and (pointer: fine) {
+  .header-liquid-glass .glass-orb-button--avatar:hover {
+    transform: scale(1.08) translateZ(0) !important;
+    border-color: rgba(24, 227, 255, 0.4) !important;
+    box-shadow:
+      var(--liquid-pill-shadow),
+      0 0 24px rgba(24, 227, 255, 0.25),
+      0 4px 16px rgba(0, 0, 0, 0.2) !important;
+  }
+}
+
+/* Focus visible for accessibility */
+.header-liquid-glass button:focus-visible {
+  outline: 3px solid rgba(24, 227, 255, 0.6);
+  outline-offset: 3px;
+  box-shadow:
+    var(--liquid-pill-shadow),
+    0 0 0 4px rgba(24, 227, 255, 0.4) !important;
+  /* Animation focus désactivée - état statique */
+  animation: none !important;
+}
+
+/* Animation focusGlow COMPLÈTEMENT désactivée - état statique uniquement */
+@keyframes focusGlow {
+  0%, 100% {
+    box-shadow:
+      var(--liquid-pill-shadow),
+      0 0 0 4px rgba(24, 227, 255, 0.4);
+  }
+}
+
+/* Fallback for browsers without backdrop-filter */
+@supports not (backdrop-filter: blur(1px)) {
+  .header-liquid-glass {
+    background: linear-gradient(145deg, rgba(61, 19, 179, 0.9), rgba(24, 227, 255, 0.8)) !important;
+    border: 2px solid rgba(24, 227, 255, 0.6) !important;
+  }
+}
+
+/* =========================================
+   PERFORMANCE MODE - OPAQUE OPTIMIZATIONS
+   Remove all expensive effects for performance
+   ========================================= */
+
+/* High-performance mode: FULLY OPAQUE header, no transparency */
+body.mode-high-performance .header-liquid-glass,
+.mode-high-performance .header-liquid-glass,
+html.mode-high-performance .header-liquid-glass {
+  /* CRITICAL: Direct opaque background - ABSOLUTE PRIORITY */
+  background: rgb(11, 14, 23) !important;
+  background-color: rgb(11, 14, 23) !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  opacity: 1 !important;
+  /* Force layer isolation */
+  isolation: isolate !important;
+  /* Remove any inherited transparency */
+  background-clip: padding-box !important;
+  -webkit-background-clip: padding-box !important;
+  /* Ensure no background blending */
+  background-blend-mode: normal !important;
+  mix-blend-mode: normal !important;
+  /* Override all CSS variables */
+  --liquid-glass-bg-base: rgb(11, 14, 23) !important;
+  --liquid-blur-intense: 0px !important;
+  --liquid-saturate-intense: 100% !important;
+}
+
+/* CRITICAL: Force solid backdrop layer with ::before instead of disabling it */
+body.mode-high-performance .header-liquid-glass::before,
+.mode-high-performance .header-liquid-glass::before,
+html.mode-high-performance .header-liquid-glass::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: rgb(11, 14, 23) !important;
+  background-color: rgb(11, 14, 23) !important;
+  background-image: none !important;
+  border-radius: inherit !important;
+  z-index: -1 !important;
+  display: block !important;
+  pointer-events: none !important;
+  opacity: 1 !important;
+  animation: none !important;
+  -webkit-mask: none !important;
+  mask: none !important;
+  -webkit-mask-composite: none !important;
+  mask-composite: none !important;
+  padding: 0 !important;
+}
+
+/* Remove decorative glow pseudo-element in performance mode */
+body.mode-high-performance .header-liquid-glass::after,
+.mode-high-performance .header-liquid-glass::after,
+html.mode-high-performance .header-liquid-glass::after {
+  display: none !important;
+  content: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  background: none !important;
+  animation: none !important;
+}
+
+/* Simplify Zap button (Outils du Forgeron) in performance mode - OPAQUE with solid style */
+.mode-high-performance .central-action-button {
+  background: rgba(247, 147, 30, 0.25) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 2px solid rgba(247, 147, 30, 0.6) !important;
+  box-shadow: 0 4px 14px rgba(247, 147, 30, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Remove animated corner squares in performance mode */
+.mode-high-performance .central-action-button > div[style*="position: absolute"][style*="width: 6px"] {
+  display: none !important;
+}
+
+/* Remove pulsing glow effect in performance mode */
+.mode-high-performance .central-action-button > div.absolute.inset-0.rounded-full {
+  display: none !important;
+}
+
+/* Simplify hamburger menu button in performance mode - OPAQUE with better visibility */
+.mode-high-performance .user-panel-toggle {
+  background: rgba(255, 255, 255, 0.18) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Disable all animations in performance mode */
+.mode-high-performance .header-liquid-glass *,
+.mode-high-performance .central-action-button *,
+.mode-high-performance .user-panel-toggle * {
+  animation: none !important;
+  transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+/* Simplify hover states in performance mode - Keep subtle interactions */
+@media (hover: hover) and (pointer: fine) {
+  .mode-high-performance .central-action-button:hover {
+    background: rgba(247, 147, 30, 0.35) !important;
+    transform: scale(1.03) translateZ(0) !important;
+    box-shadow: 0 4px 16px rgba(247, 147, 30, 0.4), 0 2px 10px rgba(0, 0, 0, 0.25) !important;
+  }
+
+  .mode-high-performance .user-panel-toggle:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+    transform: scale(1.03) translateZ(0) !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+  }
+}
+
+/* =========================================
+   RESPONSIVE VISIBILITY CONTROLS
+   Force hamburger menu to be mobile-only
+   ========================================= */
+
+/* Hide hamburger menu on desktop (1024px and above) */
+@media (min-width: 1024px) {
+  .header-liquid-glass .lg\:hidden {
+    display: none !important;
+  }
+}

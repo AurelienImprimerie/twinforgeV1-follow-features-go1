@@ -1,0 +1,52 @@
+/* =========================================
+   ACCESSIBILITY - Focus, Motion, Contrast
+   Enhanced focus states and reduced motion support
+   ========================================= */
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .central-actions-panel::before,
+  .central-actions-panel::after,
+  .central-actions-panel .glass-card::after {
+    animation: none !important;
+  }
+
+  .central-actions-panel .glass-card:hover {
+    transform: translateZ(0) !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .central-actions-panel {
+    background: rgba(11, 14, 23, 0.95);
+    border: 3px solid rgba(24, 227, 255, 0.8) !important;
+  }
+
+  .central-actions-panel .glass-card {
+    background: rgba(255, 255, 255, 0.15);
+    border-width: 2px !important;
+  }
+}
+
+/* Focus visible for accessibility */
+.central-actions-panel button:focus-visible {
+  outline: 3px solid rgba(24, 227, 255, 0.6);
+  outline-offset: 2px;
+}
+
+/* Keyboard navigation highlight */
+.central-actions-panel button:focus-visible::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  background: rgba(24, 227, 255, 0.1);
+  pointer-events: none;
+  animation: focusPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes focusPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}

@@ -1,0 +1,287 @@
+/**
+ * Coach Chat Styles
+ * Liquid Glass styling for AI coach chat interface
+ */
+
+/* ============================================================
+   COACH CHAT CONTAINER
+   ============================================================ */
+
+.coach-chat-interface {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================================
+   FEEDBACK PANEL
+   ============================================================ */
+
+.feedback-panel-wrapper {
+  position: relative;
+  z-index: 2;
+}
+
+.feedback-panel {
+  width: 100%;
+}
+
+/* ============================================================
+   MESSAGES CONTAINER
+   ============================================================ */
+
+.messages-container {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 0px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 768px) {
+  .messages-container {
+    padding-bottom: 0px;
+  }
+
+  /* Account for virtual keyboard */
+  .messages-container.keyboard-open {
+    padding-bottom: 0px;
+  }
+}
+
+/* Desktop specific adjustments */
+@media (min-width: 769px) {
+  .messages-container {
+    padding-bottom: 2px;
+  }
+}
+
+/* ============================================================
+   CHAT INPUT BAR
+   ============================================================ */
+
+.chat-input-bar-container {
+  position: relative;
+  width: 100%;
+  z-index: 1;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.chat-input-bar {
+  width: 100%;
+  border-radius: 18px;
+  padding: 8px;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transform: translateZ(0);
+  will-change: transform, box-shadow;
+  backface-visibility: hidden;
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  mask-image: radial-gradient(white, black);
+}
+
+/* Gradient border for chat input */
+.chat-input-bar::before {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0.15) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.6;
+  z-index: -1;
+}
+
+/* Desktop responsiveness */
+@media (min-width: 1025px) {
+  .coach-chat-interface {
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  .messages-container {
+    padding-bottom: 8px;
+  }
+
+  .feedback-panel-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+}
+
+/* Tablet responsiveness */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .messages-container {
+    padding-bottom: 5px;
+  }
+}
+
+/* ============================================================
+   MESSAGE BUBBLES (additional refinements)
+   ============================================================ */
+
+.coach-message-bubble {
+  position: relative;
+  max-width: 85%;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.coach-message-bubble::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: 50%;
+  bottom: 50%;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at 20% 20%,
+    rgba(255, 255, 255, 0.3) 0%,
+    transparent 60%
+  );
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ============================================================
+   TYPING INDICATOR ANIMATION
+   ============================================================ */
+
+@keyframes typingBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.typing-dot {
+  animation: typingBounce 1.4s ease-in-out infinite;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* ============================================================
+   SCROLL TO BOTTOM BUTTON
+   ============================================================ */
+
+.scroll-to-bottom-btn {
+  position: absolute;
+  bottom: 100px;
+  right: 20px;
+  z-index: 10;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* ============================================================
+   ACCESSIBILITY & REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-input-bar,
+  .coach-message-bubble,
+  .scroll-to-bottom-btn {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .typing-dot {
+    animation: none !important;
+  }
+}
+
+/* ============================================================
+   HIGH CONTRAST MODE
+   ============================================================ */
+
+@media (prefers-contrast: high) {
+  .chat-input-bar {
+    border-width: 2px !important;
+    background: rgba(11, 14, 23, 0.95) !important;
+  }
+
+  .coach-message-bubble {
+    border-width: 2px !important;
+  }
+
+  .feedback-panel button {
+    border-width: 2px !important;
+  }
+}
+
+/* ============================================================
+   FOCUS STATES
+   ============================================================ */
+
+.chat-input-bar textarea:focus {
+  outline: none;
+}
+
+.chat-input-bar:focus-within {
+  outline: 2px solid var(--color-primary, #18E3FF);
+  outline-offset: 2px;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--color-primary, #18E3FF);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================================ */
+
+.coach-chat-interface,
+.messages-container,
+.chat-input-bar-container {
+  contain: layout style paint;
+  content-visibility: auto;
+}
+
+.coach-message-bubble,
+.feedback-panel button {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* ============================================================
+   VIRTUAL KEYBOARD HANDLING (iOS/Android)
+   ============================================================ */
+
+/* Removed fixed max-height calculation to prevent excessive bottom gap on mobile */
+
+/* iOS Safe Area - REMOVED to prevent excessive padding on mobile */
+
+/* ============================================================
+   DARK MODE SUPPORT
+   ============================================================ */
+
+@media (prefers-color-scheme: dark) {
+  .coach-chat-interface {
+    color-scheme: dark;
+  }
+}

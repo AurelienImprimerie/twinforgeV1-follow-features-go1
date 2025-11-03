@@ -1,0 +1,357 @@
+/**
+ * Chat Input & Typing Indicator Styles
+ * VisionOS 26 inspired premium interactions
+ */
+
+/* ============================================================
+   TYPING INDICATOR - OPTIMIZED ANIMATION
+   ============================================================ */
+
+.typing-indicator {
+  padding: 14px 18px !important;
+  border-radius: 20px !important;
+}
+
+@media (min-width: 769px) {
+  .typing-indicator {
+    padding: 16px 20px !important;
+    border-radius: 22px !important;
+  }
+}
+
+/* Typing dots - optimized animation for mobile */
+.typing-dot {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50%;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 769px) {
+  .typing-dot {
+    width: 9px !important;
+    height: 9px !important;
+  }
+}
+
+/* Optimized animation - 60fps on mobile */
+@keyframes typingDotBounce {
+  0%, 60%, 100% {
+    transform: translateY(0) translateZ(0);
+    opacity: 0.5;
+  }
+  30% {
+    transform: translateY(-8px) translateZ(0);
+    opacity: 1;
+  }
+}
+
+.typing-dot {
+  animation: typingDotBounce 1.4s ease-in-out infinite;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+.typing-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Réduire l'animation sur mobile pour performance */
+@media (max-width: 768px) {
+  @keyframes typingDotBounce {
+    0%, 60%, 100% {
+      transform: translateY(0) translateZ(0);
+      opacity: 0.6;
+    }
+    30% {
+      transform: translateY(-6px) translateZ(0);
+      opacity: 1;
+    }
+  }
+
+  .typing-dot {
+    animation-duration: 1.2s;
+  }
+}
+
+/* ============================================================
+   CHAT INPUT BAR - ENHANCED SPACING
+   ============================================================ */
+
+.chat-input-bar {
+  padding: 12px 14px !important;
+  border-radius: 22px !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 769px) {
+  .chat-input-bar {
+    padding: 14px 16px !important;
+    border-radius: 24px !important;
+  }
+}
+
+/* Focus state - enhanced */
+.chat-input-bar--focused {
+  transform: translateY(-2px);
+  box-shadow:
+    0 6px 28px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+@media (max-width: 768px) {
+  .chat-input-bar--focused {
+    transform: translateY(-1px);
+  }
+}
+
+/* ============================================================
+   INPUT BUTTONS - ENHANCED SIZE & INTERACTIONS
+   ============================================================ */
+
+.chat-input-button {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50%;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+}
+
+@media (min-width: 769px) {
+  .chat-input-button {
+    width: 44px !important;
+    height: 44px !important;
+  }
+}
+
+.chat-input-button:hover {
+  transform: scale(1.08);
+}
+
+.chat-input-button:active {
+  transform: scale(0.92);
+}
+
+/* Send button - enhanced when enabled */
+.chat-input-button--send-enabled {
+  animation: sendButtonPulse 2s ease-in-out infinite;
+}
+
+@keyframes sendButtonPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 16px var(--send-button-glow),
+      0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 24px var(--send-button-glow),
+      0 4px 16px rgba(0, 0, 0, 0.25);
+  }
+}
+
+@media (max-width: 768px) {
+  .chat-input-button--send-enabled {
+    animation: none;
+  }
+}
+
+/* Voice button recording state */
+.chat-input-button--recording {
+  animation: recordingPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes recordingPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 32px rgba(239, 68, 68, 0.5);
+  }
+}
+
+/* ============================================================
+   TEXTAREA - ENHANCED AUTO-RESIZE
+   ============================================================ */
+
+.chat-textarea {
+  padding: 10px 12px !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  min-height: 40px !important;
+  max-height: 120px !important;
+  resize: none !important;
+  transition: none;
+}
+
+@media (min-width: 769px) {
+  .chat-textarea {
+    padding: 12px 14px !important;
+    font-size: 15px !important;
+    min-height: 44px !important;
+    max-height: 140px !important;
+  }
+}
+
+/* Custom scrollbar for textarea */
+.chat-textarea::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-textarea::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.chat-textarea::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================================
+   RECORDING INDICATOR - ENHANCED ANIMATION
+   ============================================================ */
+
+.recording-indicator {
+  animation: fadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.recording-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #EF4444;
+  animation: recordingDotPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes recordingDotPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+}
+
+/* ============================================================
+   PROCESSING INDICATOR
+   ============================================================ */
+
+.processing-indicator {
+  animation: fadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.processing-spinner {
+  animation: processingSpinSlow 2s linear infinite;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+@keyframes processingSpinSlow {
+  from {
+    transform: rotate(0deg) translateZ(0);
+  }
+  to {
+    transform: rotate(360deg) translateZ(0);
+  }
+}
+
+/* Optimiser sur mobile */
+@media (max-width: 768px) {
+  .processing-spinner {
+    animation-duration: 1.5s;
+  }
+}
+
+/* ============================================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================================ */
+
+.chat-input-bar,
+.chat-input-button,
+.typing-indicator {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.chat-textarea {
+  transform: translateZ(0);
+  -webkit-font-smoothing: antialiased;
+  will-change: height;
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .typing-dot,
+  .chat-input-button--send-enabled,
+  .chat-input-button--recording,
+  .recording-dot,
+  .processing-spinner {
+    animation: none !important;
+  }
+
+  .chat-input-bar--focused {
+    transform: none !important;
+  }
+
+  .chat-input-button:hover {
+    transform: none !important;
+  }
+}
+
+/* ============================================================
+   HIGH CONTRAST MODE
+   ============================================================ */
+
+@media (prefers-contrast: high) {
+  .chat-input-bar {
+    border-width: 2px !important;
+  }
+
+  .chat-input-button {
+    border-width: 2px !important;
+  }
+}
+
+/* ============================================================
+   MOBILE KEYBOARD ADJUSTMENTS
+   ============================================================ */
+
+@supports (height: 100dvh) {
+  @media (max-width: 768px) {
+    .chat-input-bar {
+      /* Pas de safe-area ici - géré par le parent drawer */
+      /* bottom: max(8px, env(safe-area-inset-bottom)); */
+    }
+  }
+}

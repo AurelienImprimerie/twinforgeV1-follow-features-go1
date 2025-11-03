@@ -1,0 +1,52 @@
+/* =========================================
+   PERFORMANCE MODE - Buttons & Chips
+   Apple-like simplified shadows
+   ========================================= */
+
+.performance-mode .btn-glass,
+.performance-mode .btn-glass--primary,
+.performance-mode .btn-glass--secondary-nav,
+.performance-mode .btn-glass--warning,
+.performance-mode button,
+.performance-mode [role="button"] {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Primary button: subtle colored shadow preserved */
+.performance-mode .btn-glass--primary {
+  box-shadow:
+    0 4px 12px rgba(139, 92, 246, 0.15),
+    0 2px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Button hover: slightly elevated */
+.performance-mode .btn-glass:hover,
+.performance-mode button:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.performance-mode .btn-glass--primary:hover {
+  box-shadow:
+    0 6px 16px rgba(139, 92, 246, 0.2),
+    0 3px 8px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Chips: minimal shadow */
+.performance-mode [class*="chip"],
+.performance-mode [class*="badge"],
+.performance-mode [class*="tag"] {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08) !important;
+  backdrop-filter: none !important;
+}
+
+/* Tap feedback essential */
+.performance-mode button:active,
+.performance-mode [role="button"]:active,
+.performance-mode .glass-card:active,
+.performance-mode .glass-card-cta:active,
+.performance-mode .spatial-icon:active {
+  transform: scale(0.98) !important;
+  transition: transform 0.08s ease-out !important;
+}

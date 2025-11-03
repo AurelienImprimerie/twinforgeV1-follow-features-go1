@@ -1,0 +1,475 @@
+/* =========================================
+   FORGE PIPELINE GPU-OPTIMIZED ANIMATIONS
+   Animations et transitions GPU-accelerated
+   Inspirées du tracker d'activité
+   ========================================= */
+
+@import './forge-pipeline-variables.css';
+
+/* ==========================================
+   KEYFRAMES GPU-OPTIMIZED
+   ========================================== */
+
+@keyframes forgeFadeIn {
+  from {
+    opacity: 0;
+    transform: var(--gpu-transform);
+  }
+  to {
+    opacity: 1;
+    transform: var(--gpu-transform);
+  }
+}
+
+@keyframes forgeFadeOut {
+  from {
+    opacity: 1;
+    transform: var(--gpu-transform);
+  }
+  to {
+    opacity: 0;
+    transform: var(--gpu-transform);
+  }
+}
+
+@keyframes forgeSlideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateZ(0);
+  }
+}
+
+@keyframes forgeSlideOutDown {
+  from {
+    opacity: 1;
+    transform: translateY(0) translateZ(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px) translateZ(0);
+  }
+}
+
+@keyframes forgeScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+  }
+}
+
+@keyframes forgeScaleOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateZ(0);
+  }
+}
+
+@keyframes forgePulseGlow {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1) translateZ(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05) translateZ(0);
+  }
+}
+
+@keyframes forgePulseRing {
+  0% {
+    opacity: 0.6;
+    transform: scale(1) translateZ(0);
+  }
+  50% {
+    opacity: 0;
+    transform: scale(1.2) translateZ(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1) translateZ(0);
+  }
+}
+
+@keyframes forgeShimmerPass {
+  from {
+    transform: translateX(-100%) translateZ(0);
+  }
+  to {
+    transform: translateX(200%) translateZ(0);
+  }
+}
+
+@keyframes forgeProgressFill {
+  from {
+    transform: scaleX(0) translateZ(0);
+    transform-origin: left center;
+  }
+  to {
+    transform: scaleX(1) translateZ(0);
+    transform-origin: left center;
+  }
+}
+
+@keyframes forgeRotateGlow {
+  from {
+    transform: rotate(0deg) translateZ(0);
+  }
+  to {
+    transform: rotate(360deg) translateZ(0);
+  }
+}
+
+@keyframes forgeBreathe {
+  0%, 100% {
+    opacity: 0.9;
+    transform: scale(1) translateZ(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08) translateZ(0);
+  }
+}
+
+/* ==========================================
+   BASE UTILITY CLASSES
+   ========================================== */
+
+/* GPU Layer Promotion */
+.forge-gpu-layer {
+  transform: var(--gpu-transform);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform;
+}
+
+.forge-gpu-layer-3d {
+  transform: var(--gpu-3d-transform);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+/* Containment for Performance */
+.forge-contain-paint {
+  contain: layout style paint;
+}
+
+.forge-contain-layout {
+  contain: layout style;
+}
+
+.forge-contain-strict {
+  contain: layout style paint size;
+}
+
+/* Content Visibility */
+.forge-content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 400px;
+}
+
+/* ==========================================
+   FORGE PIPELINE PROGRESS HEADER STYLES
+   ========================================== */
+
+.forge-pipeline-header {
+  position: relative;
+  width: 100%;
+  transform: var(--gpu-transform);
+  contain: layout style paint;
+  animation: forgeSlideInUp var(--anim-duration-base) var(--anim-ease-smooth);
+}
+
+/* Main Card Container */
+.forge-pipeline-card {
+  position: relative;
+  padding: var(--space-4);
+  backdrop-filter: blur(var(--glass-blur-adaptive)) saturate(var(--glass-saturate-adaptive));
+  -webkit-backdrop-filter: blur(var(--glass-blur-adaptive)) saturate(var(--glass-saturate-adaptive));
+  border-radius: var(--radius-2xl);
+  transform: var(--gpu-transform);
+  contain: layout style paint;
+  overflow: hidden;
+  will-change: backdrop-filter;
+}
+
+/* Forge-specific card backgrounds */
+.forge-pipeline-card--energy {
+  background: radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--forge-energy-primary) 28%, transparent) 0%, transparent 60%),
+              radial-gradient(circle at 70% 80%, color-mix(in srgb, var(--forge-energy-secondary) 20%, transparent) 0%, transparent 50%),
+              color-mix(in srgb, var(--forge-energy-primary) 12%, transparent);
+  border: var(--glass-border-width) solid color-mix(in srgb, var(--forge-energy-primary) 40%, transparent);
+  box-shadow: var(--shadow-lg),
+              0 0 50px color-mix(in srgb, var(--forge-energy-primary) 35%, transparent),
+              inset 0 2px 0 rgba(255, 255, 255, 0.15),
+              inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.forge-pipeline-card--body {
+  background: radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--forge-body-primary) 28%, transparent) 0%, transparent 60%),
+              radial-gradient(circle at 70% 80%, color-mix(in srgb, var(--forge-body-secondary) 20%, transparent) 0%, transparent 50%),
+              color-mix(in srgb, var(--forge-body-primary) 12%, transparent);
+  border: var(--glass-border-width) solid color-mix(in srgb, var(--forge-body-primary) 40%, transparent);
+  box-shadow: var(--shadow-lg),
+              0 0 50px color-mix(in srgb, var(--forge-body-primary) 35%, transparent),
+              inset 0 2px 0 rgba(255, 255, 255, 0.15),
+              inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.forge-pipeline-card--face {
+  background: radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--forge-face-primary) 28%, transparent) 0%, transparent 60%),
+              radial-gradient(circle at 70% 80%, color-mix(in srgb, var(--forge-face-secondary) 20%, transparent) 0%, transparent 50%),
+              color-mix(in srgb, var(--forge-face-primary) 12%, transparent);
+  border: var(--glass-border-width) solid color-mix(in srgb, var(--forge-face-primary) 40%, transparent);
+  box-shadow: var(--shadow-lg),
+              0 0 50px color-mix(in srgb, var(--forge-face-primary) 35%, transparent),
+              inset 0 2px 0 rgba(255, 255, 255, 0.15),
+              inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* ==========================================
+   HEADER ROW (Icon + Title + Badge)
+   ========================================== */
+
+.forge-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.forge-header-content {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  flex: 1;
+  min-width: 0;
+}
+
+/* Main Icon Container with Pulse */
+.forge-icon-container {
+  position: relative;
+  flex-shrink: 0;
+  width: 7rem;
+  height: 7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  transform: var(--gpu-transform);
+  animation: forgeBreathe 3s var(--anim-ease-smooth) infinite;
+  will-change: transform, opacity;
+}
+
+.forge-icon-container--energy {
+  background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--forge-energy-primary) 50%, transparent) 0%, transparent 70%),
+              radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--forge-energy-secondary) 35%, transparent) 0%, transparent 60%),
+              rgba(255, 255, 255, 0.15);
+  border: 3px solid color-mix(in srgb, var(--forge-energy-primary) 60%, transparent);
+  box-shadow: var(--shadow-energy-lg),
+              0 0 90px color-mix(in srgb, var(--forge-energy-primary) 50%, transparent),
+              0 0 130px color-mix(in srgb, var(--forge-energy-secondary) 35%, transparent),
+              inset 0 2px 0 rgba(255, 255, 255, 0.3);
+}
+
+.forge-icon-container--body {
+  background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--forge-body-primary) 50%, transparent) 0%, transparent 70%),
+              radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--forge-body-secondary) 35%, transparent) 0%, transparent 60%),
+              rgba(255, 255, 255, 0.15);
+  border: 3px solid color-mix(in srgb, var(--forge-body-primary) 60%, transparent);
+  box-shadow: var(--shadow-body-lg),
+              0 0 90px color-mix(in srgb, var(--forge-body-primary) 50%, transparent),
+              0 0 130px color-mix(in srgb, var(--forge-body-secondary) 35%, transparent),
+              inset 0 2px 0 rgba(255, 255, 255, 0.3);
+}
+
+.forge-icon-container--face {
+  background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--forge-face-primary) 50%, transparent) 0%, transparent 70%),
+              radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--forge-face-secondary) 35%, transparent) 0%, transparent 60%),
+              rgba(255, 255, 255, 0.15);
+  border: 3px solid color-mix(in srgb, var(--forge-face-primary) 60%, transparent);
+  box-shadow: var(--shadow-face-lg),
+              0 0 90px color-mix(in srgb, var(--forge-face-primary) 50%, transparent),
+              0 0 130px color-mix(in srgb, var(--forge-face-secondary) 35%, transparent),
+              inset 0 2px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Titles */
+.forge-title-container {
+  flex: 1;
+  min-width: 0;
+  animation: forgeFadeIn var(--anim-duration-base) var(--anim-ease-smooth);
+}
+
+.forge-title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: white;
+  margin-bottom: var(--space-1);
+  line-height: 1.2;
+}
+
+.forge-title--energy {
+  text-shadow: 0 0 30px color-mix(in srgb, var(--forge-energy-primary) 50%, transparent);
+}
+
+.forge-title--body {
+  text-shadow: 0 0 30px color-mix(in srgb, var(--forge-body-primary) 50%, transparent);
+}
+
+.forge-title--face {
+  text-shadow: 0 0 30px color-mix(in srgb, var(--forge-face-primary) 50%, transparent);
+}
+
+.forge-subtitle {
+  font-size: var(--text-sm);
+  color: rgba(229, 231, 235, 0.7);
+}
+
+.forge-subtitle--energy {
+  color: color-mix(in srgb, #E5E7EB 85%, var(--forge-energy-primary) 15%);
+}
+
+.forge-subtitle--body {
+  color: color-mix(in srgb, #E5E7EB 85%, var(--forge-body-primary) 15%);
+}
+
+.forge-subtitle--face {
+  color: color-mix(in srgb, #E5E7EB 85%, var(--forge-face-primary) 15%);
+}
+
+/* Step Badge */
+.forge-step-badge {
+  flex-shrink: 0;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-xl);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: white;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: forgeScaleIn var(--anim-duration-base) var(--anim-ease-smooth);
+  will-change: transform, opacity;
+  white-space: nowrap;
+}
+
+.forge-step-badge--energy {
+  background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--forge-energy-primary) 45%, transparent) 0%, transparent 70%),
+              rgba(255, 255, 255, 0.12);
+  border: 1.5px solid color-mix(in srgb, var(--forge-energy-primary) 50%, transparent);
+  box-shadow: var(--shadow-energy-sm), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  text-shadow: 0 0 16px color-mix(in srgb, var(--forge-energy-primary) 60%, transparent);
+}
+
+.forge-step-badge--body {
+  background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--forge-body-primary) 45%, transparent) 0%, transparent 70%),
+              rgba(255, 255, 255, 0.12);
+  border: 1.5px solid color-mix(in srgb, var(--forge-body-primary) 50%, transparent);
+  box-shadow: var(--shadow-body-sm), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  text-shadow: 0 0 16px color-mix(in srgb, var(--forge-body-primary) 60%, transparent);
+}
+
+.forge-step-badge--face {
+  background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--forge-face-primary) 45%, transparent) 0%, transparent 70%),
+              rgba(255, 255, 255, 0.12);
+  border: 1.5px solid color-mix(in srgb, var(--forge-face-primary) 50%, transparent);
+  box-shadow: var(--shadow-face-sm), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  text-shadow: 0 0 16px color-mix(in srgb, var(--forge-face-primary) 60%, transparent);
+}
+
+/* ==========================================
+   GLOBAL PROGRESS BAR
+   ========================================== */
+
+.forge-progress-section {
+  margin-bottom: var(--space-5);
+}
+
+.forge-progress-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+
+.forge-progress-label {
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.forge-progress-percentage {
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  animation: forgeScaleIn var(--anim-duration-base) var(--anim-ease-smooth);
+}
+
+.forge-progress-percentage--energy {
+  color: var(--forge-energy-primary);
+  text-shadow: 0 0 16px color-mix(in srgb, var(--forge-energy-primary) 50%, transparent);
+}
+
+.forge-progress-percentage--body {
+  color: var(--forge-body-primary);
+  text-shadow: 0 0 16px color-mix(in srgb, var(--forge-body-primary) 50%, transparent);
+}
+
+.forge-progress-percentage--face {
+  color: var(--forge-face-primary);
+  text-shadow: 0 0 16px color-mix(in srgb, var(--forge-face-primary) 50%, transparent);
+}
+
+/* Progress Bar Track */
+.forge-progress-track {
+  position: relative;
+  width: 100%;
+  height: var(--progress-height-lg);
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+  transform: var(--gpu-transform);
+}
+
+/* Progress Bar Fill */
+.forge-progress-fill {
+  position: absolute;
+  inset-y: 0;
+  left: 0;
+  border-radius: var(--radius-full);
+  transition: width var(--anim-duration-xslow) var(--anim-ease-smooth);
+  will-change: width;
+  transform: var(--gpu-transform);
+}
+
+.forge-progress-fill--energy {
+  background: linear-gradient(90deg, var(--forge-energy-primary), var(--forge-energy-secondary), color-mix(in srgb, var(--forge-energy-primary) 80%, white));
+  box-shadow: 0 0 20px color-mix(in srgb, var(--forge-energy-primary) 50%, transparent);
+}
+
+.forge-progress-fill--body {
+  background: linear-gradient(90deg, var(--forge-body-primary), var(--forge-body-secondary), color-mix(in srgb, var(--forge-body-primary) 80%, white));
+  box-shadow: 0 0 20px color-mix(in srgb, var(--forge-body-primary) 50%, transparent);
+}
+
+.forge-progress-fill--face {
+  background: linear-gradient(90deg, var(--forge-face-primary), var(--forge-face-secondary), color-mix(in srgb, var(--forge-face-primary) 80%, white));
+  box-shadow: 0 0 20px color-mix(in srgb, var(--forge-face-primary) 50%, transparent);
+}
+
+/* ==========================================
+   Continuation in next file...
+   ========================================== */

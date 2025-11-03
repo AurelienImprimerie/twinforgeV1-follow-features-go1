@@ -1,0 +1,160 @@
+/**
+ * Unified Floating Button Styles
+ * Styles pour le bouton flottant unifié chat/vocal
+ */
+
+.unified-floating-button {
+  /* Optimisations de performance */
+  /* IMPORTANT: Ne pas utiliser 'contain: paint' car ça clippe les badges qui dépassent */
+  contain: layout style;
+  will-change: right, transform, filter;
+  /* Assurer que les badges ne sont pas clippés */
+  overflow: visible !important;
+}
+
+/* Mode-specific styles */
+.unified-floating-button--text {
+  /* Styles spécifiques au mode texte */
+}
+
+.unified-floating-button--voice {
+  /* Styles spécifiques au mode vocal */
+  animation: voicePulse 2s ease-in-out infinite;
+}
+
+@keyframes voicePulse {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.1);
+  }
+}
+
+/* Step 2 active state */
+.unified-floating-button--step2 {
+  animation: step2Pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes step2Pulse {
+  0%, 100% {
+    box-shadow:
+      var(--liquid-pill-shadow),
+      0 0 32px rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    box-shadow:
+      var(--liquid-pill-shadow),
+      0 0 48px rgba(59, 130, 246, 0.6),
+      0 0 64px rgba(59, 130, 246, 0.3);
+  }
+}
+
+/* Step 2 notification badge */
+.unified-floating-button--step2-notification {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #3B82F6 0%, #2563EB 100%);
+  border: 2px solid rgba(11, 14, 23, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  box-shadow:
+    0 0 20px rgba(59, 130, 246, 0.8),
+    0 2px 8px rgba(0, 0, 0, 0.4);
+  animation: step2BadgePulse 2s ease-in-out infinite;
+  /* Z-index élevé pour être au-dessus du bouton */
+  z-index: 10;
+  pointer-events: none;
+}
+
+@keyframes step2BadgePulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+/* Unread badge */
+.unified-floating-badge {
+  animation: badgeAppear 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Z-index élevé pour être au-dessus du bouton */
+  z-index: 10;
+  pointer-events: none;
+}
+
+@keyframes badgeAppear {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Button icon animation */
+.button-icon {
+  position: relative;
+  z-index: 1;
+}
+
+/* Hover effect enhancement */
+.unified-floating-button:hover .button-icon {
+  filter: drop-shadow(0 0 20px currentColor);
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 1024px) {
+  .unified-floating-button {
+    width: 56px !important;
+    height: 56px !important;
+  }
+
+  .unified-floating-button--step2-notification {
+    width: 22px;
+    height: 22px;
+    font-size: 12px;
+  }
+}
+
+/* Desktop-specific adjustments */
+@media (min-width: 1025px) {
+  .unified-floating-button {
+    width: 60px !important;
+    height: 60px !important;
+  }
+}
+
+/* Performance mode optimizations */
+@media (prefers-reduced-motion: reduce) {
+  .unified-floating-button,
+  .unified-floating-button--voice,
+  .unified-floating-button--step2,
+  .unified-floating-button--step2-notification,
+  .unified-floating-badge {
+    animation: none;
+  }
+
+  .unified-floating-button:hover .button-icon {
+    filter: none;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .unified-floating-button {
+    /* Larger touch target on mobile */
+    padding: 4px;
+  }
+}

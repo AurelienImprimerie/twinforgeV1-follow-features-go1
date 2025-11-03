@@ -1,0 +1,394 @@
+/**
+ * Floating Generate Button Styles
+ * Full-width floating CTA button with text for training session generation
+ */
+
+.floating-generate-button {
+  position: fixed;
+  z-index: 9998;
+
+  /* Desktop: Bottom of page with padding */
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  /* Full button with text - not a circle anymore */
+  width: auto;
+  min-width: 320px;
+  max-width: 480px;
+  height: 64px;
+  border-radius: 16px;
+  padding: 0 24px;
+
+  /* Visual styling with glass effect */
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--step-color) 25%, transparent) 0%,
+      color-mix(in srgb, var(--step-color) 15%, transparent) 100%
+    ),
+    rgba(255, 255, 255, 0.12);
+
+  border: 2px solid color-mix(in srgb, var(--step-color) 50%, transparent);
+
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 0 40px color-mix(in srgb, var(--step-color) 30%, transparent),
+    inset 0 2px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -2px 8px rgba(0, 0, 0, 0.1);
+
+  backdrop-filter: blur(16px);
+
+  /* Layout - flexbox for icon + text + arrow */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  /* Interaction */
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  /* Transitions */
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Positioning */
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* Icon on the left */
+.floating-generate-button__icon {
+  position: relative;
+  z-index: 3;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background:
+    radial-gradient(
+      circle at 30% 30%,
+      color-mix(in srgb, var(--step-color) 30%, transparent) 0%,
+      transparent 60%
+    ),
+    rgba(255, 255, 255, 0.1);
+  border: 1px solid color-mix(in srgb, var(--step-color) 40%, transparent);
+  transition: all 0.3s ease;
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+/* Text content in the middle */
+.floating-generate-button__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+  z-index: 3;
+  min-width: 0; /* Allow text truncation */
+}
+
+.floating-generate-button__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.floating-generate-button__subtitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+/* Arrow on the right */
+.floating-generate-button__arrow {
+  flex-shrink: 0;
+  z-index: 3;
+  opacity: 0.9;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Background glow layer */
+.floating-generate-button__glow {
+  position: absolute;
+  inset: -30px;
+  border-radius: 24px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 1;
+}
+
+/* Animated light sweep effect */
+.floating-generate-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--step-color) 0%, transparent) 20%,
+    color-mix(in srgb, var(--step-color) 40%, transparent) 50%,
+    color-mix(in srgb, var(--step-color) 0%, transparent) 80%,
+    transparent 100%
+  );
+  animation: lightSweep 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@keyframes lightSweep {
+  0% {
+    left: -100%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  50% {
+    left: 100%;
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+/* Icon glow pulse animation keyframes */
+@keyframes iconPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 color-mix(in srgb, var(--step-color) 30%, transparent);
+    filter: brightness(1);
+  }
+  50% {
+    box-shadow: 0 0 20px color-mix(in srgb, var(--step-color) 50%, transparent);
+    filter: brightness(1.2);
+  }
+}
+
+/* Hover effects */
+.floating-generate-button:hover {
+  border-color: color-mix(in srgb, var(--step-color) 70%, transparent);
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--step-color) 35%, transparent) 0%,
+      color-mix(in srgb, var(--step-color) 20%, transparent) 100%
+    ),
+    rgba(255, 255, 255, 0.15);
+
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    0 0 50px color-mix(in srgb, var(--step-color) 40%, transparent),
+    inset 0 2px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.floating-generate-button:hover .floating-generate-button__glow {
+  opacity: 1;
+}
+
+.floating-generate-button:hover .floating-generate-button__icon {
+  background:
+    radial-gradient(
+      circle at 30% 30%,
+      color-mix(in srgb, var(--step-color) 40%, transparent) 0%,
+      transparent 60%
+    ),
+    rgba(255, 255, 255, 0.15);
+  border-color: color-mix(in srgb, var(--step-color) 60%, transparent);
+}
+
+.floating-generate-button:hover .floating-generate-button__arrow {
+  transform: translateX(4px);
+  opacity: 1;
+}
+
+/* Active/pressed state */
+.floating-generate-button:active {
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    0 0 30px color-mix(in srgb, var(--step-color) 35%, transparent),
+    inset 0 2px 0 rgba(255, 255, 255, 0.15);
+}
+
+.floating-generate-button:active .floating-generate-button__icon {
+  transform: scale(0.95);
+}
+
+/* Mobile and Tablet: Position above bottom bar */
+@media (max-width: 1024px) {
+  .floating-generate-button {
+    /* Position above bottom bar with proper offset */
+    bottom: calc(var(--new-bottom-bar-height, 80px) + var(--new-bottom-bar-bottom-offset, 8px) + 16px);
+    left: 16px;
+    right: 16px;
+    transform: none;
+
+    /* Full width on mobile with constraints */
+    width: calc(100% - 32px);
+    min-width: unset;
+    max-width: unset;
+    height: 60px;
+    padding: 0 20px;
+    border-radius: 14px;
+  }
+
+  .floating-generate-button__title {
+    font-size: 15px;
+  }
+
+  .floating-generate-button__subtitle {
+    font-size: 12px;
+    max-width: 150px;
+  }
+
+  .floating-generate-button__icon {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* Small mobile screens */
+@media (max-width: 640px) {
+  .floating-generate-button {
+    height: 56px;
+    padding: 0 16px;
+    bottom: calc(var(--new-bottom-bar-height, 80px) + var(--new-bottom-bar-bottom-offset, 8px) + 12px);
+  }
+
+  .floating-generate-button__title {
+    font-size: 14px;
+  }
+
+  .floating-generate-button__subtitle {
+    font-size: 11px;
+    max-width: 120px;
+  }
+
+  .floating-generate-button__icon {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Disabled state */
+.floating-generate-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Accessibility: Focus state */
+.floating-generate-button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--step-color) 80%, transparent);
+  outline-offset: 4px;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .floating-generate-button::after {
+    animation: none;
+    display: none;
+  }
+
+  .floating-generate-button__icon {
+    animation: none;
+  }
+}
+
+/* Animation for pulsing effect when first appears */
+@keyframes floating-pulse {
+  0%, 100% {
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    transform: translateX(-50%) scale(1.02);
+  }
+}
+
+@keyframes floating-pulse-mobile {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+/* Apply pulse animation on mount */
+.floating-generate-button[data-just-appeared="true"] {
+  animation: floating-pulse 1.5s ease-in-out 3;
+}
+
+@media (max-width: 1024px) {
+  .floating-generate-button[data-just-appeared="true"] {
+    animation: floating-pulse-mobile 1.5s ease-in-out 3;
+  }
+}
+
+/* Desktop large screens: More prominent */
+@media (min-width: 1440px) {
+  .floating-generate-button {
+    height: 72px;
+    bottom: 40px;
+    min-width: 400px;
+    padding: 0 28px;
+    border-radius: 18px;
+  }
+
+  .floating-generate-button__title {
+    font-size: 18px;
+  }
+
+  .floating-generate-button__subtitle {
+    font-size: 14px;
+    max-width: 250px;
+  }
+
+  .floating-generate-button__icon {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* Prevent layout shift */
+.floating-generate-button-spacer {
+  height: 0;
+  pointer-events: none;
+}
+
+/* Loading state (optional for future use) */
+.floating-generate-button[data-loading="true"] {
+  pointer-events: none;
+}
+
+.floating-generate-button[data-loading="true"] .floating-generate-button__icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

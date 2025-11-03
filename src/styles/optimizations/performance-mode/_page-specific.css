@@ -1,0 +1,135 @@
+/* =========================================
+   PERFORMANCE MODE - Page Specific Optimizations
+   Body scan, meals, training, etc.
+   ========================================= */
+
+/* ================== BODY SCAN ================== */
+
+.performance-mode .body-keypoints {
+  opacity: 0.6 !important;
+}
+
+.performance-mode .keypoint {
+  animation: none !important;
+  box-shadow: 0 0 6px currentColor !important;
+}
+
+.performance-mode .scan-line-vertical,
+.performance-mode .scan-line-horizontal {
+  animation-duration: 4s !important;
+  box-shadow: 0 0 10px currentColor !important;
+}
+
+.performance-mode .analysis-grid {
+  opacity: 0.2 !important;
+}
+
+.performance-mode .grid-cell {
+  animation: none !important;
+  opacity: 0.3 !important;
+}
+
+.performance-mode .analysis-zone {
+  animation: none !important;
+  opacity: 0.4 !important;
+  transform: translate(-50%, -50%) translateZ(0) !important;
+}
+
+.performance-mode .ai-focus-overlay {
+  animation: none !important;
+  opacity: 0.3 !important;
+}
+
+.performance-mode .data-particle,
+.performance-mode .data-flow-container {
+  display: none !important;
+}
+
+.performance-mode .celebration-ambient-glow {
+  opacity: 0.3 !important;
+  filter: blur(12px) !important;
+}
+
+.performance-mode .celebration-ray {
+  animation: none !important;
+  opacity: 0.4 !important;
+}
+
+/* Guide breathing animation - disable only animation, keep element visible */
+.performance-mode .guide-breathing {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+/* IMPORTANT: Keep guide images visible in performance mode - only disable animations */
+.performance-mode img[alt*="Guide"],
+.performance-mode img[src*="guide"] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 0.85 !important;
+}
+
+/* ================== MEALS PROGRESSION TAB ================== */
+
+.performance-mode .metric-card-enter,
+.performance-mode .metric-icon-glow-css,
+.performance-mode .metric-value-enter,
+.performance-mode .status-badge-enter {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+.performance-mode .chart-enter,
+.performance-mode .chart-enter-right {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+.performance-mode .hero-metrics-enter {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+.performance-mode .progression-glow-css {
+  animation: none !important;
+  opacity: 0.15 !important;
+  filter: blur(8px) !important;
+}
+
+.performance-mode .legend-item-enter {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+.performance-mode .heatmap-enter,
+.performance-mode .heatmap-cell-enter {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+.performance-mode .score-scale-enter {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+/* ================== MEALS HISTORY TAB ================== */
+
+.performance-mode .meal-group-enter,
+.performance-mode .meal-item-enter {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+.performance-mode .progress-fill-css {
+  animation: none !important;
+  transition: width 0.3s ease-out !important;
+}
+
+.performance-mode .metric-icon-static {
+  animation: none !important;
+}
+
+.performance-mode .metric-particle-css {
+  display: none !important;
+  animation: none !important;
+}

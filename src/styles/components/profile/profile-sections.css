@@ -1,0 +1,153 @@
+/* =========================================
+   PROFILE SECTIONS - Icon & Layout Fixes
+   Ensures icons maintain proper dimensions
+   ========================================= */
+
+/* Icon container fixes for profile section headers */
+.profile-section-icon-container,
+[class*="rounded-full"][class*="flex items-center justify-center"][style*="background"] {
+  flex-shrink: 0;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ensure SpatialIcon inside maintains aspect ratio */
+.profile-section-icon-container svg,
+[class*="rounded-full"][class*="flex items-center justify-center"] svg {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  min-width: 1.25rem;
+  min-height: 1.25rem;
+}
+
+/* Profile section headers - prevent text from compressing icons */
+.profile-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: nowrap;
+}
+
+.profile-section-header h3,
+.profile-section-header h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Icon badges and status indicators */
+.profile-status-badge {
+  flex-shrink: 0;
+  min-width: 0.5rem;
+  min-height: 0.5rem;
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+/* Larger icon containers (for avatar cards) */
+.profile-large-icon-container {
+  flex-shrink: 0;
+  min-width: 3rem;
+  min-height: 3rem;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-large-icon-container svg {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+}
+
+/* Technical details grid icons */
+.profile-tech-icon {
+  flex-shrink: 0;
+  width: 0.875rem;
+  height: 0.875rem;
+  min-width: 0.875rem;
+  min-height: 0.875rem;
+}
+
+/* Progress bar icon containers */
+.progress-bar-icon-container {
+  flex-shrink: 0;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.progress-bar-icon-container svg {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  min-width: 1.25rem;
+  min-height: 1.25rem;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .profile-section-icon-container,
+  [class*="rounded-full"][class*="flex items-center justify-center"][style*="background"] {
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .profile-large-icon-container {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .profile-large-icon-container svg {
+    width: 1.375rem;
+    height: 1.375rem;
+    min-width: 1.375rem;
+    min-height: 1.375rem;
+  }
+}
+
+/* Specific fixes for nutrition and avatar tabs */
+.nutrition-section-header,
+.avatar-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.nutrition-section-header > div:first-child,
+.avatar-section-header > div:first-child {
+  flex-shrink: 0;
+}
+
+/* Prevent flex children from compressing icons */
+.glass-card h3 > div[class*="rounded-full"],
+.glass-card h4 > div[class*="rounded-full"] {
+  flex-shrink: 0;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+}
+
+/* Ensure all SVG icons in profile maintain aspect ratio */
+.profile-tabs svg,
+.profile-section svg {
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+}

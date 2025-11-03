@@ -1,0 +1,632 @@
+/* =========================================
+   MEAL SCAN RESULTS - CSS OPTIMIZED
+   TwinForge VisionOS 26 - iPhone 11+ Optimized
+   Composants: MacronutrientsCard, DetectedFoodsCard, ActionButtons
+   ========================================= */
+
+/* =========================================
+   VARIABLES - NUTRITION THEME
+   ========================================= */
+:root {
+  /* Nutrition Primary Colors - Harmonisé avec TwinForge */
+  --nutrition-primary: #10B981;
+  --nutrition-primary-light: #22C55E;
+  --nutrition-secondary: #34D399;
+  --nutrition-accent: #059669;
+
+  /* Macronutrients Colors */
+  --nutrition-proteins: #EF4444;
+  --nutrition-carbs: #F59E0B;
+  --nutrition-fats: #8B5CF6;
+  --nutrition-calories: #3B82F6;
+
+  /* Food Categories Colors */
+  --food-category-protein: #EF4444;
+  --food-category-carbs: #F59E0B;
+  --food-category-vegetables: #22C55E;
+  --food-category-healthy-fats: #8B5CF6;
+  --food-category-dairy: #06B6D4;
+  --food-category-fruits: #EC4899;
+  --food-category-grains: #D97706;
+  --food-category-default: #10B981;
+
+  /* Meal Scan Results Variables */
+  --meal-card-padding-mobile: 20px;
+  --meal-card-padding-desktop: 24px;
+  --meal-blur-mobile: 12px;
+  --meal-blur-desktop: 20px;
+}
+
+/* =========================================
+   MACRONUTRIENTS CARD - Carte des Macros
+   ========================================= */
+
+/* Base Card Container */
+.macronutrients-card-container {
+  padding: 24px;
+  background:
+    radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--nutrition-secondary) 10%, transparent) 0%, transparent 60%),
+    radial-gradient(circle at 70% 80%, color-mix(in srgb, var(--nutrition-accent) 8%, transparent) 0%, transparent 50%),
+    var(--glass-opacity);
+  border: 2px solid color-mix(in srgb, var(--nutrition-secondary) 30%, transparent);
+  border-radius: 24px;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.25),
+    0 0 30px color-mix(in srgb, var(--nutrition-secondary) 15%, transparent),
+    inset 0 2px 0 rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  transform: translateZ(0);
+  contain: layout style paint;
+}
+
+/* Header avec icône */
+.macronutrients-header-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 60%),
+    linear-gradient(135deg, color-mix(in srgb, var(--nutrition-secondary) 40%, transparent), color-mix(in srgb, var(--nutrition-accent) 30%, transparent));
+  border: 2px solid color-mix(in srgb, var(--nutrition-secondary) 60%, transparent);
+  box-shadow: 0 0 30px color-mix(in srgb, var(--nutrition-secondary) 50%, transparent);
+  transition: transform var(--animation-duration-medium) var(--animation-ease-glass);
+}
+
+.macronutrients-header-icon:hover {
+  transform: scale(1.05);
+}
+
+/* Grid des macronutriments */
+.nutrition-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .nutrition-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Carte individuelle de macronutriment */
+.nutrition-stat-card {
+  text-align: center;
+  padding: 24px;
+  border-radius: 24px;
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  transform: translateZ(0);
+  contain: layout style paint;
+  transition: all var(--animation-duration-medium) var(--animation-ease-glass);
+  cursor: default;
+}
+
+.nutrition-stat-card:hover {
+  transform: scale(1.05) translateY(-4px);
+}
+
+/* Variantes de couleur pour chaque macro */
+.nutrition-stat-card.proteins {
+  background:
+    radial-gradient(circle at center, color-mix(in srgb, var(--nutrition-proteins) 20%, transparent) 0%, transparent 60%),
+    rgba(255, 255, 255, 0.05);
+  border: 2px solid color-mix(in srgb, var(--nutrition-proteins) 40%, transparent);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    0 0 20px color-mix(in srgb, var(--nutrition-proteins) 20%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.nutrition-stat-card.carbs {
+  background:
+    radial-gradient(circle at center, color-mix(in srgb, var(--nutrition-carbs) 20%, transparent) 0%, transparent 60%),
+    rgba(255, 255, 255, 0.05);
+  border: 2px solid color-mix(in srgb, var(--nutrition-carbs) 40%, transparent);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    0 0 20px color-mix(in srgb, var(--nutrition-carbs) 20%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.nutrition-stat-card.fats {
+  background:
+    radial-gradient(circle at center, color-mix(in srgb, var(--nutrition-fats) 20%, transparent) 0%, transparent 60%),
+    rgba(255, 255, 255, 0.05);
+  border: 2px solid color-mix(in srgb, var(--nutrition-fats) 40%, transparent);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    0 0 20px color-mix(in srgb, var(--nutrition-fats) 20%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Icône dans la carte macro */
+.nutrition-stat-icon {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--animation-duration-medium) var(--animation-ease-glass);
+}
+
+.nutrition-stat-card.proteins .nutrition-stat-icon {
+  background: color-mix(in srgb, var(--nutrition-proteins) 25%, transparent);
+  border: 1px solid color-mix(in srgb, var(--nutrition-proteins) 40%, transparent);
+}
+
+.nutrition-stat-card.carbs .nutrition-stat-icon {
+  background: color-mix(in srgb, var(--nutrition-carbs) 25%, transparent);
+  border: 1px solid color-mix(in srgb, var(--nutrition-carbs) 40%, transparent);
+}
+
+.nutrition-stat-card.fats .nutrition-stat-icon {
+  background: color-mix(in srgb, var(--nutrition-fats) 25%, transparent);
+  border: 1px solid color-mix(in srgb, var(--nutrition-fats) 40%, transparent);
+}
+
+/* Animation de célébration */
+.nutrition-stat-icon.celebrating {
+  animation: celebrationPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes celebrationPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.9;
+  }
+}
+
+/* Valeur numérique */
+.nutrition-stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+/* Carte d'indicateur de confiance */
+.nutrition-confidence-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-radius: 20px;
+  margin-top: 24px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--nutrition-secondary) 20%, transparent), color-mix(in srgb, var(--nutrition-accent) 15%, transparent)),
+    rgba(255, 255, 255, 0.05);
+  border: 2px solid color-mix(in srgb, var(--nutrition-secondary) 40%, transparent);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    0 0 30px color-mix(in srgb, var(--nutrition-secondary) 20%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* =========================================
+   DETECTED FOODS CARD - Aliments Détectés
+   ========================================= */
+
+/* Base Card Container */
+.detected-foods-card-container {
+  padding: 24px;
+  background:
+    radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--nutrition-accent) 12%, transparent) 0%, transparent 60%),
+    radial-gradient(circle at 70% 80%, color-mix(in srgb, var(--nutrition-secondary) 8%, transparent) 0%, transparent 50%),
+    var(--glass-opacity);
+  border: 2px solid color-mix(in srgb, var(--nutrition-accent) 30%, transparent);
+  border-radius: 24px;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.25),
+    0 0 30px color-mix(in srgb, var(--nutrition-accent) 15%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  transform: translateZ(0);
+  contain: layout style paint;
+}
+
+/* Header avec icône */
+.detected-foods-header-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 60%),
+    linear-gradient(135deg, color-mix(in srgb, var(--nutrition-accent) 40%, transparent), color-mix(in srgb, var(--nutrition-accent) 30%, transparent));
+  border: 2px solid color-mix(in srgb, var(--nutrition-accent) 60%, transparent);
+  box-shadow: 0 0 30px color-mix(in srgb, var(--nutrition-accent) 50%, transparent);
+  transition: transform var(--animation-duration-medium) var(--animation-ease-glass);
+}
+
+.detected-foods-header-icon:hover {
+  transform: scale(1.05);
+}
+
+/* Carte individuelle d'aliment */
+.food-item-card {
+  padding: 20px;
+  border-radius: 20px;
+  backdrop-filter: blur(12px) saturate(130%);
+  -webkit-backdrop-filter: blur(12px) saturate(130%);
+  transform: translateZ(0);
+  contain: layout style paint;
+  transition: all 250ms var(--animation-ease-glass);
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.food-item-card:hover {
+  transform: scale(1.03) translateY(-2px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    inset 0 2px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Indicateur de catégorie (pastille de couleur) */
+.food-category-indicator {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid currentColor;
+  box-shadow: 0 0 12px currentColor;
+}
+
+/* =========================================
+   ACTION BUTTONS - Boutons CTA
+   ========================================= */
+
+/* Bouton principal - Sauvegarder le repas */
+.btn-save-meal-cta {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: 100%;
+  padding: 16px 24px;
+  border-radius: 999px;
+  border: 2px solid color-mix(in srgb, var(--nutrition-primary) 60%, transparent);
+  background: linear-gradient(135deg,
+    rgba(16, 185, 129, 0.9),
+    rgba(34, 197, 94, 0.7),
+    color-mix(in srgb, var(--nutrition-primary) 90%, transparent),
+    color-mix(in srgb, var(--nutrition-secondary) 70%, transparent),
+    color-mix(in srgb, var(--nutrition-accent) 80%, transparent)
+  );
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow:
+    0 12px 32px rgba(16, 185, 129, 0.3),
+    0 0 40px rgba(16, 185, 129, 0.2),
+    inset 0 3px 0 rgba(255,255,255,0.4),
+    inset 0 -3px 0 rgba(0,0,0,0.2);
+  transition: all 200ms var(--animation-ease-glass);
+  transform: translateZ(0);
+  will-change: transform, box-shadow;
+  cursor: pointer;
+  contain: layout style paint;
+}
+
+.btn-save-meal-cta:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    0 16px 40px rgba(16, 185, 129, 0.4),
+    0 0 60px rgba(16, 185, 129, 0.3),
+    inset 0 3px 0 rgba(255,255,255,0.5),
+    inset 0 -3px 0 rgba(0,0,0,0.2);
+}
+
+.btn-save-meal-cta:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-save-meal-cta:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Shimmer effect pour le bouton CTA - CORRIGÉ pour rester dans les limites */
+.btn-save-meal-cta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+  animation: ctaShimmer 3s ease-in-out infinite;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+@keyframes ctaShimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Breathing animation pour le bouton CTA */
+.btn-save-meal-cta.breathing {
+  animation: btnBreathing 2s ease-in-out infinite;
+}
+
+@keyframes btnBreathing {
+  0%, 100% {
+    box-shadow:
+      0 12px 32px rgba(16, 185, 129, 0.3),
+      0 0 40px rgba(16, 185, 129, 0.2),
+      inset 0 3px 0 rgba(255,255,255,0.4),
+      inset 0 -3px 0 rgba(0,0,0,0.2);
+  }
+  50% {
+    box-shadow:
+      0 16px 40px rgba(16, 185, 129, 0.5),
+      0 0 60px rgba(16, 185, 129, 0.4),
+      inset 0 3px 0 rgba(255,255,255,0.5),
+      inset 0 -3px 0 rgba(0,0,0,0.2);
+  }
+}
+
+/* Boutons secondaires */
+.btn-meal-secondary {
+  padding: 16px 24px;
+  border-radius: 20px;
+  backdrop-filter: blur(12px) saturate(130%);
+  -webkit-backdrop-filter: blur(12px) saturate(130%);
+  transition: all var(--animation-duration-medium) var(--animation-ease-glass);
+  transform: translateZ(0);
+  cursor: pointer;
+}
+
+.btn-meal-secondary.retake {
+  background: color-mix(in srgb, var(--nutrition-accent) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--nutrition-accent) 25%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--nutrition-accent) 10%, transparent);
+}
+
+.btn-meal-secondary.new-scan {
+  background: color-mix(in srgb, var(--color-plasma-cyan) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-plasma-cyan) 25%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--color-plasma-cyan) 10%, transparent);
+}
+
+.btn-meal-secondary:hover:not(:disabled) {
+  transform: scale(1.02) translateY(-2px);
+}
+
+.btn-meal-secondary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-meal-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Grid pour les boutons secondaires */
+.meal-secondary-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+/* =========================================
+   ANIMATIONS GLOBALES
+   ========================================= */
+
+/* Animation d'entrée pour les résultats */
+.meal-results-enter {
+  animation: fadeInUp 0.6s var(--animation-ease-glass) forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation de célébration globale */
+.celebration-active {
+  animation: celebrationGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes celebrationGlow {
+  0%, 100% {
+    filter: brightness(1) saturate(1);
+  }
+  50% {
+    filter: brightness(1.1) saturate(1.3);
+  }
+}
+
+/* =========================================
+   MOBILE OPTIMIZATIONS
+   ========================================= */
+
+@media (max-width: 767px) {
+  .macronutrients-card-container,
+  .detected-foods-card-container {
+    padding: var(--meal-card-padding-mobile);
+    backdrop-filter: blur(var(--meal-blur-mobile)) saturate(140%);
+    -webkit-backdrop-filter: blur(var(--meal-blur-mobile)) saturate(140%);
+  }
+
+  .nutrition-stats-grid {
+    gap: 16px;
+  }
+
+  .nutrition-stat-card {
+    padding: 20px;
+  }
+
+  .nutrition-stat-value {
+    font-size: 2rem;
+  }
+
+  .food-item-card {
+    padding: 16px;
+  }
+
+  .btn-save-meal-cta {
+    padding: 14px 20px;
+  }
+
+  .meal-secondary-actions-grid {
+    gap: 16px;
+  }
+}
+
+/* =========================================
+   DESKTOP OPTIMIZATIONS
+   ========================================= */
+
+@media (min-width: 768px) {
+  .macronutrients-card-container,
+  .detected-foods-card-container {
+    padding: var(--meal-card-padding-desktop);
+    backdrop-filter: blur(var(--meal-blur-desktop)) saturate(150%);
+    -webkit-backdrop-filter: blur(var(--meal-blur-desktop)) saturate(150%);
+  }
+
+  .macronutrients-header-icon,
+  .detected-foods-header-icon {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+/* =========================================
+   ACCESSIBILITY - Reduced Motion
+   ========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .nutrition-stat-card,
+  .food-item-card,
+  .btn-save-meal-cta,
+  .btn-meal-secondary {
+    transition: none;
+    animation: none;
+  }
+
+  .nutrition-stat-icon.celebrating {
+    animation: none;
+  }
+
+  .btn-save-meal-cta::before {
+    animation: none;
+  }
+
+  .meal-results-enter {
+    animation: none;
+  }
+
+  .celebration-active {
+    animation: none;
+  }
+}
+
+/* =========================================
+   PERFORMANCE OPTIMIZATIONS
+   ========================================= */
+
+/* GPU Acceleration */
+.nutrition-stat-card,
+.food-item-card,
+.btn-save-meal-cta,
+.btn-meal-secondary,
+.nutrition-stat-icon,
+.macronutrients-header-icon,
+.detected-foods-header-icon {
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Containment for better performance */
+.macronutrients-card-container,
+.detected-foods-card-container {
+  contain: layout style paint;
+}
+
+/* =========================================
+   PERFORMANCE MODE SPECIFIC STYLES
+   ========================================= */
+
+/* Simplifier les styles pour mode performance */
+.performance-mode .macronutrients-card-container,
+.performance-mode .detected-foods-card-container {
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+.performance-mode .nutrition-stat-card {
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* Désactiver les animations complexes en mode performance */
+.performance-mode .nutrition-stat-icon.celebrating,
+.performance-mode .btn-save-meal-cta.breathing,
+.performance-mode .celebration-active {
+  animation: none !important;
+}
+
+.performance-mode .btn-save-meal-cta::before {
+  animation: none !important;
+}
+
+/* Simplifier les box-shadow en mode performance */
+.performance-mode .nutrition-stat-card {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+.performance-mode .food-item-card {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.performance-mode .btn-save-meal-cta {
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* CRITIQUE: Forcer la couleur visible pour les calories en mode performance */
+.performance-mode .text-5xl,
+.performance-mode .text-6xl {
+  -webkit-text-fill-color: unset !important;
+  background-clip: unset !important;
+  -webkit-background-clip: unset !important;
+}

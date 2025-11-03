@@ -1,0 +1,240 @@
+/* =========================================
+   MOBILE OPTIMIZATIONS - GPU Accelerated
+   Compact layout and performance tuning
+   ========================================= */
+
+/* Performance optimizations for mobile - GPU ACCELERATED */
+@media (max-width: 768px) {
+  .central-actions-panel {
+    padding: 8px !important;
+    /* GPU acceleration for smooth animations */
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+  }
+
+  /* Adapter le fond pour mobile - légèrement plus opaque */
+  body:not(.performance-mode) .central-actions-panel {
+    background:
+      var(--liquid-reflections-multi),
+      var(--liquid-highlight-corner),
+      rgba(11, 14, 23, 0.55) !important;
+  }
+
+  .central-actions-panel::after {
+    filter: blur(8px);
+    /* Glow animation disabled */
+    animation: none !important;
+  }
+
+  .central-actions-panel::before {
+    /* Border animation disabled */
+    animation: none !important;
+  }
+
+  .central-actions-panel .glass-card,
+  .central-actions-panel button {
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    /* GPU acceleration */
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    will-change: transform;
+  }
+
+  /* Pills plus visibles sur mobile - fond semi-opaque */
+  body:not(.performance-mode) .central-actions-panel .glass-card {
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255,255,255,0.12) 0%, transparent 60%),
+      rgba(26, 35, 50, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  }
+
+  /* Optimiser l'espace vertical sur mobile - tout doit être visible sans scroll */
+  .central-actions-scroll-container {
+    max-height: calc(100vh - var(--new-bottom-bar-height) - var(--new-bottom-bar-bottom-offset) - 100px) !important;
+    overflow-y: auto !important;
+  }
+
+  /* Réduire les petits boutons sur mobile */
+  .central-actions-panel button.rounded-xl {
+    padding: 3px 5px !important;
+    min-height: 32px !important;
+  }
+
+  /* Réduire les icon-containers sur mobile - maintien du style harmonisé */
+  .central-actions-panel .glass-card .w-6.h-6 {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 8px !important;
+
+    /* Optimisation des effets pour mobile */
+    box-shadow:
+      0 3px 10px rgba(0, 0, 0, 0.12),
+      0 0 16px color-mix(in srgb, var(--pill-circuit-color, #18E3FF) 20%, transparent),
+      inset 0 1px 0 rgba(255,255,255,0.2) !important;
+  }
+
+  /* Réduire la taille des icônes dans les icon-containers */
+  .central-actions-panel .glass-card .w-6.h-6 svg {
+    width: 12px !important;
+    height: 12px !important;
+  }
+
+  /* Réduire la taille du texte des labels */
+  .central-actions-panel button.rounded-xl .text-\\[11px\\] {
+    font-size: 10px !important;
+  }
+
+  /* Réduire la taille du texte des sous-titres */
+  .central-actions-panel button.rounded-xl .text-\\[9px\\] {
+    font-size: 8px !important;
+    margin-top: 1px !important;
+  }
+
+  /* Espacements entre catégories réduits */
+  .central-actions-panel > div > div > div.mb-3 {
+    margin-bottom: 8px !important;
+  }
+
+  /* Espacements entre sous-sections réduits */
+  .central-actions-panel > div > div > div > div.mb-2\\.5 {
+    margin-bottom: 6px !important;
+  }
+
+  /* Gap des grilles sur mobile - compact */
+  .central-actions-panel .grid {
+    gap: 6px !important;
+  }
+
+  /* Header compact */
+  .central-actions-panel .flex.items-center.justify-between {
+    margin-bottom: 6px !important;
+  }
+
+  /* Titres de catégories H3 compacts */
+  .central-actions-panel h3 {
+    font-size: 10px !important;
+    margin-bottom: 4px !important;
+  }
+
+  /* Titres de sections H4 compacts */
+  .central-actions-panel h4 {
+    font-size: 8px !important;
+    margin-bottom: 4px !important;
+  }
+
+  /* Padding des divs de sections */
+  .central-actions-panel .px-1\\.5 {
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+  }
+
+  .central-actions-panel .mb-1\\.5 {
+    margin-bottom: 4px !important;
+  }
+
+  /* Bouton Dashboard compact */
+  .central-actions-panel button.rounded-full {
+    padding: 4px 8px !important;
+  }
+
+  .central-actions-panel button.rounded-full .text-\\[10px\\] {
+    font-size: 9px !important;
+  }
+
+  .central-actions-panel button.rounded-full svg {
+    width: 12px !important;
+    height: 12px !important;
+  }
+
+  /* Désactiver les hover effects sur mobile pour meilleure performance */
+  .central-actions-panel .glass-card:hover .w-6.h-6 {
+    transform: translateZ(0) !important;
+    box-shadow:
+      0 3px 10px rgba(0, 0, 0, 0.12),
+      0 0 16px color-mix(in srgb, var(--pill-circuit-color, #18E3FF) 20%, transparent),
+      inset 0 1px 0 rgba(255,255,255,0.2) !important;
+  }
+
+  /* Avatar Twin Button - Mobile compact - OPTIMIZED */
+  .central-actions-panel .avatar-twin-button {
+    min-height: 56px !important;
+    padding: 10px 12px !important;
+    /* Animation disabled */
+    animation: none !important;
+  }
+
+  .central-actions-panel .avatar-twin-button::before {
+    /* Border animation disabled */
+    animation: none !important;
+    opacity: 0.5 !important;
+  }
+
+  .central-actions-panel .avatar-twin-button::after {
+    /* Disable inner glow on mobile for performance */
+    display: none !important;
+  }
+
+  .central-actions-panel .avatar-twin-button > div:first-child {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .central-actions-panel .avatar-twin-button svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .central-actions-panel .avatar-twin-button .text-\\[13px\\] {
+    font-size: 12px !important;
+  }
+
+  .central-actions-panel .avatar-twin-button .text-\\[10px\\] {
+    font-size: 9px !important;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .central-actions-menu {
+    /* Position en pleine largeur ajustée à la bottom bar et au bouton de chat */
+    left: 16px !important;
+    right: 16px !important;
+    bottom: calc(var(--new-bottom-bar-height) + var(--new-bottom-bar-bottom-offset) + 16px) !important;
+    top: auto !important;
+    width: auto !important;
+    max-width: calc(100vw - 32px) !important;
+    transform: none !important;
+    transform-origin: bottom center !important;
+  }
+
+  .central-actions-panel {
+    padding: 11px !important;
+  }
+
+  /* Optimiser l'espace vertical sur tablette */
+  .central-actions-scroll-container {
+    max-height: calc(100vh - var(--new-bottom-bar-height) - var(--new-bottom-bar-bottom-offset) - 120px) !important;
+  }
+
+  /* Réduire légèrement les grandes tuiles sur tablette */
+  .central-actions-panel .glass-card.rounded-2xl {
+    min-height: 68px !important;
+    padding: 7px !important;
+  }
+
+  /* Réduire les petits boutons sur tablette */
+  .central-actions-panel button.rounded-xl {
+    padding: 5px 7px !important;
+  }
+
+  /* Espacements optimisés pour tablette - aérés */
+  .central-actions-panel > div > div > div[class*="mt-"] {
+    margin-top: 14px !important;
+  }
+
+  /* Gap des grilles sur tablette - aéré */
+  .central-actions-panel .grid {
+    gap: 9px !important;
+  }
+}

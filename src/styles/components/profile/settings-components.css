@@ -1,0 +1,403 @@
+/**
+ * Settings Components Styles
+ * Shared styles for settings UI components
+ * Dynamic color system per tab for visual hierarchy
+ */
+
+/* =============================================
+   DYNAMIC COLOR SYSTEM
+   Colors propagated via --settings-active-color CSS variable
+   ============================================= */
+
+.settings-section-icon {
+  color: var(--settings-active-color, var(--accent)) !important;
+}
+
+.settings-section-icon svg {
+  color: var(--settings-active-color, var(--accent)) !important;
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--settings-active-color, var(--accent)) 40%, transparent));
+}
+
+/* =============================================
+   SETTINGS SECTION
+   ============================================= */
+
+.settings-section {
+  margin-bottom: 2rem;
+}
+
+.settings-section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.settings-section-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--glass-gradient-subtle);
+  backdrop-filter: blur(20px);
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.settings-section-title-group {
+  flex: 1;
+}
+
+.settings-section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.25rem 0;
+}
+
+.settings-section-description {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.settings-section-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* =============================================
+   SETTINGS TOGGLE
+   ============================================= */
+
+.settings-toggle-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-radius: 12px;
+  background: var(--glass-gradient-subtle);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  transition: all 0.2s ease;
+}
+
+.settings-toggle-container:hover {
+  background: var(--glass-gradient-hover);
+  border-color: var(--glass-border-hover);
+}
+
+.settings-toggle-container.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.settings-toggle-container.loading {
+  opacity: 0.7;
+}
+
+.settings-toggle-labels {
+  flex: 1;
+  margin-right: 1rem;
+}
+
+.settings-toggle-label {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+  cursor: pointer;
+}
+
+.settings-toggle-description {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.settings-toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  border-radius: 13px;
+  border: 2px solid var(--glass-border);
+  background: rgba(71, 85, 105, 0.3);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.settings-toggle-switch:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: rgba(71, 85, 105, 0.4);
+  box-shadow: 0 0 0 4px rgba(24, 227, 255, 0.1);
+}
+
+.settings-toggle-switch:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.settings-toggle-switch.enabled {
+  background: linear-gradient(135deg, var(--accent), rgba(24, 227, 255, 0.8));
+  border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(24, 227, 255, 0.3);
+}
+
+.settings-toggle-switch.enabled:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(24, 227, 255, 0.9), var(--accent));
+  box-shadow: 0 0 16px rgba(24, 227, 255, 0.4);
+}
+
+.settings-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+/* =============================================
+   SETTINGS INFO CARD
+   ============================================= */
+
+.settings-info-card {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid;
+  backdrop-filter: blur(20px);
+}
+
+.settings-info-card-info {
+  background: var(--glass-gradient-subtle);
+  border-color: var(--info);
+  color: var(--info);
+}
+
+.settings-info-card-warning {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(251, 146, 60, 0.05));
+  border-color: #f59e0b;
+  color: #f59e0b;
+}
+
+.settings-info-card-error {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.settings-info-card-success {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.05));
+  border-color: #22c55e;
+  color: #22c55e;
+}
+
+.settings-info-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.settings-info-card-content {
+  flex: 1;
+}
+
+.settings-info-card-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+}
+
+.settings-info-card-message {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.settings-info-card-actions {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* =============================================
+   SETTINGS BUTTON
+   ============================================= */
+
+.settings-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.settings-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.settings-button-full-width {
+  width: 100%;
+}
+
+.settings-button-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.settings-button-loading {
+  position: relative;
+}
+
+.settings-button-loader {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Button Variants */
+
+.settings-button-primary {
+  background: var(--accent);
+  color: white;
+}
+
+.settings-button-primary:hover:not(.settings-button-disabled) {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.3);
+}
+
+.settings-button-secondary {
+  background: var(--glass-gradient-subtle);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+}
+
+.settings-button-secondary:hover:not(.settings-button-disabled) {
+  background: var(--glass-gradient-hover);
+  border-color: var(--glass-border-hover);
+  transform: translateY(-1px);
+}
+
+.settings-button-danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+}
+
+.settings-button-danger:hover:not(.settings-button-disabled) {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.settings-button-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.settings-button-ghost:hover:not(.settings-button-disabled) {
+  background: var(--glass-gradient-subtle);
+  color: var(--text-primary);
+}
+
+.settings-button-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-button-label {
+  display: inline-block;
+}
+
+/* =============================================
+   PERFORMANCE MODE ADJUSTMENTS
+   ============================================= */
+
+.mode-high-performance .settings-toggle-switch {
+  transition: none;
+}
+
+.mode-high-performance .settings-toggle-thumb {
+  transition: none;
+}
+
+.mode-high-performance .settings-button {
+  transition: none;
+}
+
+.mode-high-performance .settings-button:hover:not(.settings-button-disabled) {
+  transform: none;
+  box-shadow: none;
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+
+@media (max-width: 768px) {
+  .settings-section-header {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .settings-section-icon {
+    align-self: flex-start;
+  }
+
+  .settings-toggle-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .settings-toggle-labels {
+    margin-right: 0;
+  }
+
+  .settings-toggle-switch {
+    align-self: flex-end;
+  }
+
+  .settings-info-card {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .settings-info-card-actions {
+    flex-direction: column;
+  }
+
+  .settings-button {
+    width: 100%;
+  }
+}

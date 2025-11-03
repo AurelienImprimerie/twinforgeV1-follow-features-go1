@@ -1,0 +1,291 @@
+/* =========================================
+   FORGE PIPELINE VARIABLES - Unified System
+   Système de variables CSS unifié pour les trois forges
+   ========================================= */
+
+:root {
+  /* ==========================================
+     PALETTE DE COULEURS PAR FORGE
+     ========================================== */
+
+  /* Forge Énergétique (Activity Tracker) - Spectre Bleu/Cyan */
+  --forge-energy-primary: #3B82F6;
+  --forge-energy-secondary: #06B6D4;
+  --forge-energy-accent: #0EA5E9;
+  --forge-energy-glow: rgba(59, 130, 246, 0.5);
+  --forge-energy-glow-intense: rgba(59, 130, 246, 0.8);
+
+  /* Forge Corporelle (Body Scan) - Spectre Violet/Améthyste */
+  --forge-body-primary: #8B5CF6;
+  --forge-body-secondary: #A78BFA;
+  --forge-body-accent: #7C3AED;
+  --forge-body-glow: rgba(139, 92, 246, 0.5);
+  --forge-body-glow-intense: rgba(139, 92, 246, 0.8);
+
+  /* Forge Faciale (Face Scan) - Spectre Émeraude/Turquoise */
+  --forge-face-primary: #10B981;
+  --forge-face-secondary: #14B8A6;
+  --forge-face-accent: #059669;
+  --forge-face-glow: rgba(16, 185, 129, 0.5);
+  --forge-face-glow-intense: rgba(16, 185, 129, 0.8);
+
+  /* ==========================================
+     SYSTÈME DE GLASS MORPHISM UNIFIÉ
+     ========================================== */
+
+  /* Base Glass Properties */
+  --glass-blur-base: 20px;
+  --glass-blur-medium: 16px;
+  --glass-blur-light: 12px;
+  --glass-blur-minimal: 8px;
+
+  --glass-saturate-base: 160%;
+  --glass-saturate-medium: 150%;
+  --glass-saturate-light: 140%;
+
+  /* Glass Backgrounds */
+  --glass-bg-base: rgba(255, 255, 255, 0.08);
+  --glass-bg-hover: rgba(255, 255, 255, 0.12);
+  --glass-bg-active: rgba(255, 255, 255, 0.15);
+
+  /* Glass Borders */
+  --glass-border-width: 2px;
+  --glass-border-opacity: 0.4;
+
+  /* ==========================================
+     SYSTÈME D'ANIMATION GPU-OPTIMISÉ
+     ========================================== */
+
+  /* Animation Durations */
+  --anim-duration-fast: 200ms;
+  --anim-duration-base: 300ms;
+  --anim-duration-slow: 500ms;
+  --anim-duration-xslow: 800ms;
+
+  /* Animation Easings */
+  --anim-ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+  --anim-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --anim-ease-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --anim-ease-expo: cubic-bezier(0.87, 0, 0.13, 1);
+
+  /* GPU Acceleration Helpers */
+  --gpu-transform: translateZ(0);
+  --gpu-3d-transform: translate3d(0, 0, 0);
+
+  /* ==========================================
+     SYSTÈME DE SHADOWS OPTIMISÉES
+     ========================================== */
+
+  /* Base Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.25);
+  --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.3);
+
+  /* Colored Shadows per Forge */
+  --shadow-energy-sm: 0 4px 16px var(--forge-energy-glow);
+  --shadow-energy-md: 0 8px 24px var(--forge-energy-glow);
+  --shadow-energy-lg: 0 12px 48px var(--forge-energy-glow-intense);
+
+  --shadow-body-sm: 0 4px 16px var(--forge-body-glow);
+  --shadow-body-md: 0 8px 24px var(--forge-body-glow);
+  --shadow-body-lg: 0 12px 48px var(--forge-body-glow-intense);
+
+  --shadow-face-sm: 0 4px 16px var(--forge-face-glow);
+  --shadow-face-md: 0 8px 24px var(--forge-face-glow);
+  --shadow-face-lg: 0 12px 48px var(--forge-face-glow-intense);
+
+  /* ==========================================
+     SYSTÈME DE TYPOGRAPHIE
+     ========================================== */
+
+  /* Font Sizes */
+  --text-xs: 0.75rem;      /* 12px */
+  --text-sm: 0.875rem;     /* 14px */
+  --text-base: 1rem;       /* 16px */
+  --text-lg: 1.125rem;     /* 18px */
+  --text-xl: 1.25rem;      /* 20px */
+  --text-2xl: 1.5rem;      /* 24px */
+
+  /* Font Weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* ==========================================
+     SYSTÈME DE SPACING UNIFIÉ
+     ========================================== */
+
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+
+  /* ==========================================
+     SYSTÈME DE BORDER RADIUS
+     ========================================== */
+
+  --radius-sm: 0.5rem;   /* 8px */
+  --radius-md: 0.75rem;  /* 12px */
+  --radius-lg: 1rem;     /* 16px */
+  --radius-xl: 1.25rem;  /* 20px */
+  --radius-2xl: 1.5rem;  /* 24px */
+  --radius-full: 9999px;
+
+  /* ==========================================
+     SYSTÈME DE Z-INDEX
+     ========================================== */
+
+  --z-base: 1;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-modal-backdrop: 400;
+  --z-modal: 500;
+  --z-popover: 600;
+  --z-tooltip: 700;
+  --z-notification: 800;
+  --z-fullscreen: 900;
+
+  /* ==========================================
+     PERFORMANCE MODES
+     ========================================== */
+
+  /* Performance Thresholds */
+  --perf-budget-ms: 16.67;
+  --will-change-timeout: 250ms;
+
+  /* Device Adaptive Blur */
+  --glass-blur-adaptive: var(--glass-blur-base);
+  --glass-saturate-adaptive: var(--glass-saturate-base);
+
+  /* ==========================================
+     PROGRESS INDICATORS
+     ========================================== */
+
+  /* Progress Bar Heights */
+  --progress-height-sm: 0.25rem;  /* 4px */
+  --progress-height-md: 0.5rem;   /* 8px */
+  --progress-height-lg: 0.75rem;  /* 12px */
+
+  /* Step Indicator Sizes */
+  --step-icon-sm: 3rem;      /* 48px */
+  --step-icon-md: 4rem;      /* 64px */
+  --step-icon-lg: 5rem;      /* 80px */
+
+  /* Badge Sizes */
+  --badge-height: 2rem;      /* 32px */
+  --badge-padding-x: 1rem;   /* 16px */
+
+  /* ==========================================
+     RESPONSIVE BREAKPOINTS
+     ========================================== */
+
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* ==========================================
+   MOBILE OPTIMIZATIONS
+   ========================================== */
+
+@media (max-width: 768px) {
+  :root {
+    /* Faster animations on mobile */
+    --anim-duration-fast: 150ms;
+    --anim-duration-base: 200ms;
+    --anim-duration-slow: 350ms;
+
+    /* Reduced blur for performance */
+    --glass-blur-adaptive: var(--glass-blur-minimal);
+    --glass-saturate-adaptive: 140%;
+
+    /* Smaller text on mobile */
+    --text-2xl: 1.375rem;  /* 22px instead of 24px */
+    --text-xl: 1.125rem;   /* 18px instead of 20px */
+
+    /* Tighter spacing */
+    --space-8: 1.5rem;     /* 24px instead of 32px */
+    --space-10: 2rem;      /* 32px instead of 40px */
+    --space-12: 2.5rem;    /* 40px instead of 48px */
+  }
+}
+
+/* ==========================================
+   TABLET OPTIMIZATIONS
+   ========================================== */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  :root {
+    --glass-blur-adaptive: var(--glass-blur-medium);
+    --glass-saturate-adaptive: var(--glass-saturate-medium);
+  }
+}
+
+/* ==========================================
+   DESKTOP OPTIMIZATIONS
+   ========================================== */
+
+@media (min-width: 1025px) {
+  :root {
+    --glass-blur-adaptive: var(--glass-blur-base);
+    --glass-saturate-adaptive: var(--glass-saturate-base);
+  }
+}
+
+/* ==========================================
+   PERFORMANCE MODE OVERRIDES
+   ========================================== */
+
+/* Low-end devices */
+.perf-low {
+  --glass-blur-adaptive: 6px;
+  --glass-saturate-adaptive: 120%;
+  --anim-duration-fast: 100ms;
+  --anim-duration-base: 150ms;
+}
+
+/* Medium-end devices */
+.perf-medium {
+  --glass-blur-adaptive: var(--glass-blur-light);
+  --glass-saturate-adaptive: var(--glass-saturate-light);
+}
+
+/* High-end devices */
+.perf-high {
+  --glass-blur-adaptive: var(--glass-blur-base);
+  --glass-saturate-adaptive: var(--glass-saturate-base);
+}
+
+/* ==========================================
+   REDUCED MOTION SUPPORT
+   ========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --anim-duration-fast: 10ms;
+    --anim-duration-base: 10ms;
+    --anim-duration-slow: 10ms;
+    --anim-duration-xslow: 10ms;
+  }
+}
+
+/* ==========================================
+   LOW POWER MODE
+   ========================================== */
+
+.low-power-mode {
+  --glass-blur-adaptive: 0px;
+  --glass-saturate-adaptive: 100%;
+  --anim-duration-fast: 0ms;
+  --anim-duration-base: 100ms;
+}

@@ -1,0 +1,55 @@
+/**
+ * PageHeader Mobile Responsive Styles
+ * Ensures titles are single-line and subtitles are max two lines on mobile
+ */
+
+/* Title: Single line with ellipsis on mobile */
+.page-header-title {
+  /* Single line on mobile */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+/* Desktop: Allow natural wrapping for longer titles */
+@media (min-width: 768px) {
+  .page-header-title {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+}
+
+/* Subtitle: Max 2 lines with ellipsis on mobile */
+.page-header-subtitle {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+  max-height: calc(1.4em * 2); /* 2 lines */
+}
+
+/* Desktop: Allow more lines for subtitles */
+@media (min-width: 768px) {
+  .page-header-subtitle {
+    -webkit-line-clamp: 3;
+    max-height: calc(1.4em * 3); /* 3 lines on desktop */
+  }
+}
+
+/* Large desktop: Even more lines allowed */
+@media (min-width: 1024px) {
+  .page-header-subtitle {
+    -webkit-line-clamp: unset;
+    max-height: none;
+  }
+}
+
+/* Ensure parent container doesn't overflow */
+.page-header-title,
+.page-header-subtitle {
+  min-width: 0; /* Allow flex shrinking */
+}

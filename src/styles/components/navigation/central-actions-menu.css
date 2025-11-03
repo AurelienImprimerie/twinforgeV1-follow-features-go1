@@ -1,0 +1,20 @@
+/* =========================================
+   CENTRAL ACTIONS MENU - Liquid Glass Premium
+   VisionOS 26 Outils du Forgeron Panel
+   Modular architecture for maintainability
+
+   Structure:
+   - _container.css: Base panel with liquid glass effects and section cleanup
+   - _pills.css: Pill button system with icon containers (harmonized)
+   - _avatar-button.css: Premium Avatar Twin button with reduced glow
+   - _mobile.css: Mobile and tablet optimizations (GPU accelerated)
+   - _performance.css: High-performance mode with opaque backgrounds
+   - _accessibility.css: Focus states, reduced motion, high contrast
+   ========================================= */
+
+@import './central-actions-menu/_modules/_container.css';
+@import './central-actions-menu/_modules/_pills.css';
+@import './central-actions-menu/_modules/_avatar-button.css';
+@import './central-actions-menu/_modules/_mobile.css';
+@import './central-actions-menu/_modules/_performance.css';
+@import './central-actions-menu/_modules/_accessibility.css';

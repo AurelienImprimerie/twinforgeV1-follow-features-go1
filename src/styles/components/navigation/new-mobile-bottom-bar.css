@@ -1,0 +1,582 @@
+/* ============================================================
+   NEW MOBILE BOTTOM BAR — VisionOS 26 (v1.0)
+   Barre de navigation inférieure redesignée avec 5 boutons
+   ============================================================ */
+
+:root {
+  /* Variables de la nouvelle bottom bar */
+  --new-bottom-bar-height: 80px;
+  --new-bottom-bar-horizontal-margin: 16px;
+  --new-bottom-bar-bottom-offset: max(4px, env(safe-area-inset-bottom, 2px));
+  --new-bottom-bar-border-radius: 24px;
+  --new-bottom-bar-padding: 12px;
+  --new-bottom-bar-button-size: 56px;
+  --new-bottom-bar-central-button-size: 80px;
+  --new-bottom-bar-z-index: 9996;
+
+  /* Floating CTA button dimensions for stacking calculations */
+  --floating-cta-button-height: 60px;
+  --floating-cta-button-margin: 16px;
+}
+
+/* Mobile only */
+@media (min-width: 1025px) { 
+  .new-mobile-bottom-bar { 
+    display: none !important; 
+  } 
+}
+
+.new-mobile-bottom-bar {
+  position: fixed !important;
+  bottom: var(--new-bottom-bar-bottom-offset) !important;
+  left: 8px !important;
+  right: 8px !important;
+  z-index: var(--new-bottom-bar-z-index) !important;
+  height: var(--new-bottom-bar-height) !important;
+  transform: translate3d(0, 0, 0) !important;
+  will-change: transform !important;
+  contain: layout style paint !important;
+  isolation: isolate !important;
+}
+
+.new-mobile-bottom-bar-container {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--new-bottom-bar-border-radius);
+  padding: var(--new-bottom-bar-padding);
+  overflow: visible;
+  position: relative;
+  isolation: isolate;
+
+  /* Ultra-transparent Liquid Glass - VisionOS 26 Premium */
+  background:
+    var(--liquid-reflections-multi),
+    var(--liquid-highlight-ambient),
+    var(--liquid-glass-bg-base);
+
+  backdrop-filter: blur(var(--liquid-bottombar-blur)) saturate(var(--liquid-bottombar-saturate));
+  -webkit-backdrop-filter: blur(var(--liquid-bottombar-blur)) saturate(var(--liquid-bottombar-saturate));
+
+  /* Multi-color gradient border */
+  border: 0;
+  box-shadow: var(--liquid-bottombar-shadow), var(--liquid-bottombar-glow);
+
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+          mask-image: radial-gradient(white, black);
+
+  transform: translateZ(0);
+  will-change: transform, filter;
+  backface-visibility: hidden;
+}
+
+/* Gradient border implementation - ÉPAISSIE POUR ROBUSTESSE */
+.new-mobile-bottom-bar-container::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  padding: 3px;
+  background: var(--liquid-border-gradient-tricolor);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 1;
+  z-index: 1;
+  /* Animation COMPLÈTEMENT désactivée */
+  animation: none !important;
+  animation-name: none !important;
+  animation-play-state: paused !important;
+}
+
+/* Ambient glow layer underneath */
+.new-mobile-bottom-bar-container::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: calc(var(--new-bottom-bar-border-radius) + 4px);
+  background: radial-gradient(
+    ellipse at 50% 100%,
+    rgba(24, 227, 255, 0.15) 0%,
+    rgba(61, 19, 179, 0.1) 40%,
+    transparent 70%
+  );
+  opacity: 0.8;
+  z-index: -1;
+  pointer-events: none;
+  /* Animation COMPLÈTEMENT désactivée */
+  animation: none !important;
+  animation-name: none !important;
+  animation-play-state: paused !important;
+}
+
+/* Animations borderPulse et glowPulse COMPLÈTEMENT désactivées */
+@keyframes borderPulse {
+  0%, 100% { opacity: 0.9; }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+}
+
+.new-mobile-bottom-bar-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  gap: 6px;
+}
+
+/* Bouton standard */
+.new-bottom-bar-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px;
+  min-width: var(--new-bottom-bar-button-size);
+  min-height: var(--new-bottom-bar-button-size);
+  border-radius: 16px;
+  position: relative;
+  cursor: pointer;
+  background: transparent !important;
+  border: 1px solid transparent;
+  transition: transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1), 
+              background-color 0.2s, 
+              border-color 0.2s, 
+              box-shadow 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  flex: 1;
+}
+
+/* Bouton central (plus grand) */
+.new-bottom-bar-button--central {
+  min-width: var(--new-bottom-bar-central-button-size);
+  min-height: var(--new-bottom-bar-central-button-size);
+  border-radius: 20px;
+  flex: 1.3; /* Ajusté pour 7 boutons */
+  position: relative;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Hover effects (desktop/tablet) - Enhanced glass interaction */
+@media (hover: hover) and (pointer: fine) {
+  .new-bottom-bar-button:hover {
+    background: transparent !important;
+    border-color: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    transform: scale(1.05) translateY(-2px) translateZ(0);
+  }
+
+  .new-bottom-bar-button:hover .new-bottom-bar-icon-container {
+    transform: scale(1.08) translateZ(0);
+    box-shadow:
+      var(--liquid-pill-shadow),
+      0 0 20px rgba(255,255,255,0.15),
+      0 4px 16px rgba(0,0,0,0.2);
+    border-color: rgba(255,255,255,0.3);
+  }
+
+  .new-bottom-bar-button--central:hover {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    transform: scale(1.08) translateY(-2px) translateZ(0);
+  }
+
+  .new-bottom-bar-button--central:hover .new-bottom-bar-icon-container {
+    box-shadow:
+      var(--liquid-pill-shadow),
+      0 0 35px rgba(247, 147, 30, 0.35),
+      0 0 70px rgba(253, 200, 48, 0.2),
+      0 4px 20px rgba(0,0,0,0.25);
+    border-color: rgba(247, 147, 30, 0.5);
+  }
+}
+
+/* État actif */
+.new-bottom-bar-button[aria-current="page"] {
+  background: transparent !important;
+  border-color: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  transform: translateY(-1px) translateZ(0);
+}
+
+/* Conteneur d'icône - Glass Pills Premium */
+.new-bottom-bar-icon-container {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: visible;
+
+  /* Liquid glass pill effect */
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.18) 0%, transparent 50%),
+    var(--liquid-pill-bg);
+  backdrop-filter: blur(var(--liquid-pill-blur)) saturate(var(--liquid-pill-saturate));
+  -webkit-backdrop-filter: blur(var(--liquid-pill-blur)) saturate(var(--liquid-pill-saturate));
+
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: var(--liquid-pill-shadow);
+
+  transition:
+    transform var(--liquid-transition-medium),
+    background var(--liquid-transition-fast),
+    box-shadow var(--liquid-transition-fast),
+    border-color var(--liquid-transition-fast);
+
+  transform: translateZ(0);
+  will-change: transform, filter;
+}
+
+/* Central button - larger glass orb */
+.new-bottom-bar-button--central .new-bottom-bar-icon-container {
+  width: 64px;
+  height: 64px;
+
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.22) 0%, transparent 50%),
+    radial-gradient(circle at 70% 70%, rgba(247, 147, 30, 0.12) 0%, transparent 60%),
+    var(--liquid-pill-bg);
+
+  border: 1.5px solid rgba(247, 147, 30, 0.3);
+  box-shadow:
+    var(--liquid-pill-shadow),
+    0 0 30px rgba(247, 147, 30, 0.2);
+}
+
+
+/* Corner highlight effect on pills */
+.new-bottom-bar-icon-container::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 50%;
+  bottom: 50%;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at 20% 20%,
+    rgba(255,255,255,0.4) 0%,
+    transparent 60%
+  );
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.new-bottom-bar-icon-container--active {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.28) 0%, transparent 60%),
+    radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--button-color) 20%, transparent) 0%, transparent 70%),
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--button-color) 30%, transparent),
+      color-mix(in srgb, var(--button-color) 18%, transparent));
+
+  border: 1.5px solid color-mix(in srgb, var(--button-color) 60%, transparent);
+
+  box-shadow:
+    var(--liquid-pill-shadow),
+    0 0 24px color-mix(in srgb, var(--button-color) 35%, transparent),
+    0 0 48px color-mix(in srgb, var(--button-color) 20%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.3);
+
+  transform: scale(1.05) translateZ(0);
+  /* Animation désactivée - état actif statique */
+  animation: none !important;
+}
+
+/* État actif spécifique pour le bouton central */
+.new-bottom-bar-button--central .new-bottom-bar-icon-container--active {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.32) 0%, transparent 60%),
+    radial-gradient(circle at 70% 70%, rgba(247, 147, 30, 0.25) 0%, transparent 70%),
+    linear-gradient(135deg,
+      rgba(255, 107, 53, 0.35),
+      rgba(253, 200, 48, 0.20));
+
+  border: 2px solid rgba(247, 147, 30, 0.65);
+
+  box-shadow:
+    var(--liquid-pill-shadow),
+    0 0 30px rgba(247, 147, 30, 0.4),
+    0 0 60px rgba(253, 200, 48, 0.25),
+    0 0 90px rgba(253, 200, 48, 0.15),
+    inset 0 2px 0 rgba(255,255,255,0.35);
+
+  transform: scale(1.08) translateZ(0);
+}
+
+/* Animation activePulse COMPLÈTEMENT désactivée */
+/* @keyframes activePulse {
+  0%, 100% {
+    box-shadow:
+      var(--liquid-pill-shadow),
+      0 0 24px color-mix(in srgb, var(--button-color) 35%, transparent),
+      0 0 48px color-mix(in srgb, var(--button-color) 20%, transparent),
+      inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+}
+
+/* Label */
+.new-bottom-bar-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.new-bottom-bar-label--active {
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 0 8px color-mix(in srgb, var(--button-color) 40%, transparent);
+}
+
+/* Petits écrans */
+@media (max-width: 480px) {
+  :root {
+    --new-bottom-bar-button-size: 56px;
+    --new-bottom-bar-central-button-size: 72px;
+    --new-bottom-bar-padding: 8px;
+    --new-bottom-bar-height: 80px;
+  }
+
+  .new-mobile-bottom-bar-buttons {
+    gap: 4px;
+  }
+
+  .new-bottom-bar-icon-container {
+    width: 36px;
+    height: 36px;
+  }
+
+  .new-bottom-bar-button--central .new-bottom-bar-icon-container {
+    width: 52px;
+    height: 52px;
+  }
+
+  .new-bottom-bar-label {
+    font-size: 9px;
+  }
+}
+
+/* Accessibilité / fallbacks / perf */
+@media (prefers-reduced-motion: reduce) {
+  .new-bottom-bar-button,
+  .new-bottom-bar-icon-container {
+    transition: background-color 0.2s ease, color 0.2s ease !important;
+  }
+  
+  .new-bottom-bar-button:hover,
+  .new-bottom-bar-button[aria-current="page"] {
+    transform: none !important;
+  }
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .new-mobile-bottom-bar-container {
+    background: linear-gradient(145deg, rgba(61, 19, 179, 0.9), rgba(24, 227, 255, 0.8)) !important;
+    border: 2px solid rgba(24, 227, 255, 0.6) !important;
+  }
+}
+
+/* Main content padding adjustment for bottom bar */
+@media (max-width: 1024px) {
+  #main-content {
+    padding-bottom: calc(var(--new-bottom-bar-height) + var(--new-bottom-bar-bottom-offset) + 16px) !important;
+  }
+
+  /* Forge Corporelle pages - Body Scan & Avatar - extra padding for bottom bar */
+  .forge-body-page-container {
+    padding-bottom: calc(var(--new-bottom-bar-height) + var(--new-bottom-bar-bottom-offset) + 24px) !important;
+  }
+}
+
+/* Contraste élevé */
+@media (prefers-contrast: high) {
+  .new-mobile-bottom-bar-container {
+    border-width: 3px !important;
+    background: rgba(11, 14, 23, 0.95) !important;
+  }
+
+  .new-mobile-bottom-bar-container::before {
+    opacity: 1 !important;
+    padding: 3px;
+  }
+
+  .new-bottom-bar-button {
+    border-width: 2px !important;
+  }
+
+  .new-bottom-bar-icon-container {
+    border-width: 2px !important;
+    background: rgba(255, 255, 255, 0.18) !important;
+  }
+}
+
+/* Focus visible for accessibility */
+.new-bottom-bar-button:focus-visible {
+  outline: 3px solid rgba(247, 147, 30, 0.6);
+  outline-offset: 3px;
+}
+
+.new-bottom-bar-button:focus-visible .new-bottom-bar-icon-container {
+  box-shadow:
+    var(--liquid-pill-shadow),
+    0 0 0 4px rgba(247, 147, 30, 0.4);
+  /* Animation focus désactivée - état statique */
+  animation: none !important;
+}
+
+/* Animation focusGlow COMPLÈTEMENT désactivée */
+@keyframes focusGlow {
+  0%, 100% {
+    box-shadow:
+      var(--liquid-pill-shadow),
+      0 0 0 4px rgba(247, 147, 30, 0.4);
+  }
+}
+
+/* =========================================
+   PERFORMANCE MODE - OPAQUE OPTIMIZATIONS
+   Bottom Bar with solid backgrounds - Keep round shapes with better visibility
+   ========================================= */
+
+/* High-performance mode: FULLY OPAQUE bottom bar, no transparency */
+.mode-high-performance .new-mobile-bottom-bar-container {
+  /* CRITICAL: Direct opaque background - highest priority */
+  background: rgb(11, 14, 23) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  opacity: 1 !important;
+  /* CRITICAL: Preserve rounded corners explicitly */
+  border-radius: 24px !important;
+  /* Force layer isolation */
+  isolation: isolate !important;
+  /* Remove any inherited transparency */
+  background-clip: padding-box !important;
+  -webkit-background-clip: padding-box !important;
+  /* Force Safari to respect rounded corners */
+  -webkit-mask-image: -webkit-radial-gradient(white, black) !important;
+  mask-image: radial-gradient(white, black) !important;
+}
+
+/* CRITICAL: Disable border gradient in performance mode - it was causing square corners */
+.mode-high-performance .new-mobile-bottom-bar-container::before {
+  display: none !important;
+  content: none !important;
+  opacity: 0 !important;
+}
+
+/* Remove decorative glow pseudo-element in performance mode */
+.mode-high-performance .new-mobile-bottom-bar-container::after {
+  display: none !important;
+  opacity: 0 !important;
+}
+
+/* Simplify icon containers in performance mode - OPAQUE with solid style */
+.mode-high-performance .new-bottom-bar-icon-container {
+  background: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Remove corner highlights in performance mode */
+.mode-high-performance .new-bottom-bar-icon-container::before {
+  display: none !important;
+}
+
+/* Simplify active state in performance mode - Better visibility */
+.mode-high-performance .new-bottom-bar-icon-container--active {
+  background: color-mix(in srgb, var(--button-color) 28%, rgba(11, 14, 23, 0.9)) !important;
+  border: 2px solid color-mix(in srgb, var(--button-color) 65%, transparent) !important;
+  box-shadow:
+    0 4px 12px color-mix(in srgb, var(--button-color) 35%, transparent),
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  animation: none !important;
+  transform: scale(1.03) translateZ(0) !important;
+}
+
+/* Simplify central button icon container in performance mode - OPAQUE */
+.mode-high-performance .new-bottom-bar-button--central .new-bottom-bar-icon-container {
+  background: rgba(247, 147, 30, 0.25) !important;
+  border: 2px solid rgba(247, 147, 30, 0.6) !important;
+  box-shadow:
+    0 4px 14px rgba(247, 147, 30, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Simplify central button active state in performance mode */
+.mode-high-performance .new-bottom-bar-button--central .new-bottom-bar-icon-container--active {
+  background: rgba(247, 147, 30, 0.35) !important;
+  border: 2px solid rgba(247, 147, 30, 0.75) !important;
+  box-shadow:
+    0 4px 16px rgba(247, 147, 30, 0.45),
+    0 2px 10px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+  animation: none !important;
+  transform: scale(1.06) translateZ(0) !important;
+}
+
+/* Disable all animations in performance mode */
+.mode-high-performance .new-mobile-bottom-bar *,
+.mode-high-performance .new-bottom-bar-button *,
+.mode-high-performance .new-bottom-bar-icon-container * {
+  animation: none !important;
+  transition: background-color 0.15s ease, transform 0.15s ease, color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+/* Simplify hover states in performance mode - Keep subtle interactions */
+@media (hover: hover) and (pointer: fine) {
+  .mode-high-performance .new-bottom-bar-button:hover .new-bottom-bar-icon-container {
+    transform: scale(1.04) translateZ(0) !important;
+    background: rgba(255, 255, 255, 0.20) !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  }
+
+  .mode-high-performance .new-bottom-bar-button--central:hover .new-bottom-bar-icon-container {
+    transform: scale(1.06) translateZ(0) !important;
+    background: rgba(247, 147, 30, 0.30) !important;
+    box-shadow:
+      0 4px 14px rgba(247, 147, 30, 0.35),
+      0 2px 10px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  }
+}
+
+/* Remove all gradient-based backgrounds in performance mode */
+.mode-high-performance .new-bottom-bar-button {
+  background: transparent !important;
+}
+
+/* Disable decorative label effects in performance mode */
+.mode-high-performance .new-bottom-bar-label--active {
+  text-shadow: none !important;
+}

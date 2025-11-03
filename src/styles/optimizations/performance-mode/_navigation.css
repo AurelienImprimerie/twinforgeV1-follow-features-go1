@@ -1,0 +1,168 @@
+/* =========================================
+   PERFORMANCE MODE - Navigation Components
+   Header, Sidebar, Bottom Bar
+   ========================================= */
+
+/* ================== HEADER ================== */
+
+body.performance-mode .header-liquid-glass,
+.performance-mode .header-liquid-glass,
+html.performance-mode .header-liquid-glass {
+  background: rgb(11, 14, 23) !important;
+  background-color: rgb(11, 14, 23) !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.20),
+    0 2px 8px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  opacity: 1 !important;
+  isolation: isolate !important;
+  background-clip: padding-box !important;
+  -webkit-background-clip: padding-box !important;
+  background-blend-mode: normal !important;
+  mix-blend-mode: normal !important;
+  --liquid-glass-bg-base: rgb(11, 14, 23) !important;
+  --liquid-blur-intense: 0px !important;
+  --liquid-saturate-intense: 100% !important;
+}
+
+body.performance-mode .header-liquid-glass::before,
+.performance-mode .header-liquid-glass::before,
+html.performance-mode .header-liquid-glass::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: rgb(11, 14, 23) !important;
+  background-color: rgb(11, 14, 23) !important;
+  background-image: none !important;
+  border-radius: inherit !important;
+  z-index: -1 !important;
+  display: block !important;
+  pointer-events: none !important;
+  animation: none !important;
+  opacity: 1 !important;
+  -webkit-mask: none !important;
+  mask: none !important;
+  -webkit-mask-composite: none !important;
+  mask-composite: none !important;
+  padding: 0 !important;
+}
+
+body.performance-mode .header-liquid-glass::after,
+.performance-mode .header-liquid-glass::after,
+html.performance-mode .header-liquid-glass::after {
+  display: none !important;
+  content: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  background: none !important;
+  animation: none !important;
+}
+
+.performance-mode .header-liquid-glass .glass-orb-button {
+  background: #1A2332 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+}
+
+.performance-mode header {
+  animation: none !important;
+}
+
+.performance-mode header h1,
+.performance-mode header .page-header-title {
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6) !important;
+}
+
+.performance-mode header p,
+.performance-mode header .page-header-subtitle {
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* ================== SIDEBAR ================== */
+
+.performance-mode .sidebar-glass-enhanced {
+  background: #0F1927 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.20),
+    0 2px 8px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+}
+
+.performance-mode .sidebar-glass-enhanced::before {
+  animation: none !important;
+  opacity: 0.6 !important;
+  padding: 2px !important;
+}
+
+.performance-mode .sidebar-glass-enhanced::after {
+  opacity: 0.25 !important;
+  filter: blur(8px) !important;
+  animation: none !important;
+}
+
+.performance-mode .sidebar-item-icon-container {
+  background: #1A2332 !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+}
+
+.performance-mode .sidebar-item-icon-container--active,
+.performance-mode .sidebar-item-icon-container[data-active="true"] {
+  border-color: var(--color-plasma-cyan, #18E3FF) !important;
+  box-shadow:
+    0 4px 16px rgba(24, 227, 255, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.12) !important;
+}
+
+.performance-mode .sidebar-glass-enhanced:hover {
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.25),
+    0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ================== BOTTOM BAR ================== */
+
+.performance-mode .new-mobile-bottom-bar-container {
+  background: rgb(11, 14, 23) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow:
+    0 -4px 24px rgba(0, 0, 0, 0.20),
+    0 -2px 8px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+}
+
+.performance-mode .new-mobile-bottom-bar-container::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: rgb(11, 14, 23) !important;
+  border-radius: inherit !important;
+  z-index: -1 !important;
+  display: block !important;
+  pointer-events: none !important;
+  animation: none !important;
+}
+
+.performance-mode .new-mobile-bottom-bar-container::after {
+  display: none !important;
+}
+
+.performance-mode .new-bottom-bar-icon-container {
+  background: #1A2332 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+}
+
+.performance-mode .new-bottom-bar-icon-container--active {
+  box-shadow:
+    0 4px 16px color-mix(in srgb, var(--button-color) 15%, transparent),
+    0 2px 8px rgba(0, 0, 0, 0.12) !important;
+}

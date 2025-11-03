@@ -1,0 +1,254 @@
+/**
+ * Loader Animations - Optimized CSS animations for LoaderCard
+ * GPU-accelerated wave effects and glass traversing animations
+ */
+
+/* ============================================
+   Wave Effect - DISABLED (was causing overflow issues)
+   ============================================ */
+
+.loader-wave-effect {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden !important;
+  border-radius: 1.5rem !important;
+}
+
+/* ============================================
+   Particle Floater - Subtle Background
+   ============================================ */
+
+@keyframes particle-float {
+  0% {
+    transform: translate(0, 0) translateZ(0) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+    transform: translate(0, 0) translateZ(0) scale(1);
+  }
+  90% {
+    opacity: 0.6;
+    transform: translate(var(--tx), var(--ty)) translateZ(0) scale(1);
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) translateZ(0) scale(0);
+    opacity: 0;
+  }
+}
+
+.loader-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, currentColor, transparent);
+  animation: particle-float var(--duration, 4s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  pointer-events: none;
+}
+
+/* ============================================
+   Icon Pulse Glow
+   ============================================ */
+
+@keyframes icon-pulse-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px currentColor);
+    transform: translateZ(0) scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 20px currentColor);
+    transform: translateZ(0) scale(1.05);
+  }
+}
+
+.loader-icon-pulse {
+  animation: icon-pulse-glow 2s ease-in-out infinite;
+  will-change: filter, transform;
+  transform: translateZ(0);
+}
+
+/* ============================================
+   Progress Bar Shimmer
+   ============================================ */
+
+@keyframes progress-shimmer {
+  0% {
+    transform: translateX(-100%) translateZ(0);
+  }
+  100% {
+    transform: translateX(400%) translateZ(0);
+  }
+}
+
+.loader-progress-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: progress-shimmer 1.5s ease-in-out infinite;
+  will-change: transform;
+  transform: translateZ(0);
+  pointer-events: none;
+}
+
+/* ============================================
+   Breathing Border
+   ============================================ */
+
+@keyframes breathing-border {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px currentColor,
+      0 0 20px -5px currentColor;
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px currentColor,
+      0 0 40px -5px currentColor;
+  }
+}
+
+.loader-breathing-border {
+  animation: breathing-border 2.5s ease-in-out infinite;
+  will-change: box-shadow;
+}
+
+/* ============================================
+   Dots Pulse Animation
+   ============================================ */
+
+@keyframes dot-pulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: translateZ(0) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateZ(0) scale(1.2);
+  }
+}
+
+.loader-dot {
+  animation: dot-pulse 1.5s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  will-change: opacity, transform;
+  transform: translateZ(0);
+}
+
+/* ============================================
+   Rotating Gradient Background
+   ============================================ */
+
+@keyframes rotate-gradient {
+  0% {
+    transform: rotate(0deg) translateZ(0);
+  }
+  100% {
+    transform: rotate(360deg) translateZ(0);
+  }
+}
+
+.loader-rotating-gradient {
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    var(--gradient-color, rgba(255, 255, 255, 0.1)) 45deg,
+    transparent 90deg,
+    transparent 270deg,
+    var(--gradient-color, rgba(255, 255, 255, 0.1)) 315deg,
+    transparent 360deg
+  );
+  animation: rotate-gradient 8s linear infinite;
+  will-change: transform;
+  transform: translateZ(0);
+  pointer-events: none;
+  opacity: 0.3;
+  border-radius: inherit;
+}
+
+/* ============================================
+   Fade Slide In/Out
+   ============================================ */
+
+@keyframes fade-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateZ(0);
+  }
+}
+
+@keyframes fade-slide-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) translateZ(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px) translateZ(0);
+  }
+}
+
+.loader-fade-in {
+  animation: fade-slide-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.loader-fade-out {
+  animation: fade-slide-out 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ============================================
+   Performance Optimizations
+   ============================================ */
+
+.loader-optimized {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .loader-wave-effect::before,
+  .loader-particle,
+  .loader-icon-pulse,
+  .loader-progress-shimmer,
+  .loader-breathing-border,
+  .loader-dot,
+  .loader-rotating-gradient {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+
+.loader-no-pointer-events {
+  pointer-events: none;
+}
+
+.loader-isolate {
+  isolation: isolate;
+}
+
+.loader-gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}

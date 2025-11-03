@@ -1,0 +1,556 @@
+/* =========================================
+   LIQUID GLASS PREMIUM - VisionOS 26
+   Ultra-transparent glass system for macOS Big Sur style
+   ========================================= */
+
+:root {
+  /* =========================================
+     LIQUID GLASS - CORE TRANSPARENCY SYSTEM
+     macOS Big Sur inspired ultra-transparent glass
+     ========================================= */
+
+  /* Ultra-transparent base layers */
+  --liquid-glass-opacity-ultra: rgba(255, 255, 255, 0.08);
+  --liquid-glass-opacity-light: rgba(255, 255, 255, 0.10);
+  --liquid-glass-opacity-medium: rgba(255, 255, 255, 0.12);
+  --liquid-glass-opacity-strong: rgba(255, 255, 255, 0.15);
+
+  /* Background layers with frost effect */
+  --liquid-glass-bg-base: rgba(11, 14, 23, 0.45);
+  --liquid-glass-bg-elevated: rgba(11, 14, 23, 0.55);
+  --liquid-glass-bg-modal: rgba(11, 14, 23, 0.65);
+
+  /* Frost glass blur system - harmonisé performances */
+  --liquid-blur-ultra: 32px;
+  --liquid-blur-intense: 24px;
+  --liquid-blur-strong: 20px;
+  --liquid-blur-medium: 16px;
+  --liquid-blur-light: 14px;
+
+  /* Saturation for vibrant frost - harmonisé */
+  --liquid-saturate-ultra: 180%;
+  --liquid-saturate-intense: 160%;
+  --liquid-saturate-strong: 150%;
+  --liquid-saturate-medium: 140%;
+
+  /* =========================================
+     GRADIENT BORDER SYSTEM
+     Multi-color animated borders for premium feel
+     ========================================= */
+
+  /* Border gradient colors */
+  --liquid-border-indigo: rgba(61, 19, 179, 0.4);
+  --liquid-border-cyan: rgba(24, 227, 255, 0.35);
+  --liquid-border-orange: rgba(255, 107, 53, 0.3);
+  --liquid-border-violet: rgba(139, 92, 246, 0.35);
+
+  /* Multi-color gradient borders */
+  --liquid-border-gradient-primary: linear-gradient(
+    135deg,
+    var(--liquid-border-indigo) 0%,
+    var(--liquid-border-cyan) 50%,
+    var(--liquid-border-violet) 100%
+  );
+
+  --liquid-border-gradient-secondary: linear-gradient(
+    135deg,
+    var(--liquid-border-cyan) 0%,
+    var(--liquid-border-orange) 50%,
+    var(--liquid-border-indigo) 100%
+  );
+
+  --liquid-border-gradient-tricolor: linear-gradient(
+    135deg,
+    var(--liquid-border-indigo) 0%,
+    var(--liquid-border-cyan) 33%,
+    var(--liquid-border-orange) 66%,
+    var(--liquid-border-violet) 100%
+  );
+
+  /* =========================================
+     HIGHLIGHT & REFLECTION SYSTEM
+     Strategic light refraction for 3D depth
+     ========================================= */
+
+  /* Corner highlights (top-left emphasis) */
+  --liquid-highlight-corner: radial-gradient(
+    circle at 20% 20%,
+    rgba(255, 255, 255, 0.25) 0%,
+    rgba(255, 255, 255, 0.12) 30%,
+    transparent 60%
+  );
+
+  /* Edge highlights (top edge glow) */
+  --liquid-highlight-top: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.08) 30%,
+    transparent 100%
+  );
+
+  /* Ambient internal glow */
+  --liquid-highlight-ambient: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(255, 255, 255, 0.15) 0%,
+    transparent 50%
+  );
+
+  /* Multi-point reflection system */
+  --liquid-reflections-multi:
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.18) 0%, transparent 40%),
+    radial-gradient(circle at 70% 30%, rgba(255, 255, 255, 0.12) 0%, transparent 35%),
+    radial-gradient(circle at 50% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 30%);
+
+  /* =========================================
+     SHADOW SYSTEM - DEEP 3D FLOATING EFFECT
+     Multiple shadow layers for spatial depth
+     ========================================= */
+
+  /* Ultra-deep shadows for floating panels */
+  --liquid-shadow-ultra:
+    0 30px 80px rgba(0, 0, 0, 0.5),
+    0 12px 40px rgba(0, 0, 0, 0.35),
+    0 4px 16px rgba(0, 0, 0, 0.25),
+    inset 0 2px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+
+  /* Elevated elements shadow */
+  --liquid-shadow-elevated:
+    0 20px 60px rgba(0, 0, 0, 0.45),
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 2px 12px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+
+  /* Standard depth shadow */
+  --liquid-shadow-standard:
+    0 12px 40px rgba(0, 0, 0, 0.35),
+    0 4px 20px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+
+  /* Subtle lift shadow */
+  --liquid-shadow-subtle:
+    0 8px 24px rgba(0, 0, 0, 0.25),
+    0 2px 12px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+  /* =========================================
+     GLOW SYSTEM - AMBIENT LIGHTING
+     Colored glows for brand identity
+     ========================================= */
+
+  /* Ambient glows based on brand colors */
+  --liquid-glow-indigo: 0 0 40px rgba(61, 19, 179, 0.25);
+  --liquid-glow-cyan: 0 0 40px rgba(24, 227, 255, 0.25);
+  --liquid-glow-orange: 0 0 40px rgba(255, 107, 53, 0.25);
+  --liquid-glow-violet: 0 0 40px rgba(139, 92, 246, 0.25);
+
+  /* Combined multi-color glow */
+  --liquid-glow-multi:
+    0 0 60px rgba(61, 19, 179, 0.2),
+    0 0 80px rgba(24, 227, 255, 0.15),
+    0 0 100px rgba(255, 107, 53, 0.1);
+
+  /* Pulsing glow (for animations) */
+  --liquid-glow-pulse-start: 0 0 20px rgba(24, 227, 255, 0.3);
+  --liquid-glow-pulse-end: 0 0 60px rgba(24, 227, 255, 0.5);
+
+  /* =========================================
+     INTERACTION STATES
+     Hover, active, and focus effects
+     ========================================= */
+
+  /* Hover state enhancements */
+  --liquid-hover-scale: 1.02;
+  --liquid-hover-brightness: 1.15;
+  --liquid-hover-blur-increase: 4px;
+
+  /* Active/pressed state */
+  --liquid-active-scale: 0.98;
+  --liquid-active-brightness: 0.92;
+
+  /* Focus state outline */
+  --liquid-focus-outline: 0 0 0 3px rgba(24, 227, 255, 0.4);
+  --liquid-focus-glow: 0 0 20px rgba(24, 227, 255, 0.5);
+
+  /* =========================================
+     ANIMATION SYSTEM
+     Spring-based natural motion
+     ========================================= */
+
+  /* Spring physics parameters */
+  --liquid-spring-gentle: cubic-bezier(0.16, 1, 0.3, 1);
+  --liquid-spring-bouncy: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --liquid-spring-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --liquid-spring-snappy: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Animation durations */
+  --liquid-duration-instant: 100ms;
+  --liquid-duration-fast: 180ms;
+  --liquid-duration-medium: 280ms;
+  --liquid-duration-slow: 400ms;
+  --liquid-duration-slower: 600ms;
+
+  /* Combined transitions */
+  --liquid-transition-fast: var(--liquid-duration-fast) var(--liquid-spring-gentle);
+  --liquid-transition-medium: var(--liquid-duration-medium) var(--liquid-spring-smooth);
+  --liquid-transition-bouncy: var(--liquid-duration-medium) var(--liquid-spring-bouncy);
+
+  /* =========================================
+     COMPONENT-SPECIFIC TOKENS
+     Ready-to-use combinations
+     ========================================= */
+
+  /* Bottom Bar Glass */
+  --liquid-bottombar-bg: var(--liquid-glass-bg-base);
+  --liquid-bottombar-blur: var(--liquid-blur-intense);
+  --liquid-bottombar-saturate: var(--liquid-saturate-intense);
+  --liquid-bottombar-border: var(--liquid-border-gradient-tricolor);
+  --liquid-bottombar-shadow: var(--liquid-shadow-elevated);
+  --liquid-bottombar-glow: var(--liquid-glow-multi);
+
+  /* Panel Glass (Central Actions Menu) */
+  --liquid-panel-bg: var(--liquid-glass-bg-elevated);
+  --liquid-panel-blur: var(--liquid-blur-strong);
+  --liquid-panel-saturate: var(--liquid-saturate-strong);
+  --liquid-panel-border: var(--liquid-border-gradient-primary);
+  --liquid-panel-shadow: var(--liquid-shadow-ultra);
+  --liquid-panel-glow: var(--liquid-glow-cyan);
+
+  /* Tile/Card Glass */
+  --liquid-tile-bg: var(--liquid-glass-opacity-ultra);
+  --liquid-tile-blur: var(--liquid-blur-light);
+  --liquid-tile-saturate: var(--liquid-saturate-medium);
+  --liquid-tile-shadow: var(--liquid-shadow-standard);
+
+  /* Pill/Button Glass */
+  --liquid-pill-bg: var(--liquid-glass-opacity-light);
+  --liquid-pill-blur: var(--liquid-blur-medium);
+  --liquid-pill-saturate: var(--liquid-saturate-medium);
+  --liquid-pill-shadow: var(--liquid-shadow-subtle);
+
+  /* Glass Orb (Round Buttons) - Header & Actions */
+  --liquid-orb-size: 48px;
+  --liquid-orb-bg: linear-gradient(135deg, rgba(61, 19, 179, 0.25), rgba(24, 227, 255, 0.2));
+  --liquid-orb-highlight: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 60%);
+  --liquid-orb-border: 2px solid rgba(24, 227, 255, 0.3);
+  --liquid-orb-blur: 16px;
+  --liquid-orb-saturate: 150%;
+  --liquid-orb-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.25),
+    0 0 20px color-mix(in srgb, var(--color-plasma-cyan) 20%, transparent),
+    inset 0 2px 0 rgba(255, 255, 255, 0.2);
+  --liquid-orb-hover-scale: 1.05;
+  --liquid-orb-active-scale: 0.95;
+}
+
+/* =========================================
+   PERFORMANCE OPTIMIZATIONS
+   ========================================= */
+
+/* Mobile adaptations - reduced blur for performance */
+@media (max-width: 768px) {
+  :root {
+    --liquid-blur-ultra: 20px;
+    --liquid-blur-intense: 16px;
+    --liquid-blur-strong: 14px;
+    --liquid-blur-medium: 12px;
+    --liquid-blur-light: 10px;
+
+    --liquid-saturate-ultra: 150%;
+    --liquid-saturate-intense: 140%;
+    --liquid-saturate-strong: 130%;
+    --liquid-saturate-medium: 120%;
+
+    /* Orb optimisé pour mobile */
+    --liquid-orb-blur: 12px;
+    --liquid-orb-saturate: 130%;
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --liquid-spring-gentle: linear;
+    --liquid-spring-bouncy: linear;
+    --liquid-spring-smooth: linear;
+    --liquid-spring-snappy: linear;
+
+    --liquid-duration-fast: 100ms;
+    --liquid-duration-medium: 150ms;
+    --liquid-duration-slow: 200ms;
+  }
+}
+
+/* Low power mode detection */
+@media (prefers-reduced-motion: reduce),
+       (prefers-contrast: high),
+       (prefers-color-scheme: no-preference) {
+  :root {
+    --liquid-blur-ultra: 16px;
+    --liquid-blur-intense: 14px;
+    --liquid-blur-strong: 12px;
+    --liquid-saturate-ultra: 120%;
+  }
+}
+
+/* Fallback for browsers without backdrop-filter */
+@supports not (backdrop-filter: blur(1px)) {
+  :root {
+    --liquid-glass-bg-base: rgba(11, 14, 23, 0.92);
+    --liquid-glass-bg-elevated: rgba(11, 14, 23, 0.95);
+    --liquid-panel-bg: linear-gradient(
+      145deg,
+      rgba(61, 19, 179, 0.85),
+      rgba(24, 227, 255, 0.75)
+    );
+  }
+}
+
+/* =========================================
+   UTILITY CLASSES
+   Quick application of liquid glass styles
+   ========================================= */
+
+.liquid-glass-ultra {
+  background: var(--liquid-glass-bg-base);
+  backdrop-filter: blur(var(--liquid-blur-ultra)) saturate(var(--liquid-saturate-ultra));
+  -webkit-backdrop-filter: blur(var(--liquid-blur-ultra)) saturate(var(--liquid-saturate-ultra));
+}
+
+.liquid-glass-intense {
+  background: var(--liquid-glass-bg-base);
+  backdrop-filter: blur(var(--liquid-blur-intense)) saturate(var(--liquid-saturate-intense));
+  -webkit-backdrop-filter: blur(var(--liquid-blur-intense)) saturate(var(--liquid-saturate-intense));
+}
+
+.liquid-glass-strong {
+  background: var(--liquid-glass-bg-elevated);
+  backdrop-filter: blur(var(--liquid-blur-strong)) saturate(var(--liquid-saturate-strong));
+  -webkit-backdrop-filter: blur(var(--liquid-blur-strong)) saturate(var(--liquid-saturate-strong));
+}
+
+.liquid-border-gradient {
+  position: relative;
+}
+
+.liquid-border-gradient::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: var(--liquid-border-gradient-primary);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.liquid-glow-ambient {
+  box-shadow: var(--liquid-glow-multi);
+}
+
+.liquid-reflection-multi {
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-reflection-multi::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--liquid-reflections-multi);
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity var(--liquid-transition-fast);
+}
+
+/* GPU acceleration for smooth performance */
+.liquid-accelerated {
+  transform: translateZ(0);
+  will-change: transform, filter, opacity;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* =========================================
+   GLASS ORB BUTTON UTILITY
+   Styles now defined in header-liquid-glass-v2.css
+   This section kept for reference only
+   ========================================= */
+
+/* Glass orb button styles moved to header-specific CSS file
+   to ensure consistency with bottom bar icon-container system */
+
+/* =========================================
+   SIDEBAR ICON CONTAINER
+   Glass pill pour les icônes de sidebar
+   ========================================= */
+
+.sidebar-item-icon-container {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: visible;
+  flex-shrink: 0;
+
+  /* Liquid glass pill effect matching bottom bar */
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.18) 0%, transparent 50%),
+    var(--liquid-pill-bg);
+  backdrop-filter: blur(var(--liquid-pill-blur)) saturate(var(--liquid-pill-saturate));
+  -webkit-backdrop-filter: blur(var(--liquid-pill-blur)) saturate(var(--liquid-pill-saturate));
+
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: var(--liquid-pill-shadow);
+
+  transition:
+    transform var(--liquid-transition-medium),
+    background var(--liquid-transition-fast),
+    box-shadow var(--liquid-transition-fast),
+    border-color var(--liquid-transition-fast);
+
+  transform: translateZ(0);
+  will-change: transform, filter;
+}
+
+/* Corner highlight effect on sidebar pills */
+.sidebar-item-icon-container::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 50%;
+  bottom: 50%;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at 20% 20%,
+    rgba(255,255,255,0.4) 0%,
+    transparent 60%
+  );
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Active state for sidebar icon container */
+.sidebar-item-icon-container--active {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.28) 0%, transparent 60%),
+    radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--item-circuit-color, var(--color-plasma-cyan)) 20%, transparent) 0%, transparent 70%),
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--item-circuit-color, var(--color-plasma-cyan)) 30%, transparent),
+      color-mix(in srgb, var(--item-circuit-color, var(--color-plasma-cyan)) 18%, transparent));
+
+  border: 1.5px solid color-mix(in srgb, var(--item-circuit-color, var(--color-plasma-cyan)) 50%, transparent);
+
+  box-shadow:
+    var(--liquid-pill-shadow),
+    0 0 24px color-mix(in srgb, var(--item-circuit-color, var(--color-plasma-cyan)) 30%, transparent),
+    0 0 48px color-mix(in srgb, var(--item-circuit-color, var(--color-plasma-cyan)) 18%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.3);
+
+  transform: scale(1.05) translateZ(0);
+}
+
+/* Primary sidebar item icon container (e.g., Home) */
+.sidebar-item--primary .sidebar-item-icon-container {
+  width: 44px;
+  height: 44px;
+
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.22) 0%, transparent 50%),
+    radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--color-plasma-cyan) 12%, transparent) 0%, transparent 60%),
+    var(--liquid-pill-bg);
+
+  border: 1.5px solid color-mix(in srgb, var(--color-plasma-cyan) 30%, transparent);
+  box-shadow:
+    var(--liquid-pill-shadow),
+    0 0 20px color-mix(in srgb, var(--color-plasma-cyan) 15%, transparent);
+}
+
+/* =========================================
+   GLASS BACK BUTTON UTILITY
+   Bouton retour avec glass effect harmonisé avec le système header liquid glass
+   ========================================= */
+
+.glass-back-button {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  position: relative;
+  overflow: visible;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Exact match avec glass-orb-button du header */
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.18) 0%, transparent 50%),
+    var(--liquid-pill-bg) !important;
+  backdrop-filter: blur(var(--liquid-pill-blur)) saturate(var(--liquid-pill-saturate)) !important;
+  -webkit-backdrop-filter: blur(var(--liquid-pill-blur)) saturate(var(--liquid-pill-saturate)) !important;
+
+  border: 1px solid rgba(255,255,255,0.2) !important;
+  box-shadow: var(--liquid-pill-shadow) !important;
+
+  transition:
+    transform var(--liquid-transition-medium),
+    background var(--liquid-transition-fast),
+    box-shadow var(--liquid-transition-fast),
+    border-color var(--liquid-transition-fast);
+
+  transform: translateZ(0);
+  will-change: transform, filter;
+  cursor: pointer;
+}
+
+/* Corner highlight effect - même système que les orb buttons */
+.glass-back-button::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 50%;
+  bottom: 50%;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at 20% 20%,
+    rgba(255,255,255,0.4) 0%,
+    transparent 60%
+  );
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Hover state matching header orb buttons */
+@media (hover: hover) and (pointer: fine) {
+  .glass-back-button:hover {
+    transform: scale(1.08) translateZ(0) !important;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25) 0%, transparent 60%),
+      var(--liquid-pill-bg) !important;
+    box-shadow:
+      var(--liquid-pill-shadow),
+      0 0 20px rgba(255,255,255,0.15),
+      0 4px 16px rgba(0,0,0,0.2) !important;
+    border-color: rgba(255,255,255,0.3) !important;
+  }
+}
+
+.glass-back-button:active {
+  transform: scale(0.95) translateZ(0);
+}
+
+.glass-back-button:focus-visible {
+  outline: 3px solid rgba(24, 227, 255, 0.6);
+  outline-offset: 3px;
+  box-shadow:
+    var(--liquid-pill-shadow),
+    0 0 0 4px rgba(24, 227, 255, 0.3) !important;
+  animation: focusGlow 1.5s ease-in-out infinite;
+}

@@ -1,0 +1,189 @@
+/* =========================================
+   PERFORMANCE MODE - Animations
+   Essential animations only
+   ========================================= */
+
+/* ================== ESSENTIAL ANIMATIONS ================== */
+
+/* Loader spinner */
+.performance-mode .loader-essential,
+.performance-mode [class*="loader"][class*="spin"],
+.performance-mode [class*="spinner"] {
+  animation: icon-spin-css 1.5s linear infinite !important;
+  animation-play-state: running !important;
+}
+
+@keyframes icon-spin-css {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Skeleton shimmer */
+.performance-mode .skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.03) 100%
+  ) !important;
+  background-size: 200% 100%;
+  animation: shimmer-performance 2s ease-in-out infinite !important;
+  animation-play-state: running !important;
+}
+
+@keyframes shimmer-performance {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.performance-mode .skeleton-glow::after {
+  display: none !important;
+}
+
+.performance-mode .animate-pulse-subtle {
+  animation: pulse-performance 3s ease-in-out infinite !important;
+  animation-play-state: running !important;
+}
+
+@keyframes pulse-performance {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.92; }
+}
+
+/* Error/success pulse */
+.performance-mode [class*="error"],
+.performance-mode [class*="success"],
+.performance-mode [data-state="error"],
+.performance-mode [data-state="success"] {
+  animation: pulse-performance 1.5s ease-in-out 3 !important;
+  animation-play-state: running !important;
+}
+
+/* Notification fade in */
+.performance-mode [class*="notification"][class*="bounce"],
+.performance-mode [class*="badge"][class*="appear"] {
+  animation: fadeIn-essential 0.2s ease-out !important;
+  animation-play-state: running !important;
+}
+
+@keyframes fadeIn-essential {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ================== DISABLED ANIMATIONS ================== */
+
+.performance-mode [class*="breathing"],
+.performance-mode [class*="breathe"],
+.performance-mode .guide-breathing,
+.performance-mode .breathing-icon {
+  animation: none !important;
+  opacity: 1 !important;
+  display: flex !important;
+}
+
+.performance-mode [class*="pulse"]:not([class*="error"]):not([class*="success"]),
+.performance-mode [class*="glow-pulse"],
+.performance-mode [class*="recovery-pulse"],
+.performance-mode [class*="border-pulse"] {
+  animation: none !important;
+  opacity: 0.85 !important;
+}
+
+.performance-mode [class*="shimmer"]:not(.skeleton-shimmer),
+.performance-mode [class*="text-shimmer"],
+.performance-mode [class*="spatial-shimmer"],
+.performance-mode [class*="active-exercise-shimmer"] {
+  animation: none !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  background-size: 100% 100% !important;
+}
+
+.performance-mode [class*="glow"]:not([class*="glow-pulse"]),
+.performance-mode [class*="cta-glow"],
+.performance-mode [class*="icon-glow"],
+.performance-mode [class*="gradient-shift"] {
+  animation: none !important;
+  filter: none !important;
+}
+
+.performance-mode [class*="particle"],
+.performance-mode [class*="dataParticle"],
+.performance-mode [class*="data-particle"],
+.performance-mode [class*="energy-flow"] {
+  display: none !important;
+  animation: none !important;
+}
+
+.performance-mode [class*="scan-line"],
+.performance-mode [class*="scanLine"],
+.performance-mode [class*="grid-pulse"],
+.performance-mode [class*="ai-focus"] {
+  animation: none !important;
+  opacity: 0.3 !important;
+}
+
+.performance-mode [class*="training-button-shine"],
+.performance-mode [class*="training-button-pulse"],
+.performance-mode [class*="badge-flame"],
+.performance-mode [class*="badge-clock"],
+.performance-mode [class*="spring-in"] {
+  animation: none !important;
+  transform: none !important;
+}
+
+.performance-mode [class*="celebration"],
+.performance-mode [class*="confetti"],
+.performance-mode [class*="firework"] {
+  display: none !important;
+  animation: none !important;
+}
+
+.performance-mode [class*="rotate"]:not(.loader-essential),
+.performance-mode [class*="bounce"]:not([data-essential]),
+.performance-mode [class*="border-rotate"] {
+  animation: none !important;
+  transform: none !important;
+}
+
+.performance-mode [class*="floating"][class*="pulse"],
+.performance-mode [class*="floating"][class*="glow"] {
+  animation: none !important;
+}
+
+/* ================== STATIC ALTERNATIVES ================== */
+
+.performance-mode [class*="breathing"],
+.performance-mode [class*="breathe"] {
+  opacity: 1 !important;
+}
+
+.performance-mode [class*="pulse"]:not([class*="error"]):not([class*="success"]) {
+  opacity: 0.85 !important;
+}
+
+.performance-mode [class*="shimmer"]:not(.skeleton-shimmer) {
+  background: linear-gradient(90deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.04) 100%) !important;
+}
+
+.performance-mode [class*="glow"] {
+  box-shadow: 0 0 8px currentColor !important;
+  opacity: 0.6 !important;
+}
+
+/* ================== ESSENTIAL TRANSITIONS ================== */
+
+.performance-mode button:hover,
+.performance-mode [role="button"]:hover,
+.performance-mode .glass-card:hover {
+  transition: box-shadow 0.15s ease-out !important;
+}
+
+.performance-mode input:focus-visible,
+.performance-mode textarea:focus-visible,
+.performance-mode select:focus-visible {
+  transition: box-shadow 0.2s ease-out !important;
+}

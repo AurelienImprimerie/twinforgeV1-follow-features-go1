@@ -1,0 +1,183 @@
+/* =========================================
+   INLINE STYLE OVERRIDES - CSS Utilities
+   Remplacement des styles inline problématiques
+   ========================================= */
+
+/* Z-index utilities */
+.z-auto-important {
+  z-index: auto !important;
+}
+
+.z-9999-important {
+  z-index: 9999 !important;
+}
+
+.z-9998-important {
+  z-index: 9998 !important;
+}
+
+.z-9997-important {
+  z-index: 9997 !important;
+}
+
+.z-9996-important {
+  z-index: 9996 !important;
+}
+
+.z-9995-important {
+  z-index: 9995 !important;
+}
+
+/* Will-change utilities */
+.will-change-auto-important {
+  will-change: auto !important;
+}
+
+.will-change-transform-important {
+  will-change: transform !important;
+}
+
+.will-change-none-important {
+  will-change: auto !important;
+}
+
+/* Position utilities for fixed elements */
+.position-static-important {
+  position: static !important;
+}
+
+.position-relative-important {
+  position: relative !important;
+}
+
+.position-fixed-important {
+  position: fixed !important;
+}
+
+/* Transform utilities */
+.transform-none-important {
+  transform: none !important;
+}
+
+.transform-gpu-important {
+  transform: translate3d(0, 0, 0) !important;
+}
+
+/* Filter utilities */
+.filter-none-important {
+  filter: none !important;
+}
+
+/* Perspective utilities */
+.perspective-none-important {
+  perspective: none !important;
+}
+
+/* Contain utilities */
+.contain-none-important {
+  contain: none !important;
+}
+
+.contain-layout-style-paint-important {
+  contain: layout style paint !important;
+}
+
+/* Isolation utilities */
+.isolation-auto-important {
+  isolation: auto !important;
+}
+
+.isolation-isolate-important {
+  isolation: isolate !important;
+}
+
+/* Overflow utilities */
+.overflow-visible-important {
+  overflow: visible !important;
+}
+
+.overflow-hidden-important {
+  overflow: hidden !important;
+}
+
+/* Additional z-index utilities */
+.z-0 {
+  z-index: 0 !important;
+}
+
+.z-1 {
+  z-index: 1 !important;
+}
+
+.z-neg-1 {
+  z-index: -1 !important;
+}
+
+.z-modal-backdrop-important {
+  z-index: var(--z-modal-backdrop) !important;
+}
+
+/* Additional z-index utilities for complete coverage */
+.z-0 {
+  z-index: 0 !important;
+}
+
+.z-1 {
+  z-index: 1 !important;
+}
+
+.z-neg-1 {
+  z-index: -1 !important;
+}
+
+/* Ensure all will-change utilities are present */
+.will-change-transform-filter-important {
+  will-change: transform, filter !important;
+}
+
+.will-change-scroll-position-important {
+  will-change: scroll-position !important;
+}
+
+/* =========================================
+   BACKGROUND PERFORMANCE MODES - ABSOLUTE PRIORITY
+   Écrase TOUT CSS précédent y compris media queries
+   ========================================= */
+
+/* Mode Ultra Performance - Fond uni absolu */
+html.mode-high-performance .bg-twinforge-visionos,
+html.performance-mode .bg-twinforge-visionos,
+body.mode-high-performance .bg-twinforge-visionos,
+body.performance-mode .bg-twinforge-visionos,
+.mode-high-performance .bg-twinforge-visionos,
+.performance-mode .bg-twinforge-visionos,
+.bg-twinforge-visionos.performance-mode,
+.bg-twinforge-visionos.mode-high-performance,
+[data-performance-mode="true"] .bg-twinforge-visionos,
+.mobile-performance-mode .bg-twinforge-visionos {
+  background: var(--forge-deep) !important;
+  background-image: none !important;
+  background-color: var(--forge-deep) !important;
+  animation: none !important;
+  animation-name: none !important;
+}
+
+/* Désactiver les pseudo-éléments en mode performance */
+html.mode-high-performance .bg-twinforge-visionos::before,
+html.mode-high-performance .bg-twinforge-visionos::after,
+html.performance-mode .bg-twinforge-visionos::before,
+html.performance-mode .bg-twinforge-visionos::after,
+body.mode-high-performance .bg-twinforge-visionos::before,
+body.mode-high-performance .bg-twinforge-visionos::after,
+body.performance-mode .bg-twinforge-visionos::before,
+body.performance-mode .bg-twinforge-visionos::after,
+.bg-twinforge-visionos.performance-mode::before,
+.bg-twinforge-visionos.performance-mode::after,
+.bg-twinforge-visionos.mode-high-performance::before,
+.bg-twinforge-visionos.mode-high-performance::after,
+[data-performance-mode="true"] .bg-twinforge-visionos::before,
+[data-performance-mode="true"] .bg-twinforge-visionos::after {
+  display: none !important;
+  content: none !important;
+  opacity: 0 !important;
+}

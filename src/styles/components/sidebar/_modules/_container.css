@@ -1,0 +1,154 @@
+/* =========================================
+   SIDEBAR CONTAINER - Base Structure
+   Ultra-transparent liquid glass container with animations
+   ========================================= */
+
+/* Main sidebar container - ultra-transparent liquid glass */
+.sidebar-glass-enhanced {
+  /* Ultra-transparent Liquid Glass matching bottom bar */
+  background:
+    var(--liquid-reflections-multi),
+    var(--liquid-highlight-ambient),
+    var(--liquid-glass-bg-base) !important;
+
+  backdrop-filter: blur(var(--liquid-blur-strong)) saturate(var(--liquid-saturate-strong)) !important;
+  -webkit-backdrop-filter: blur(var(--liquid-blur-strong)) saturate(var(--liquid-saturate-strong)) !important;
+
+  border-radius: 24px !important;
+  box-shadow: var(--liquid-shadow-elevated) !important;
+
+  transition: all var(--liquid-transition-medium);
+  position: relative;
+  overflow: visible !important;
+  isolation: isolate !important;
+  transform: translateZ(0);
+  will-change: transform, filter;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+
+  /* Safari rounded fix */
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  mask-image: radial-gradient(white, black);
+}
+
+/* Multi-color gradient border with animation - ÉPAISSIE POUR ROBUSTESSE */
+.sidebar-glass-enhanced::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  padding: 3px;
+  background: var(--liquid-border-gradient-tricolor);
+  background-size: 200% 200%;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.95;
+  z-index: 2;
+  /* Animation COMPLÈTEMENT désactivée */
+  animation: none !important;
+  animation-name: none !important;
+  animation-play-state: paused !important;
+  /* Position statique du gradient */
+  background-position: 0% 50% !important;
+}
+
+/* Ambient glow underneath */
+.sidebar-glass-enhanced::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: calc(24px + 4px);
+  background: radial-gradient(
+    ellipse at 50% 20%,
+    rgba(24, 227, 255, 0.15) 0%,
+    rgba(61, 19, 179, 0.1) 40%,
+    transparent 70%
+  );
+  opacity: 0.75;
+  z-index: -1;
+  pointer-events: none;
+  /* Animation COMPLÈTEMENT désactivée */
+  animation: none !important;
+  animation-name: none !important;
+  animation-play-state: paused !important;
+  filter: blur(10px);
+  /* État statique sans transformation */
+  transform: scale(1);
+}
+
+/* Animations borderFlow et sidebarGlow COMPLÈTEMENT désactivées */
+@keyframes borderFlow {
+  0%, 100% {
+    background-position: 0% 50%;
+    opacity: 0.9;
+  }
+}
+
+@keyframes sidebarGlow {
+  0%, 100% {
+    opacity: 0.75;
+    transform: scale(1);
+  }
+}
+
+.sidebar-glass-enhanced:hover {
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.5),
+    0 0 50px color-mix(in srgb, var(--brand-primary) 20%, transparent),
+    0 0 100px color-mix(in srgb, var(--color-plasma-cyan) 18%, transparent),
+    inset 0 2px 0 rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Content scrolling - CORRECTIONS MOBILES avec effet de scroll optimisé */
+.sidebar-content {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(100vh - 120px);
+  padding: 0.5rem 0.25rem 0.375rem 1rem;
+  scrollbar-width: none; /* Firefox - Scrollbar invisible */
+  position: relative;
+  scroll-behavior: smooth;
+
+  /* Effet de fade aux extrémités */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 16px,
+    black calc(100% - 16px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 16px,
+    black calc(100% - 16px),
+    transparent 100%
+  );
+}
+
+/* Webkit - Scrollbar invisible */
+.sidebar-content::-webkit-scrollbar {
+  display: none;
+}
+
+.sidebar-content::-webkit-scrollbar-track {
+  display: none;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb {
+  display: none;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+  display: none;
+}
+
+.sidebar-content > *,
+.sidebar-content .space-y-2,
+.sidebar-content .space-y-2 > * {
+  position: relative !important;
+}

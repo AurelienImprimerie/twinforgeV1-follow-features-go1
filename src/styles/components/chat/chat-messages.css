@@ -1,0 +1,341 @@
+/**
+ * Chat Messages Styles
+ * VisionOS 26 inspired message bubbles
+ */
+
+/* ============================================================
+   MESSAGE BUBBLES - ENHANCED SPACING & STYLE
+   ============================================================ */
+
+.coach-message-bubble {
+  /* Plus de padding pour un look premium */
+  padding: 14px 18px !important;
+  margin-bottom: 12px !important;
+  max-width: fit-content;
+  min-width: 80px;
+  border-radius: 20px !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  word-break: normal;
+  overflow-wrap: break-word;
+  hyphens: none;
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+}
+
+/* Remove bottom margin from last message to prevent gap */
+.coach-message-bubble:last-child {
+  margin-bottom: 0 !important;
+}
+
+@media (min-width: 769px) {
+  .coach-message-bubble {
+    padding: 16px 20px !important;
+    margin-bottom: 16px !important;
+    max-width: fit-content;
+    min-width: 100px;
+    border-radius: 22px !important;
+  }
+}
+
+/* Enhanced asymmetric corners - iMessage style */
+.coach-message-bubble--coach {
+  border-top-left-radius: 6px !important;
+  border-top-right-radius: 20px !important;
+  border-bottom-right-radius: 20px !important;
+  border-bottom-left-radius: 20px !important;
+}
+
+@media (min-width: 769px) {
+  .coach-message-bubble--coach {
+    border-top-left-radius: 8px !important;
+    border-top-right-radius: 22px !important;
+    border-bottom-right-radius: 22px !important;
+    border-bottom-left-radius: 22px !important;
+  }
+}
+
+.coach-message-bubble--user {
+  border-top-left-radius: 20px !important;
+  border-top-right-radius: 6px !important;
+  border-bottom-right-radius: 20px !important;
+  border-bottom-left-radius: 20px !important;
+}
+
+@media (min-width: 769px) {
+  .coach-message-bubble--user {
+    border-top-left-radius: 22px !important;
+    border-top-right-radius: 8px !important;
+    border-bottom-right-radius: 22px !important;
+    border-bottom-left-radius: 22px !important;
+  }
+}
+
+/* Hover effect on desktop */
+@media (hover: hover) and (pointer: fine) {
+  .coach-message-bubble:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      0 4px 16px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  }
+}
+
+/* ============================================================
+   MESSAGE AVATAR - ENHANCED SIZE & SPACING
+   ============================================================ */
+
+.message-avatar {
+  width: 32px !important;
+  height: 32px !important;
+  margin-bottom: 4px;
+  flex-shrink: 0;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 769px) {
+  .message-avatar {
+    width: 36px !important;
+    height: 36px !important;
+    margin-bottom: 6px;
+  }
+}
+
+.message-avatar:hover {
+  transform: scale(1.1) rotate(5deg);
+}
+
+/* ============================================================
+   MESSAGE CONTENT - TYPOGRAPHY OPTIMIZATION
+   ============================================================ */
+
+.message-content-text {
+  font-size: 14px !important;
+  line-height: 1.55 !important;
+  letter-spacing: -0.01em;
+  color: rgba(255, 255, 255, 0.95);
+  word-break: normal;
+  overflow-wrap: break-word;
+  hyphens: none;
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  white-space: pre-wrap;
+}
+
+@media (min-width: 769px) {
+  .message-content-text {
+    font-size: 15px !important;
+    line-height: 1.6 !important;
+  }
+}
+
+/* Message timestamp */
+.message-timestamp {
+  font-size: 10px !important;
+  line-height: 1.2;
+  margin-top: 6px !important;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+@media (min-width: 769px) {
+  .message-timestamp {
+    font-size: 11px !important;
+    margin-top: 8px !important;
+  }
+}
+
+.coach-message-bubble:hover .message-timestamp {
+  opacity: 0.7;
+}
+
+/* ============================================================
+   MESSAGE SPACING - CONSECUTIVE MESSAGES
+   ============================================================ */
+
+/* Réduire l'espacement entre messages consécutifs du même auteur */
+.message-group-same-author .coach-message-bubble {
+  margin-bottom: 8px !important;
+}
+
+@media (min-width: 769px) {
+  .message-group-same-author .coach-message-bubble {
+    margin-bottom: 10px !important;
+  }
+}
+
+/* Plus d'espacement entre messages de différents auteurs */
+.message-group-different-author .coach-message-bubble {
+  margin-top: 16px !important;
+}
+
+@media (min-width: 769px) {
+  .message-group-different-author .coach-message-bubble {
+    margin-top: 20px !important;
+  }
+}
+
+/* ============================================================
+   SYSTEM MESSAGES - ENHANCED STYLE
+   ============================================================ */
+
+.system-message {
+  padding: 10px 16px !important;
+  margin: 16px 0 !important;
+  border-radius: 16px !important;
+  font-size: 12px !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 769px) {
+  .system-message {
+    padding: 12px 18px !important;
+    margin: 20px 0 !important;
+    border-radius: 18px !important;
+    font-size: 13px !important;
+  }
+}
+
+.system-message:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  transform: scale(1.02);
+}
+
+/* ============================================================
+   AUDIO MESSAGE INDICATOR - ENHANCED
+   ============================================================ */
+
+.audio-message-indicator {
+  margin-top: 10px !important;
+  padding-top: 10px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 11px !important;
+}
+
+@media (min-width: 769px) {
+  .audio-message-indicator {
+    margin-top: 12px !important;
+    padding-top: 12px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* ============================================================
+   MESSAGE ANIMATION - ENTRANCE
+   ============================================================ */
+
+@keyframes messageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.coach-message-bubble {
+  animation: messageEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Réduire les animations sur mobile pour performance */
+@media (max-width: 768px) {
+  .coach-message-bubble {
+    animation-duration: 0.25s;
+  }
+}
+
+/* ============================================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================================ */
+
+.coach-message-bubble {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  contain: layout style paint;
+}
+
+.message-avatar {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .coach-message-bubble {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .message-avatar:hover {
+    transform: none !important;
+  }
+}
+
+/* ============================================================
+   HIGH CONTRAST MODE
+   ============================================================ */
+
+@media (prefers-contrast: high) {
+  .coach-message-bubble {
+    border-width: 2px !important;
+  }
+
+  .message-content-text {
+    color: rgb(255, 255, 255) !important;
+  }
+
+  .message-timestamp {
+    opacity: 0.8 !important;
+  }
+}
+
+/* ============================================================
+   LINK STYLING IN MESSAGES
+   ============================================================ */
+
+.message-content-text a {
+  color: var(--color-plasma-cyan, #18E3FF);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: all 0.2s;
+}
+
+.message-content-text a:hover {
+  color: var(--color-ember-copper, #FF6B35);
+  text-decoration-thickness: 2px;
+}
+
+/* ============================================================
+   CODE BLOCKS IN MESSAGES
+   ============================================================ */
+
+.message-content-text code {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 0.9em;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.message-content-text pre {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 12px 16px;
+  border-radius: 12px;
+  overflow-x: auto;
+  margin: 8px 0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.message-content-text pre code {
+  background: none;
+  padding: 0;
+  border: none;
+}

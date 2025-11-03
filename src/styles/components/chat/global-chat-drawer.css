@@ -1,0 +1,300 @@
+/**
+ * Global Chat Drawer Styles
+ * VisionOS 26 inspired premium chat interface
+ */
+
+/* ============================================================
+   SPACING SYSTEM - UNIFORM MARGINS
+   ============================================================ */
+
+:root {
+  --chat-drawer-spacing: 12px;
+  --chat-drawer-spacing-desktop: 16px;
+  --chat-drawer-header-spacing: 16px;
+  --chat-drawer-header-spacing-desktop: 20px;
+}
+
+/* ============================================================
+   DRAWER CONTAINER - BASE STYLES
+   ============================================================ */
+
+.global-chat-drawer {
+  /* Enhanced border radius for premium feel */
+  border-radius: 24px !important;
+}
+
+/* Tablet optimizations */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .global-chat-drawer {
+    border-radius: 28px !important;
+    top: calc(64px + 12px) !important;
+    /* Juste au-dessus de la bottom bar sur tablette */
+    bottom: calc(var(--new-bottom-bar-height) + var(--new-bottom-bar-bottom-offset) + 16px) !important;
+    /* Pleine largeur sur tablette avec marges */
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+  }
+}
+
+/* Desktop - garde l'ancien comportement */
+@media (min-width: 1025px) {
+  .global-chat-drawer {
+    border-radius: 28px !important;
+    top: calc(64px + 12px) !important;
+    right: 16px !important;
+    bottom: 32px !important;
+    left: auto !important;
+    /* Largeur fixe sur desktop */
+  }
+}
+
+/* Mobile optimizations - même config que tablette pour espacement uniforme */
+@media (max-width: 768px) {
+  .global-chat-drawer {
+    backdrop-filter: blur(16px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(140%) !important;
+    top: calc(64px + 12px) !important;
+    /* Espacement minimal au-dessus de la bottom bar - plus de double safe-area */
+    bottom: calc(var(--new-bottom-bar-height) + var(--new-bottom-bar-bottom-offset) + 12px) !important;
+    /* Pleine largeur sur mobile avec petites marges */
+    left: 8px !important;
+    right: 8px !important;
+    width: auto !important;
+  }
+}
+
+/* ============================================================
+   DRAWER HEADER - ENHANCED SPACING
+   ============================================================ */
+
+.global-chat-drawer .drawer-header {
+  padding: var(--chat-drawer-header-spacing) var(--chat-drawer-spacing) !important;
+  gap: 16px !important;
+}
+
+@media (min-width: 769px) {
+  .global-chat-drawer .drawer-header {
+    padding: var(--chat-drawer-header-spacing-desktop) var(--chat-drawer-spacing-desktop) !important;
+  }
+}
+
+/* Mode icon container */
+.global-chat-drawer .mode-icon-container {
+  width: 44px !important;
+  height: 44px !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 769px) {
+  .global-chat-drawer .mode-icon-container {
+    width: 48px !important;
+    height: 48px !important;
+  }
+}
+
+.global-chat-drawer .mode-icon-container:hover {
+  transform: scale(1.05) rotate(5deg);
+}
+
+/* ============================================================
+   MESSAGES AREA - OPTIMIZED SPACING
+   ============================================================ */
+
+.global-chat-drawer .messages-container {
+  /* Spacing uniforme mobile et tablette */
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+  padding-top: 8px !important;
+  padding-bottom: 0px !important;
+}
+
+@media (min-width: 769px) {
+  .global-chat-drawer .messages-container {
+    /* Même padding sur tablette que mobile pour cohérence */
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    padding-top: 8px !important;
+    padding-bottom: 2px !important;
+  }
+}
+
+/* Optimisation scroll smooth */
+.global-chat-drawer .messages-container {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Custom scrollbar - VisionOS style */
+.global-chat-drawer .messages-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.global-chat-drawer .messages-container::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 8px 0;
+}
+
+.global-chat-drawer .messages-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.global-chat-drawer .messages-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+  background-clip: padding-box;
+}
+
+@media (min-width: 769px) {
+  .global-chat-drawer .messages-container::-webkit-scrollbar {
+    width: 10px;
+  }
+}
+
+/* ============================================================
+   EMPTY STATE - CENTERED & PREMIUM
+   ============================================================ */
+
+.global-chat-drawer .empty-state {
+  padding: 32px 24px;
+}
+
+@media (min-width: 769px) {
+  .global-chat-drawer .empty-state {
+    padding: 48px 32px;
+  }
+}
+
+/* ============================================================
+   INPUT AREA - ENHANCED SPACING
+   ============================================================ */
+
+/* Note: ce conteneur est maintenant géré par CoachChatInterface */
+.global-chat-drawer .chat-input-footer {
+  /* Padding minimal - évite l'empilement avec safe-area */
+  padding: 8px 8px 0px 8px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 0 !important;
+}
+
+@media (min-width: 769px) {
+  .global-chat-drawer .chat-input-footer {
+    /* Légèrement plus d'espace sur desktop/tablette */
+    padding: 8px 8px 2px 8px !important;
+  }
+}
+
+/* ============================================================
+   HEADER BUTTONS - ENHANCED INTERACTIONS
+   ============================================================ */
+
+.global-chat-drawer .header-button {
+  width: 38px;
+  height: 38px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 769px) {
+  .global-chat-drawer .header-button {
+    width: 42px;
+    height: 42px;
+  }
+}
+
+.global-chat-drawer .header-button:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  transform: scale(1.08);
+}
+
+.global-chat-drawer .header-button:active {
+  transform: scale(0.95);
+}
+
+/* ============================================================
+   SCROLL TO BOTTOM BUTTON - IMPROVED POSITION
+   ============================================================ */
+
+.global-chat-drawer .scroll-to-bottom {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.global-chat-drawer .scroll-to-bottom:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  transform: scale(1.1);
+}
+
+/* ============================================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================================ */
+
+.global-chat-drawer {
+  /* GPU acceleration */
+  transform: translateZ(0);
+  will-change: transform, filter;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.global-chat-drawer .messages-container {
+  contain: layout style paint;
+  content-visibility: auto;
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .global-chat-drawer,
+  .global-chat-drawer * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   HIGH CONTRAST MODE
+   ============================================================ */
+
+@media (prefers-contrast: high) {
+  .global-chat-drawer {
+    border: 3px solid rgba(255, 255, 255, 0.5) !important;
+  }
+
+  .global-chat-drawer .drawer-header {
+    border-bottom-width: 2px !important;
+  }
+}
+
+
+/* ============================================================
+   LARGE DESKTOP OPTIMIZATIONS
+   ============================================================ */
+
+@media (min-width: 1440px) {
+  .global-chat-drawer {
+    top: 120px !important;
+    right: 32px !important;
+    bottom: 120px !important;
+    border-radius: 32px !important;
+  }
+
+  .global-chat-drawer .drawer-header {
+    padding: 28px 32px !important;
+  }
+
+  .global-chat-drawer .messages-container {
+    padding-left: 28px !important;
+    padding-right: 28px !important;
+    padding-top: 24px !important;
+    padding-bottom: 20px !important;
+  }
+
+  .global-chat-drawer .chat-input-footer {
+    padding: 12px 20px 10px 20px !important;
+  }
+}

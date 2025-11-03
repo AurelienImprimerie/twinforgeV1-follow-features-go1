@@ -1,0 +1,237 @@
+/* =========================================
+   CONTAINER - Base Panel Structure
+   Main panel container with liquid glass effects
+   ========================================= */
+
+/* Main panel container with ultra-transparent glass - UNIFIED ANIMATION */
+.central-actions-panel {
+  /* Ultra-transparent Liquid Glass with multi-layer reflections */
+  background:
+    var(--liquid-reflections-multi),
+    var(--liquid-highlight-corner),
+    var(--liquid-highlight-ambient),
+    var(--liquid-panel-bg);
+
+  backdrop-filter: blur(var(--liquid-panel-blur)) saturate(var(--liquid-panel-saturate));
+  -webkit-backdrop-filter: blur(var(--liquid-panel-blur)) saturate(var(--liquid-panel-saturate));
+
+  box-shadow: var(--liquid-panel-shadow);
+
+  border-radius: 24px !important;
+  overflow: hidden !important;
+
+  transform: translateZ(0);
+  will-change: transform, filter, opacity;
+  backface-visibility: hidden;
+
+  /* CRITICAL: Unified opacity transition to prevent two-step appearance */
+  opacity: 1;
+  transition: opacity 0.15s ease-out;
+
+  /* Safari rounded corners fix */
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  mask-image: radial-gradient(white, black);
+}
+
+/* Inner scroll container with elegant scrollbar */
+.central-actions-scroll-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  padding-right: 4px;
+}
+
+.central-actions-scroll-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.central-actions-scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.central-actions-scroll-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.central-actions-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Multi-color gradient border with animation */
+.central-actions-panel::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(
+    135deg,
+    rgba(61, 19, 179, 0.45) 0%,
+    rgba(24, 227, 255, 0.4) 25%,
+    rgba(139, 92, 246, 0.4) 50%,
+    rgba(255, 107, 53, 0.35) 75%,
+    rgba(61, 19, 179, 0.45) 100%
+  );
+  background-size: 200% 200%;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.8;
+  z-index: 2;
+  animation: none;
+}
+
+/* Ambient glow underneath panel */
+.central-actions-panel::after {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  border-radius: calc(24px + 8px);
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(24, 227, 255, 0.2) 0%,
+    rgba(61, 19, 179, 0.15) 30%,
+    rgba(255, 107, 53, 0.1) 60%,
+    transparent 80%
+  );
+  opacity: 0.7;
+  z-index: -1;
+  pointer-events: none;
+  animation: none;
+  filter: blur(12px);
+}
+
+/* Border gradient - STATIC */
+@keyframes borderFlow {
+  0%, 100% {
+    background-position: 0% 50%;
+    opacity: 0.8;
+  }
+}
+
+/* Ambient glow - STATIC */
+@keyframes panelGlow {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+}
+
+/* Shimmer effect on panel open */
+@keyframes panelShimmer {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.central-actions-panel.shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  animation: panelShimmer 1.5s ease-out;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Header drag indicator - glass strip - NO WHITE BANDS */
+.central-actions-panel .h-1\.5 {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.5) 20%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0.5) 80%,
+    transparent 100%
+  );
+  backdrop-filter: blur(4px);
+  box-shadow: none !important;
+  border: none !important;
+  outline: none !important;
+}
+
+/* Section titles - TOTALLY CLEAN NO GREY/WHITE BANDS */
+.central-actions-panel h3,
+.central-actions-panel h4,
+.central-actions-panel h3.text-white\/70,
+.central-actions-panel h3[class*="text-"],
+.central-actions-panel h4[class*="text-"] {
+  position: relative;
+  text-shadow: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  outline: none !important;
+  text-decoration: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* CRITICAL: Remove all pseudo-elements that could create white bands */
+.central-actions-panel h3::before,
+.central-actions-panel h3::after,
+.central-actions-panel h4::before,
+.central-actions-panel h4::after {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* CRITICAL: Ensure parent containers are COMPLETELY transparent */
+.central-actions-panel .px-1\.5,
+.central-actions-panel .mb-1\.5,
+.central-actions-panel div.px-1\.5,
+.central-actions-panel div.mb-1\.5,
+.central-actions-panel > div > div > div.mb-3 > div.px-1\.5,
+.central-actions-panel > div > div > div.mb-3 > div.mb-1\.5 {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* CRITICAL: NUCLEAR OPTION - Remove ALL backgrounds from ALL divs except buttons */
+.central-actions-panel div:not(button):not(.glass-card):not(.avatar-twin-button) {
+  background: transparent !important;
+  background-color: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+/* CRITICAL: Remove all backgrounds from divs that could create grey bands */
+.central-actions-panel div[class*="mb-"],
+.central-actions-panel div[class*="px-"],
+.central-actions-panel div[class*="mt-"],
+.central-actions-panel div[class*="pt-"],
+.central-actions-panel div[class*="gap-"] {
+  background: transparent !important;
+  background-color: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}

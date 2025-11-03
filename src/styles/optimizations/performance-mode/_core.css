@@ -1,0 +1,67 @@
+/* =========================================
+   PERFORMANCE MODE - Core Base Rules
+   Global CSS overrides for performance mode
+   ========================================= */
+
+/* Global animation disablement */
+.performance-mode * {
+  animation: none !important;
+  animation-play-state: paused !important;
+}
+
+/* Disable transitions except for active/focus states */
+.performance-mode *:not(:active):not(:focus-visible) {
+  transition: none !important;
+}
+
+/* Will-change optimization */
+.performance-mode * {
+  will-change: auto !important;
+}
+
+.performance-mode *:active {
+  will-change: transform !important;
+}
+
+/* Z-index simplification */
+.performance-mode * {
+  isolation: auto !important;
+  contain: none !important;
+}
+
+/* Backdrop effects disabled */
+.performance-mode [style*="backdrop-filter"],
+.performance-mode [style*="-webkit-backdrop-filter"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Filters removed globally (with exceptions) */
+.performance-mode [style*="filter:"]:not(header .spatial-icon):not(header [class*="logo"] *),
+.performance-mode [class*="blur"],
+.performance-mode [class*="saturate"] {
+  filter: none !important;
+}
+
+/* Opacity animations static */
+.performance-mode [style*="opacity"] {
+  transition: none !important;
+}
+
+/* Transforms static except tap feedback and header icons */
+.performance-mode [style*="transform"]:not(:active):not(header .breathing-icon):not(header .breathing-icon *):not([role="img"]):not(.spatial-icon):not(.icon-container) {
+  transform: none !important;
+}
+
+/* Framer Motion disabled */
+.performance-mode [data-framer-motion] {
+  animation: none !important;
+  transform: none !important;
+}
+
+/* Scroll reveal disabled */
+.performance-mode .glass-card-scroll-reveal,
+.performance-mode [data-scroll-reveal] {
+  opacity: 1 !important;
+  transform: none !important;
+}

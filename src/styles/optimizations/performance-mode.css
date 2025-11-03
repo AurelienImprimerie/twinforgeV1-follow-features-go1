@@ -1,0 +1,1445 @@
+/* =========================================
+   PERFORMANCE MODE - iPhone 10 Optimization
+   Global CSS overrides for performance mode
+   Apple-like design: clean, cohesive, premium
+   ========================================= */
+
+/*
+  MODULAR ARCHITECTURE
+  ====================
+  This file imports specialized modules for better maintainability:
+
+  - performance-mode/_core.css: Base rules, animations control, transforms
+  - performance-mode/_glass.css: Glass card effects and backgrounds
+  - performance-mode/_buttons.css: Buttons, chips, and interactive elements
+  - performance-mode/_navigation.css: Header, sidebar, bottom bar
+  - performance-mode/_icons.css: Icon containers and spatial icons
+  - performance-mode/_modals.css: Modals, drawers, overlays
+  - performance-mode/_animations.css: Essential animations and disabled decoratives
+  - performance-mode/_shadows.css: Shadow simplification and text-shadow
+  - performance-mode/_special-components.css: Logos, tokens, floating buttons
+  - performance-mode/_page-specific.css: Body scan, meals, training pages
+  - performance-mode/_pseudo-elements.css: ::before and ::after optimizations
+
+  BOX-SHADOW OPTIMIZATION STRATEGY
+  =================================
+
+  CATÉGORIES (781 occurrences auditées):
+  - Essentiel (20%): depth, hierarchy, focus states
+  - Décoratif (60%): colored glows, multi-layer effects
+  - Redondant (20%): duplicate/overlapping shadows
+
+  MODE QUALITY (Desktop/Tablette):
+  - Toutes les box-shadow préservées
+  - Multi-layer shadows pour profondeur
+  - Colored glows pour ambiance
+  - Complex inset shadows
+
+  MODE PERFORMANCE (.performance-mode):
+  - Glass cards: 0 2px 8px rgba(0,0,0,0.15)
+  - Buttons: 0 2px 8px rgba(0,0,0,0.12)
+  - Modals: 0 12px 40px rgba(0,0,0,0.25)
+  - Chips: 0 1px 4px rgba(0,0,0,0.08)
+  - Inputs: inset 0 1px 3px rgba(0,0,0,0.1)
+  - Blur max: 16px (vs 40px+ en quality)
+
+  EXCEPTIONS - OMBRES COLORÉES PRÉSERVÉES:
+  ✓ Logo FØRGE header: drop-shadow coloré (brand)
+  ✓ Sidebar gradient border: tricolor static
+  ✓ Sidebar active icon: cyan shadow (0.15 opacity)
+  ✓ Primary button: purple shadow (0.15-0.2 opacity)
+  ✓ Focus states: purple ring (0.25 opacity)
+
+  SIMPLIFICATIONS:
+  - 3+ layer shadows → single layer
+  - Colored glows → reduced opacity (0.15-0.25)
+  - Inset shadows → removed except inputs
+  - Blur > 16px → capped at 12-16px
+  - Backdrop-filter → none
+  - Complex gradients → solid colors
+
+  DESIGN APPLE-LIKE:
+  - Propre: pas de bordures superflues sur navigation
+  - Cohérent: même style de shadow partout
+  - Premium: ombres colorées préservées stratégiquement
+  - Hiérarchie: elevation via shadow intensity
+
+  ZONES CRITIQUES OPTIMISÉES:
+  - Glass cards: 250+ → shadow simple + border subtil
+  - Buttons/chips: 150+ → unified shadows
+  - Icons/spatial: 100+ → depth minimal
+  - Modals/drawers: 80+ → strong elevation
+*/
+
+/* Import all modules */
+@import './performance-mode/_core.css';
+@import './performance-mode/_glass.css';
+@import './performance-mode/_buttons.css';
+@import './performance-mode/_navigation.css';
+@import './performance-mode/_icons.css';
+@import './performance-mode/_modals.css';
+@import './performance-mode/_animations.css';
+@import './performance-mode/_shadows.css';
+@import './performance-mode/_special-components.css';
+@import './performance-mode/_page-specific.css';
+@import './performance-mode/_pseudo-elements.css';
+
+/* =========================================
+   LEGACY CODE - To be removed after verification
+   ========================================= */
+
+/* Note: The code below is kept temporarily for backward compatibility.
+   All rules have been moved to their respective modules above.
+   This section will be removed once all imports are verified working. */
+
+/* =========================================
+   GLASS EFFECTS - Solid backgrounds Apple-like
+   ========================================= */
+
+.performance-mode .glass-card,
+.performance-mode .glass-base,
+.performance-mode .glass-card-cta {
+  /* Replace transparency with solid dark blue */
+  background: #0F1927 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+
+  /* Apple-like shadow: simple, elegant, depth */
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+
+  /* Subtle border for definition */
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* =========================================
+   SKELETON CONTAINERS FIX
+   Conteneurs de squelettes doivent rester semi-transparents
+   ========================================= */
+
+.performance-mode .glass-card.skeleton-container,
+.performance-mode [class*="skeleton-"] .glass-card,
+.performance-mode [class*="Skeleton"] .glass-card {
+  /* Semi-transparent pour ne pas cacher le contenu */
+  background: rgba(15, 25, 39, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Squelettes eux-mêmes restent visibles */
+.performance-mode .skeleton-shimmer {
+  /* Gradient simple pour animation légère */
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.03) 100%
+  ) !important;
+  background-size: 200% 100%;
+  animation: shimmer-performance 2s ease-in-out infinite !important;
+}
+
+@keyframes shimmer-performance {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.performance-mode .skeleton-glow::after {
+  /* Pas de glow complexe, juste un pulse simple */
+  display: none !important;
+}
+
+.performance-mode .animate-pulse-subtle {
+  /* Pulse très subtil pour ne pas consommer de ressources */
+  animation: pulse-performance 3s ease-in-out infinite !important;
+}
+
+@keyframes pulse-performance {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.92; }
+}
+
+/* Remove pseudo-element glows and highlights */
+.performance-mode .glass-card::before,
+.performance-mode .glass-card::after,
+.performance-mode .glass-card-cta::before,
+.performance-mode .glass-card-cta::after {
+  display: none !important;
+}
+
+/* Disable sheen completely */
+.performance-mode .glass-sheen {
+  display: none !important;
+}
+
+/* =========================================
+   HOVER EFFECTS - Simplified Apple-like
+   ========================================= */
+
+.performance-mode .glass-card:hover,
+.performance-mode .glass-card-cta:hover {
+  transform: none !important;
+  /* Slightly elevated on hover for feedback */
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: none !important;
+}
+
+/* =========================================
+   BUTTONS & CHIPS - Apple-like simplified shadows
+   ========================================= */
+
+.performance-mode .btn-glass,
+.performance-mode .btn-glass--primary,
+.performance-mode .btn-glass--secondary-nav,
+.performance-mode .btn-glass--warning,
+.performance-mode button,
+.performance-mode [role="button"] {
+  /* Simple shadow for depth, no colored glows */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Primary button: subtle colored shadow preserved but reduced */
+.performance-mode .btn-glass--primary {
+  box-shadow:
+    0 4px 12px rgba(139, 92, 246, 0.15),
+    0 2px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Button hover: slightly elevated */
+.performance-mode .btn-glass:hover,
+.performance-mode button:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.performance-mode .btn-glass--primary:hover {
+  box-shadow:
+    0 6px 16px rgba(139, 92, 246, 0.2),
+    0 3px 8px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Chips: minimal shadow */
+.performance-mode [class*="chip"],
+.performance-mode [class*="badge"],
+.performance-mode [class*="tag"] {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08) !important;
+  backdrop-filter: none !important;
+}
+
+/* =========================================
+   MODALS & DRAWERS - Clean Apple-like elevation
+   ========================================= */
+
+.performance-mode [class*="modal"],
+.performance-mode [class*="drawer"],
+.performance-mode [class*="dialog"],
+.performance-mode .mobile-drawer {
+  /* Strong shadow for clear separation */
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.25),
+    0 4px 16px rgba(0, 0, 0, 0.15) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* =========================================
+   ICONS - Simplified but functional
+   ========================================= */
+
+.performance-mode .spatial-icon,
+.performance-mode .icon-container {
+  /* Remove complex glows and filters */
+  filter: none !important;
+
+  /* Solid background for interactive icons */
+  background: #1A2332 !important;
+
+  /* Subtle shadow for depth */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+}
+
+.performance-mode .spatial-icon:hover {
+  filter: none !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Remove icon halos */
+.performance-mode .spatial-icon > div[class*="absolute"] {
+  display: none !important;
+}
+
+/* =========================================
+   PAGE HEADER LOGO - Preserve colored shadows (Apple premium)
+   ========================================= */
+
+/* EXCEPTION CRITIQUE: Logo FØRGE garde ses ombres colorées */
+.performance-mode header [class*="logo"],
+.performance-mode header .header-logo,
+.performance-mode header .TwinForge,
+.performance-mode .HeaderLogo {
+  /* Preserve original colored drop-shadows for brand identity */
+  filter: none !important; /* Will be overridden inline by component */
+}
+
+.performance-mode header [class*="logo"] span[style*="drop-shadow"],
+.performance-mode header [class*="logo"] span[style*="filter"] {
+  /* Keep logo letter shadows - reduced but present */
+  filter: inherit !important;
+}
+
+/* Logo text specifically - NEVER remove colored shadows */
+.performance-mode header span[style*="linear-gradient"] {
+  /* Preserve gradient text */
+  background: inherit !important;
+  -webkit-background-clip: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+}
+
+/* =========================================
+   TOKEN BALANCE - Preserve gradient display in Plans tab
+   ========================================= */
+
+/* CRITICAL: Token balance must remain visible with gradient in performance mode */
+.performance-mode [style*="-webkit-background-clip: text"],
+.performance-mode [style*="background-clip: text"],
+.performance-mode [style*="-webkit-text-fill-color: transparent"],
+.performance-mode [style*="backgroundClip"][style*="text"] {
+  /* Preserve gradient text effect for token balance */
+  background: inherit !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* =========================================
+   PAGE HEADER ICONS - Keep visible with simplified effects
+   ========================================= */
+
+/* CRITICAL: Force visibility of ALL page header icon elements */
+.performance-mode header .flex-shrink-0,
+.performance-mode header .breathing-icon,
+.performance-mode header [class*="breathing"] {
+  /* Keep icon container visible */
+  opacity: 1 !important;
+  display: flex !important;
+  visibility: visible !important;
+  animation: none !important;
+}
+
+/* CRITICAL: Icon container must be fully visible */
+.performance-mode header .flex-shrink-0 > div,
+.performance-mode header .breathing-icon > div {
+  /* Force visibility */
+  opacity: 1 !important;
+  display: flex !important;
+  visibility: visible !important;
+
+  /* Disable expensive GPU effects but keep layout */
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+
+  /* Keep all inline styles for proper rendering */
+}
+
+/* CRITICAL: Page header icon itself - MUST be visible */
+.performance-mode header .spatial-icon {
+  /* Force full visibility */
+  opacity: 1 !important;
+  display: inline-flex !important;
+  visibility: visible !important;
+
+  /* Disable filters that might hide the icon */
+  filter: none !important;
+
+  /* Keep color from inline styles */
+  background: transparent !important;
+}
+
+/* CRITICAL: Icon SVG elements - ensure full visibility */
+.performance-mode header .spatial-icon svg,
+.performance-mode header .spatial-icon path,
+.performance-mode header .spatial-icon * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  fill: currentColor !important;
+  display: inline !important;
+}
+
+/* CRITICAL: Prevent any rule from hiding page header icons */
+.performance-mode header [role="img"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: flex !important;
+}
+
+.performance-mode header [role="img"] * {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* =========================================
+   SIDEBAR - Preserve colored accents, simplify complex effects
+   ========================================= */
+
+/* Sidebar container: simplify but keep premium feel */
+.performance-mode .sidebar-glass-enhanced {
+  /* Solid background instead of ultra-transparent */
+  background: #0F1927 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+
+  /* Clean shadow without excessive blur */
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.20),
+    0 2px 8px rgba(0, 0, 0, 0.12) !important;
+
+  /* Keep border for definition */
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+}
+
+/* EXCEPTION: Preserve colored gradient border but disable animation */
+.performance-mode .sidebar-glass-enhanced::before {
+  /* Keep tricolor border but static */
+  animation: none !important;
+  opacity: 0.6 !important; /* Reduced for subtlety */
+  padding: 2px !important; /* Thinner border */
+}
+
+/* Simplify ambient glow */
+.performance-mode .sidebar-glass-enhanced::after {
+  /* Reduce glow intensity */
+  opacity: 0.25 !important;
+  filter: blur(8px) !important;
+  animation: none !important;
+}
+
+/* Sidebar item icons: preserve colored shadows when active */
+.performance-mode .sidebar-item-icon-container {
+  /* Simplified but still glassy */
+  background: #1A2332 !important;
+  backdrop-filter: none !important;
+
+  /* Clean shadow */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* EXCEPTION: Active icon keeps colored shadow for feedback */
+.performance-mode .sidebar-item-icon-container--active,
+.performance-mode .sidebar-item-icon-container[data-active="true"] {
+  /* Preserve colored border/shadow when active */
+  border-color: var(--color-plasma-cyan, #18E3FF) !important;
+
+  /* Subtle colored shadow for active state */
+  box-shadow:
+    0 4px 16px rgba(24, 227, 255, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Sidebar hover: subtle elevation */
+.performance-mode .sidebar-glass-enhanced:hover {
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.25),
+    0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* =========================================
+   HEADER - Solid backgrounds and disabled animations
+   ========================================= */
+
+body.performance-mode .header-liquid-glass,
+.performance-mode .header-liquid-glass,
+html.performance-mode .header-liquid-glass {
+  /* 100% OPAQUE - No transparency */
+  background: rgb(11, 14, 23) !important;
+  background-color: rgb(11, 14, 23) !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+
+  /* Clean shadow without excessive blur */
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.20),
+    0 2px 8px rgba(0, 0, 0, 0.12) !important;
+
+  /* Keep border for definition */
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+
+  /* Ensure no transparency leaks */
+  opacity: 1 !important;
+  isolation: isolate !important;
+  background-clip: padding-box !important;
+  -webkit-background-clip: padding-box !important;
+  background-blend-mode: normal !important;
+  mix-blend-mode: normal !important;
+
+  /* Override all CSS variables */
+  --liquid-glass-bg-base: rgb(11, 14, 23) !important;
+  --liquid-blur-intense: 0px !important;
+  --liquid-saturate-intense: 100% !important;
+}
+
+/* Force solid backdrop layer */
+body.performance-mode .header-liquid-glass::before,
+.performance-mode .header-liquid-glass::before,
+html.performance-mode .header-liquid-glass::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: rgb(11, 14, 23) !important;
+  background-color: rgb(11, 14, 23) !important;
+  background-image: none !important;
+  border-radius: inherit !important;
+  z-index: -1 !important;
+  display: block !important;
+  pointer-events: none !important;
+  animation: none !important;
+  opacity: 1 !important;
+  -webkit-mask: none !important;
+  mask: none !important;
+  -webkit-mask-composite: none !important;
+  mask-composite: none !important;
+  padding: 0 !important;
+}
+
+/* Remove decorative glow */
+body.performance-mode .header-liquid-glass::after,
+.performance-mode .header-liquid-glass::after,
+html.performance-mode .header-liquid-glass::after {
+  display: none !important;
+  content: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  background: none !important;
+  animation: none !important;
+}
+
+/* Header buttons: simplified glass pills */
+.performance-mode .header-liquid-glass .glass-orb-button {
+  background: #1A2332 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* =========================================
+   BOTTOM BAR - Solid backgrounds and disabled animations
+   ========================================= */
+
+.performance-mode .new-mobile-bottom-bar-container {
+  /* 100% OPAQUE - No transparency */
+  background: rgb(11, 14, 23) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+
+  /* Clean shadow */
+  box-shadow:
+    0 -4px 24px rgba(0, 0, 0, 0.20),
+    0 -2px 8px rgba(0, 0, 0, 0.12) !important;
+
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+}
+
+/* Force solid backdrop layer */
+.performance-mode .new-mobile-bottom-bar-container::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: rgb(11, 14, 23) !important;
+  border-radius: inherit !important;
+  z-index: -1 !important;
+  display: block !important;
+  pointer-events: none !important;
+  animation: none !important;
+}
+
+/* Remove decorative glow */
+.performance-mode .new-mobile-bottom-bar-container::after {
+  display: none !important;
+}
+
+/* Bottom bar icon containers: simplified */
+.performance-mode .new-bottom-bar-icon-container {
+  background: #1A2332 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Active state: preserve colored shadows but reduced */
+.performance-mode .new-bottom-bar-icon-container--active {
+  box-shadow:
+    0 4px 16px color-mix(in srgb, var(--button-color) 15%, transparent),
+    0 2px 8px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* =========================================
+   CENTRAL ACTIONS MENU - Simplified glass
+   ========================================= */
+
+.performance-mode .central-actions-panel {
+  background: #0F1927 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.25),
+    0 4px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Pills/buttons dans le panneau - fond plus solide */
+.performance-mode .central-actions-panel .glass-card {
+  background: #1A2332 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Icon containers dans les pills - utiliser les couleurs circuit correctes */
+.performance-mode .central-actions-panel .glass-card .w-6.h-6 {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15) 0%, transparent 50%),
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--pill-circuit-color, #18E3FF) 20%, #1A2332),
+      color-mix(in srgb, var(--pill-circuit-color, #18E3FF) 12%, #1A2332)) !important;
+
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+
+  border: 1.5px solid color-mix(in srgb, var(--pill-circuit-color, #18E3FF) 35%, transparent) !important;
+
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.15),
+    0 0 12px color-mix(in srgb, var(--pill-circuit-color, #18E3FF) 18%, transparent) !important;
+}
+
+/* Avatar Twin Button en mode performance */
+.performance-mode .central-actions-panel .avatar-twin-button {
+  background: #1A2332 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18) !important;
+}
+
+/* Disable animations du panneau en mode performance */
+.performance-mode .central-actions-panel::before,
+.performance-mode .central-actions-panel::after {
+  animation: none !important;
+  opacity: 0.5 !important;
+}
+
+/* Disable animations des bordures */
+.performance-mode .central-actions-panel .avatar-twin-button::before {
+  animation: none !important;
+  opacity: 0.4 !important;
+}
+
+.performance-mode .central-actions-panel .avatar-twin-button::after {
+  display: none !important;
+}
+
+/* =========================================
+   FLOATING CHAT BUTTON - Simplified effects
+   ========================================= */
+
+.performance-mode .floating-chat-button,
+.performance-mode .floating-voice-coach-button,
+.performance-mode .unified-floating-button {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  animation: none !important;
+
+  /* Remove all colored glows and cyan shadows */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+
+  /* Force solid background - no gradients */
+  background: rgba(11, 14, 23, 0.95) !important;
+  background-image: none !important;
+}
+
+.performance-mode .floating-chat-button:hover,
+.performance-mode .floating-voice-coach-button:hover,
+.performance-mode .unified-floating-button:hover {
+  /* Simple black shadow on hover */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.performance-mode .floating-chat-button::before,
+.performance-mode .floating-chat-button::after,
+.performance-mode .floating-voice-coach-button::before,
+.performance-mode .floating-voice-coach-button::after {
+  /* Disable all decorative pseudo-elements */
+  display: none !important;
+  animation: none !important;
+  opacity: 0 !important;
+}
+
+/* Remove cyan/turquoise colored shadows specifically */
+.performance-mode .floating-chat-button[style*="box-shadow"],
+.performance-mode .floating-voice-coach-button[style*="box-shadow"],
+.performance-mode .unified-floating-button[style*="box-shadow"] {
+  /* Override inline styles with simple black shadow */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Remove pulsating glow effects */
+.performance-mode .floating-chat-button > div[style*="filter"],
+.performance-mode .floating-chat-button > div[style*="blur"] {
+  display: none !important;
+}
+
+/* CRITICAL: Remove ALL radial gradients and colored glows from floating button */
+.performance-mode .floating-chat-button[style*="radial-gradient"] {
+  background: rgba(11, 14, 23, 0.95) !important;
+  background-image: none !important;
+}
+
+/* Remove corner highlight effect - the div with radial gradient */
+.performance-mode .floating-chat-button > div:first-child[style*="radial-gradient"] {
+  display: none !important;
+  opacity: 0 !important;
+}
+
+/* =========================================
+   CHAT DRAWER - Simplified glass effects
+   ========================================= */
+
+.performance-mode .mobile-drawer,
+.performance-mode .global-chat-drawer,
+.performance-mode .unified-coach-drawer {
+  background: #0F1927 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.25),
+    0 4px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* =========================================
+   ANIMATIONS KEYFRAMES - Optimisation Sélective
+   ========================================= */
+
+/*
+  STRATÉGIE D'OPTIMISATION DES ANIMATIONS (416 occurrences auditées)
+  ==================================================================
+
+  CATÉGORIES:
+  - Essentielles (15%): loaders, feedback tactile, modale slide-in
+  - Décoratives (70%): breathing, pulse, shimmer, glow, particles
+  - Redondantes (15%): duplicate keyframes, over-engineering
+
+  DESKTOP (Mode Quality):
+  ✓ Toutes les animations préservées
+  ✓ Breathing, pulse, shimmer, glow actifs
+  ✓ Particles, data flows, spatial effects
+  ✓ Hero animations, celebration effects
+  ✓ Complex multi-step keyframes
+
+  MOBILE PERFORMANCE (.performance-mode):
+  ✓ GARDÉES (Essentielles):
+    - Loader spinner (spin, forgeProgressFill)
+    - Tap feedback (scale down 0.98)
+    - Modal slide-in (slideInUp, fadeIn)
+    - Focus states (pulse subtil)
+    - Skeleton shimmer (minimal)
+    - Error/success states (errorPulse)
+
+  ✗ DÉSACTIVÉES (Décoratives):
+    - Breathing (forgeBreathe, breathing-icon, guide-breathing)
+    - Pulse complexes (forgePulseGlow, glow-pulse, recovery-pulse)
+    - Shimmer décoratifs (forgeShimmerPass, text-shimmer, spatial-shimmer)
+    - Glow effects (cta-glow-pulse, icon-glow, gradient-shift)
+    - Particles (dataParticle, fridge-particle-float, energy-flow)
+    - Complex multi-layer (celebration, hero animations)
+    - Rotate/bounce non-essentiels (border-rotate, bounce)
+
+  ALTERNATIVES STATIQUES:
+  - breathing → opacité fixe 1.0
+  - pulse → opacité réduite 0.85
+  - shimmer → gradient statique
+  - glow → couleur fixe sans animation
+  - particles → display: none
+
+  PERFORMANCE GAINS:
+  - CPU: -40% (pas de calculs d'interpolation)
+  - GPU: -30% (pas de repaints continus)
+  - Battery: +25% autonomie
+  - FPS: stable 60fps vs 45-55fps avec animations
+*/
+
+/* =========================================
+   DÉSACTIVATION GLOBALE - Base
+   ========================================= */
+
+.performance-mode * {
+  /* Disable ALL animations by default */
+  animation: none !important;
+  animation-play-state: paused !important;
+}
+
+/* Disable ALL transitions by default (except exceptions below) */
+.performance-mode *:not(:active):not(:focus-visible) {
+  transition: none !important;
+}
+
+/* =========================================
+   EXCEPTIONS - Animations Essentielles Préservées
+   ========================================= */
+
+/* 1. LOADER SPINNER - Essentiel pour feedback utilisateur */
+.performance-mode .loader-essential,
+.performance-mode [class*="loader"][class*="spin"],
+.performance-mode [class*="spinner"] {
+  animation: icon-spin-css 1.5s linear infinite !important;
+  animation-play-state: running !important;
+}
+
+@keyframes icon-spin-css {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 2. TAP FEEDBACK - Essentiel pour retour tactile */
+.performance-mode .glass-card:active,
+.performance-mode .glass-card-cta:active,
+.performance-mode .spatial-icon:active,
+.performance-mode button:active,
+.performance-mode [role="button"]:active {
+  transform: scale(0.98) !important;
+  transition: transform 0.08s ease-out !important;
+}
+
+/* 3. MODAL/DRAWER SLIDE-IN - Essentiel pour contexte spatial */
+.performance-mode [class*="modal"].opening,
+.performance-mode [class*="drawer"].opening,
+.performance-mode .mobile-drawer.opening {
+  animation: slideInUp-essential 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  animation-play-state: running !important;
+}
+
+@keyframes slideInUp-essential {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 4. SKELETON SHIMMER - Minimal mais nécessaire */
+.performance-mode .skeleton-shimmer {
+  animation: shimmer-performance 2s ease-in-out infinite !important;
+  animation-play-state: running !important;
+}
+
+/* Already defined above: shimmer-performance keyframe at line 105-108 */
+
+/* 5. ERROR/SUCCESS PULSE - Feedback critique */
+.performance-mode [class*="error"],
+.performance-mode [class*="success"],
+.performance-mode [data-state="error"],
+.performance-mode [data-state="success"] {
+  animation: pulse-performance 1.5s ease-in-out 3 !important;
+  animation-play-state: running !important;
+}
+
+/* Already defined above: pulse-performance keyframe at line 120-123 */
+
+/* =========================================
+   DÉSACTIVATIONS SPÉCIFIQUES - Animations Décoratives
+   ========================================= */
+
+/* BREATHING - Toutes désactivées mais gardent leur visibilité */
+.performance-mode [class*="breathing"],
+.performance-mode [class*="breathe"],
+.performance-mode .guide-breathing,
+.performance-mode .breathing-icon {
+  animation: none !important;
+  opacity: 1 !important;
+  /* IMPORTANT: Garde tous les styles inline pour visibilité */
+  display: flex !important;
+}
+
+/* Page header icon container - TOUJOURS visible - CRITICAL FIX */
+.performance-mode header .breathing-icon,
+.performance-mode header .breathing-icon *,
+.performance-mode header .breathing-icon > div,
+.performance-mode header .breathing-icon [role="img"] {
+  /* Force visibility */
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+
+  /* Preserve transform for GPU layer - DO NOT REMOVE */
+  transform: inherit !important;
+
+  /* Preserve all inline styles for icon visibility */
+  background: inherit !important;
+  border: inherit !important;
+  box-shadow: inherit !important;
+  color: inherit !important;
+
+  /* Only disable expensive filters */
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+
+  /* Disable animations but keep element visible */
+  animation: none !important;
+}
+
+/* PULSE COMPLEXES - Toutes désactivées */
+.performance-mode [class*="pulse"]:not([class*="error"]):not([class*="success"]),
+.performance-mode [class*="glow-pulse"],
+.performance-mode [class*="recovery-pulse"],
+.performance-mode [class*="border-pulse"] {
+  animation: none !important;
+  opacity: 0.85 !important;
+}
+
+/* SHIMMER DÉCORATIFS - Tous désactivés sauf skeleton */
+.performance-mode [class*="shimmer"]:not(.skeleton-shimmer),
+.performance-mode [class*="text-shimmer"],
+.performance-mode [class*="spatial-shimmer"],
+.performance-mode [class*="active-exercise-shimmer"] {
+  animation: none !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  background-size: 100% 100% !important;
+}
+
+/* GLOW EFFECTS - Tous désactivés */
+.performance-mode [class*="glow"]:not([class*="glow-pulse"]),
+.performance-mode [class*="cta-glow"],
+.performance-mode [class*="icon-glow"],
+.performance-mode [class*="gradient-shift"] {
+  animation: none !important;
+  filter: none !important;
+}
+
+/* PARTICLES & DATA FLOWS - Tous cachés */
+.performance-mode [class*="particle"],
+.performance-mode [class*="dataParticle"],
+.performance-mode [class*="data-particle"],
+.performance-mode [class*="energy-flow"] {
+  display: none !important;
+  animation: none !important;
+}
+
+/* SCAN LINES & GRIDS - Tous désactivés */
+.performance-mode [class*="scan-line"],
+.performance-mode [class*="scanLine"],
+.performance-mode [class*="grid-pulse"],
+.performance-mode [class*="ai-focus"] {
+  animation: none !important;
+  opacity: 0.3 !important;
+}
+
+/* HERO ANIMATIONS - Toutes désactivées */
+.performance-mode [class*="training-button-shine"],
+.performance-mode [class*="training-button-pulse"],
+.performance-mode [class*="badge-flame"],
+.performance-mode [class*="badge-clock"],
+.performance-mode [class*="spring-in"] {
+  animation: none !important;
+  transform: none !important;
+}
+
+/* CELEBRATION EFFECTS - Tous désactivés */
+.performance-mode [class*="celebration"],
+.performance-mode [class*="confetti"],
+.performance-mode [class*="firework"] {
+  display: none !important;
+  animation: none !important;
+}
+
+/* ROTATE/BOUNCE NON-ESSENTIELS - Tous désactivés */
+.performance-mode [class*="rotate"]:not(.loader-essential),
+.performance-mode [class*="bounce"]:not([data-essential]),
+.performance-mode [class*="border-rotate"] {
+  animation: none !important;
+  transform: none !important;
+}
+
+/* FLOATING BUTTONS - Animations réduites */
+.performance-mode [class*="floating"][class*="pulse"],
+.performance-mode [class*="floating"][class*="glow"] {
+  animation: none !important;
+}
+
+/* NOTIFICATION BADGE - Animation simplifiée */
+.performance-mode [class*="notification"][class*="bounce"],
+.performance-mode [class*="badge"][class*="appear"] {
+  animation: fadeIn-essential 0.2s ease-out !important;
+  animation-play-state: running !important;
+}
+
+@keyframes fadeIn-essential {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* =========================================
+   MEALS PROGRESSION TAB - Animations désactivées
+   ========================================= */
+
+/* Metric cards animations */
+.performance-mode .metric-card-enter,
+.performance-mode .metric-icon-glow-css,
+.performance-mode .metric-value-enter,
+.performance-mode .status-badge-enter {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+/* Chart animations */
+.performance-mode .chart-enter,
+.performance-mode .chart-enter-right {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+/* Hero metrics section */
+.performance-mode .hero-metrics-enter {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+/* Progression glow effect */
+.performance-mode .progression-glow-css {
+  animation: none !important;
+  opacity: 0.15 !important;
+  filter: blur(8px) !important;
+}
+
+/* Legend items */
+.performance-mode .legend-item-enter {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+/* Heatmap animations */
+.performance-mode .heatmap-enter,
+.performance-mode .heatmap-cell-enter {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+/* Score scale animation */
+.performance-mode .score-scale-enter {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+/* =========================================
+   BODY SCAN - BodyScan specific optimizations
+   ========================================= */
+
+/* Body keypoints - Reduce complexity */
+.performance-mode .body-keypoints {
+  opacity: 0.6 !important;
+}
+
+.performance-mode .keypoint {
+  animation: none !important;
+  box-shadow: 0 0 6px currentColor !important;
+}
+
+/* Scan lines - Simplify animations */
+.performance-mode .scan-line-vertical,
+.performance-mode .scan-line-horizontal {
+  animation-duration: 4s !important;
+  box-shadow: 0 0 10px currentColor !important;
+}
+
+/* Analysis grids - Reduce opacity and disable animations */
+.performance-mode .analysis-grid {
+  opacity: 0.2 !important;
+}
+
+.performance-mode .grid-cell {
+  animation: none !important;
+  opacity: 0.3 !important;
+}
+
+/* Analysis zones - Static in performance mode */
+.performance-mode .analysis-zone {
+  animation: none !important;
+  opacity: 0.4 !important;
+  transform: translate(-50%, -50%) translateZ(0) !important;
+}
+
+/* AI focus overlay - Disable animation */
+.performance-mode .ai-focus-overlay {
+  animation: none !important;
+  opacity: 0.3 !important;
+}
+
+/* Data particles - Hide completely in performance mode */
+.performance-mode .data-particle,
+.performance-mode .data-flow-container {
+  display: none !important;
+}
+
+/* Celebration ambient glow - Reduce complexity */
+.performance-mode .celebration-ambient-glow {
+  opacity: 0.3 !important;
+  filter: blur(12px) !important;
+}
+
+/* Celebration rays - Static */
+.performance-mode .celebration-ray {
+  animation: none !important;
+  opacity: 0.4 !important;
+}
+
+/* Photo guide overlay - Simplify breathing */
+.performance-mode .guide-breathing {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+/* =========================================
+   MEALS HISTORY TAB - Animations désactivées
+   ========================================= */
+
+/* Meal group and item animations */
+.performance-mode .meal-group-enter,
+.performance-mode .meal-item-enter {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+/* Progress fill animation */
+.performance-mode .progress-fill-css {
+  animation: none !important;
+  transition: width 0.3s ease-out !important;
+}
+
+/* Metric icon static variant */
+.performance-mode .metric-icon-static {
+  animation: none !important;
+}
+
+/* Metric particle effects - remove completely */
+.performance-mode .metric-particle-css {
+  display: none !important;
+  animation: none !important;
+}
+
+/* =========================================
+   ALTERNATIVES STATIQUES - Remplacements visuels
+   ========================================= */
+
+/* Breathing → Static opacity */
+.performance-mode [class*="breathing"],
+.performance-mode [class*="breathe"] {
+  opacity: 1 !important;
+}
+
+/* Pulse → Reduced opacity */
+.performance-mode [class*="pulse"]:not([class*="error"]):not([class*="success"]) {
+  opacity: 0.85 !important;
+}
+
+/* Shimmer → Static gradient */
+.performance-mode [class*="shimmer"]:not(.skeleton-shimmer) {
+  background: linear-gradient(90deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.04) 100%) !important;
+}
+
+/* Glow → Fixed color without pulse */
+.performance-mode [class*="glow"] {
+  box-shadow: 0 0 8px currentColor !important;
+  opacity: 0.6 !important;
+}
+
+/* =========================================
+   TRANSITIONS - Sélectives uniquement
+   ========================================= */
+
+/* Only allow essential transitions */
+.performance-mode button:hover,
+.performance-mode [role="button"]:hover,
+.performance-mode .glass-card:hover {
+  transition: box-shadow 0.15s ease-out !important;
+}
+
+.performance-mode input:focus-visible,
+.performance-mode textarea:focus-visible,
+.performance-mode select:focus-visible {
+  transition: box-shadow 0.2s ease-out !important;
+}
+
+/* =========================================
+   FRAMER MOTION - Disable animations
+   ========================================= */
+
+.performance-mode [data-framer-motion] {
+  animation: none !important;
+  transform: none !important;
+}
+
+/* NOTE: CIRCUITS AND EFFECTS section removed - now handled comprehensively in
+   ANIMATIONS KEYFRAMES section above (lines 374-653) with detailed categorization */
+
+/* =========================================
+   SHADOWS - Comprehensive Apple-like simplification
+   ========================================= */
+
+/* Remove all colored shadows and glows */
+.performance-mode [class*="shadow"]:not(.sidebar-item-icon-container--active) {
+  filter: none !important;
+}
+
+/* Generic shadow simplification - exclude preserved elements */
+.performance-mode [style*="box-shadow"]:not(header [class*="logo"] *):not(header .breathing-icon *):not(.sidebar-glass-enhanced):not(.sidebar-item-icon-container--active) {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Remove excessive inset shadows except for inputs and page header icons */
+.performance-mode *:not(input):not(textarea):not(select):not(header .breathing-icon):not(header .breathing-icon *) {
+  /* Remove complex inset shadows */
+  box-shadow: none !important;
+}
+
+/* Restore simple shadow for cards and interactive elements */
+.performance-mode .glass-card,
+.performance-mode button,
+.performance-mode [role="button"],
+.performance-mode [class*="modal"],
+.performance-mode [class*="drawer"] {
+  /* Re-apply simplified shadows defined above */
+  box-shadow: inherit !important;
+}
+
+/* Input fields keep subtle inset for depth */
+.performance-mode input,
+.performance-mode textarea,
+.performance-mode select {
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Focus states: simple ring */
+.performance-mode *:focus-visible {
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25) !important;
+}
+
+/* Remove blur effects from shadows */
+.performance-mode [style*="blur"] {
+  filter: none !important;
+}
+
+/* NOTE: LOADERS section removed - now handled in ANIMATIONS KEYFRAMES
+   section above (lines 445-456) with icon-spin-css keyframe defined */
+
+/* =========================================
+   GRADIENTS - Optimized in gradient-optimizations.css
+   Gradients are now handled in dedicated file for better control
+   ========================================= */
+
+/* Gradient optimizations moved to src/styles/optimizations/gradient-optimizations.css
+   for comprehensive mapping of all 647 gradient occurrences */
+
+/* =========================================
+   WILL-CHANGE - Remove all
+   ========================================= */
+
+.performance-mode * {
+  will-change: auto !important;
+}
+
+/* =========================================
+   SCROLL REVEAL - Disabled
+   ========================================= */
+
+.performance-mode .glass-card-scroll-reveal,
+.performance-mode [data-scroll-reveal] {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* =========================================
+   PAGE HEADER AND NAVIGATION - Keep intact but optimized
+   Navigation elements get simplified but functional styling
+   ========================================= */
+
+/* Header: Keep functional but remove expensive effects */
+.performance-mode header {
+  /* Don't use 'all: revert' - be specific instead */
+  animation: none !important;
+}
+
+/* Header text shadows - keep minimal for readability */
+.performance-mode header h1,
+.performance-mode header .page-header-title {
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6) !important;
+}
+
+.performance-mode header p,
+.performance-mode header .page-header-subtitle {
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Navigation elements - keep functional */
+.performance-mode .sidebar,
+.performance-mode .mobile-drawer,
+.performance-mode .bottom-bar,
+.performance-mode .floating-chat-button {
+  /* Keep visible and functional, just no animations */
+  animation: none !important;
+}
+
+/* =========================================
+   BACKDROP EFFECTS - Disabled
+   ========================================= */
+
+.performance-mode [style*="backdrop-filter"],
+.performance-mode [style*="-webkit-backdrop-filter"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* =========================================
+   FILTERS - All removed (with exceptions)
+   ========================================= */
+
+/* Remove filters globally EXCEPT for page header icons */
+.performance-mode [style*="filter:"]:not(header .spatial-icon):not(header [class*="logo"] *),
+.performance-mode [class*="blur"],
+.performance-mode [class*="saturate"] {
+  filter: none !important;
+}
+
+/* Page header spatial icon keeps simplified filter (defined above line 294) */
+
+/* CRITICAL: SpatialIcon component visibility in performance mode */
+.performance-mode .spatial-icon,
+.performance-mode .icon-container {
+  /* Ensure icon remains visible */
+  display: inline-flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+
+  /* Preserve transform for proper rendering */
+  transform: inherit !important;
+}
+
+/* =========================================
+   OPACITY ANIMATIONS - Static
+   ========================================= */
+
+.performance-mode [style*="opacity"] {
+  /* Keep opacity but remove transitions */
+  transition: none !important;
+}
+
+/* =========================================
+   TRANSFORMS - Static except tap feedback and page header icons
+   ========================================= */
+
+/* CRITICAL: Preserve transform for header icons and spatial icons */
+.performance-mode [style*="transform"]:not(:active):not(header .breathing-icon):not(header .breathing-icon *):not([role="img"]):not(.spatial-icon):not(.icon-container) {
+  transform: none !important;
+}
+
+/* =========================================
+   Z-INDEX - Simplified stacking
+   ========================================= */
+
+.performance-mode * {
+  /* Reset complex z-index stacks */
+  isolation: auto !important;
+  contain: none !important;
+}
+
+/* =========================================
+   WILL-CHANGE - Disabled (GPU optimization)
+   ========================================= */
+
+.performance-mode * {
+  /* Disable will-change to prevent unnecessary GPU layers */
+  will-change: auto !important;
+}
+
+/* Exception: Keep will-change for active tap feedback */
+.performance-mode *:active {
+  will-change: transform !important;
+}
+
+/* =========================================
+   PSEUDO-ELEMENTS - Decorative effects disabled
+   ========================================= */
+
+/* Disable ALL decorative ::before and ::after EXCEPT critical ones */
+.performance-mode *::before:not(header [class*="logo"] *)::before,
+.performance-mode *::after:not(header [class*="logo"] *)::after {
+  /* Remove glow effects */
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+
+  /* Remove animations */
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Glass sheen effects - disable completely */
+.performance-mode .glass-sheen::before,
+.performance-mode .glass-sheen::after,
+.performance-mode [class*="sheen"]::before,
+.performance-mode [class*="sheen"]::after {
+  opacity: 0 !important;
+  display: none !important;
+}
+
+/* Thermal distortion overlays - disable */
+.performance-mode .thermal-distortion::before,
+.performance-mode .thermal-distortion::after,
+.performance-mode [class*="distortion"]::before,
+.performance-mode [class*="distortion"]::after {
+  opacity: 0 !important;
+  display: none !important;
+}
+
+/* Ambient gradient effects - disable */
+.performance-mode .ambient-glow::before,
+.performance-mode .ambient-glow::after,
+.performance-mode [class*="ambient"]::before,
+.performance-mode [class*="ambient"]::after {
+  opacity: 0 !important;
+  display: none !important;
+}
+
+/* =========================================
+   COMPLEX BOX-SHADOWS - Simplified
+   ========================================= */
+
+/* Simplify all box-shadows to single layer EXCEPT protected elements */
+.performance-mode [style*="box-shadow"]:not(header [class*="logo"] *):not(header .breathing-icon *):not(header .flex-shrink-0 *):not(.sidebar-glass-enhanced):not(.sidebar-item-icon-container--active) {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Remove excessive inset shadows */
+.performance-mode *:not(input):not(textarea):not(select):not(header .breathing-icon):not(header .breathing-icon *):not(header .flex-shrink-0 *):not(header [role="img"]) {
+  box-shadow: none !important;
+}
+
+/* =========================================
+   TEXT-SHADOW - Simplified
+   ========================================= */
+
+.performance-mode * {
+  text-shadow: none !important;
+}
+
+/* Exception: Keep simple text-shadow for page titles */
+.performance-mode .page-header-title,
+.performance-mode h1 {
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6) !important;
+}

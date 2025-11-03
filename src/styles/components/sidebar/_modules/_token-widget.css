@@ -1,0 +1,151 @@
+/* ==========================================
+   TOKEN BALANCE WIDGET - INFORMATIVE STYLE
+   Compact, subtle, becomes CTA when tokens are low
+   ========================================== */
+
+.sidebar-token-widget {
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+  border-radius: 12px;
+  transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+
+  /* Subtle informative background by default */
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.04),
+    rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-token-widget:hover {
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.03));
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-token-widget:active {
+  transform: translateY(0);
+  transition-duration: 0.1s;
+}
+
+/* Low tokens state - becomes a subtle CTA */
+.sidebar-token-widget--low {
+  background: linear-gradient(135deg,
+    rgba(255, 107, 53, 0.08),
+    rgba(253, 200, 48, 0.04));
+  border-color: rgba(247, 147, 30, 0.2);
+  box-shadow: 0 2px 12px rgba(247, 147, 30, 0.12);
+  animation: pulse-token-subtle 3s ease-in-out infinite;
+}
+
+.sidebar-token-widget--low:hover {
+  background: linear-gradient(135deg,
+    rgba(255, 107, 53, 0.12),
+    rgba(253, 200, 48, 0.06));
+  border-color: rgba(247, 147, 30, 0.3);
+  box-shadow: 0 3px 16px rgba(247, 147, 30, 0.2);
+}
+
+@keyframes pulse-token-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.92;
+  }
+}
+
+/* Critical tokens state - more prominent CTA */
+.sidebar-token-widget--critical {
+  background: linear-gradient(135deg,
+    rgba(239, 68, 68, 0.1),
+    rgba(220, 38, 38, 0.05));
+  border-color: rgba(239, 68, 68, 0.25);
+  box-shadow: 0 2px 14px rgba(239, 68, 68, 0.15);
+  animation: pulse-token-critical 2s ease-in-out infinite;
+}
+
+.sidebar-token-widget--critical:hover {
+  background: linear-gradient(135deg,
+    rgba(239, 68, 68, 0.14),
+    rgba(220, 38, 38, 0.08));
+  border-color: rgba(239, 68, 68, 0.35);
+  box-shadow: 0 3px 18px rgba(239, 68, 68, 0.25);
+}
+
+@keyframes pulse-token-critical {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(0.995);
+  }
+}
+
+/* Token widget content layout */
+.sidebar-token-widget-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sidebar-token-widget-icon {
+  flex-shrink: 0;
+}
+
+.sidebar-token-widget-info {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.sidebar-token-widget-balance {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 1.2;
+  transition: all 0.2s ease;
+  letter-spacing: -0.01em;
+}
+
+.sidebar-token-widget--low .sidebar-token-widget-balance,
+.sidebar-token-widget--critical .sidebar-token-widget-balance {
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-token-widget-label {
+  font-size: 0.625rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.2;
+  margin-top: 0.125rem;
+  transition: all 0.2s ease;
+}
+
+.sidebar-token-widget--low .sidebar-token-widget-label,
+.sidebar-token-widget--critical .sidebar-token-widget-label {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.sidebar-token-widget-arrow {
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.sidebar-token-widget:hover .sidebar-token-widget-arrow {
+  transform: translateX(2px);
+}
+
+/* Alert icon for low/critical states */
+.sidebar-token-widget-alert {
+  flex-shrink: 0;
+}

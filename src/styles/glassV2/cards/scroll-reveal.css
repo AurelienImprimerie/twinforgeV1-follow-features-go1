@@ -1,0 +1,263 @@
+/* =========================================
+   GLASS CARDS SCROLL REVEAL ANIMATIONS
+   Progressive reveal based on scroll position
+   Optimized for mobile, PWA, and low-end devices
+   ========================================= */
+
+/* Base scroll reveal variables */
+:root {
+  --scroll-progress: 0;
+  --scroll-proximity: 0;
+  --scroll-tint-intensity: 0;
+  --scroll-blur-amount: 20px;
+  --scroll-glow-opacity: 0;
+
+  /* Intensity presets */
+  --scroll-reveal-subtle: 0.5;
+  --scroll-reveal-medium: 1.0;
+  --scroll-reveal-intense: 1.5;
+
+  /* Timing functions optimized for smooth scroll */
+  --scroll-timing-fast: cubic-bezier(0.4, 0.0, 0.2, 1);
+  --scroll-timing-smooth: cubic-bezier(0.4, 0.0, 0.6, 1);
+  --scroll-timing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Base scroll reveal class - Applied to all GlassCards */
+.glass-card-scroll-reveal {
+  position: relative;
+  transition:
+    background var(--scroll-timing-smooth) 0.3s,
+    border-color var(--scroll-timing-smooth) 0.3s,
+    box-shadow var(--scroll-timing-smooth) 0.3s,
+    transform var(--scroll-timing-smooth) 0.2s;
+
+  will-change: auto;
+  content-visibility: auto;
+  contain: layout style paint;
+}
+
+/* Active state when card is visible in viewport */
+.glass-card-scroll-reveal[data-scroll-visible="true"] {
+  will-change: background, border-color, box-shadow, transform;
+}
+
+/* Progressive background tint based on scroll position */
+.glass-card-scroll-reveal {
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(255, 255, 255, calc(var(--scroll-tint-intensity) * 0.08)) 0%,
+      transparent 60%
+    ),
+    var(--glass-opacity-base);
+}
+
+/* Enhanced border glow as card approaches center */
+.glass-card-scroll-reveal {
+  border-color: color-mix(
+    in srgb,
+    var(--glass-hover-border) calc(var(--scroll-proximity) * 100%),
+    var(--glass-border-base) calc((1 - var(--scroll-proximity)) * 100%)
+  );
+}
+
+/* Progressive blur effect - Desktop and high-end devices only */
+@media (hover: hover) and (pointer: fine) {
+  .glass-card-scroll-reveal:not([data-low-end="true"]) {
+    backdrop-filter:
+      blur(calc(var(--glass-blur-base, 16px) + var(--scroll-proximity) * 4px))
+      saturate(calc(100% + var(--scroll-proximity) * 50%));
+  }
+}
+
+/* Subtle glow effect when card is centered */
+.glass-card-scroll-reveal::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 255, 255, calc(var(--scroll-glow-opacity) * 0.15)),
+    transparent 70%
+  );
+  opacity: var(--scroll-proximity);
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity var(--scroll-timing-smooth) 0.3s;
+}
+
+/* Intensity Variants */
+
+/* Subtle variant - minimal effect */
+.glass-card-scroll-reveal[data-intensity="subtle"] {
+  --scroll-reveal-multiplier: var(--scroll-reveal-subtle);
+}
+
+.glass-card-scroll-reveal[data-intensity="subtle"] {
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(255, 255, 255, calc(var(--scroll-tint-intensity) * 0.04)) 0%,
+      transparent 60%
+    ),
+    var(--glass-opacity-base);
+}
+
+/* Medium variant - balanced effect (default) */
+.glass-card-scroll-reveal[data-intensity="medium"] {
+  --scroll-reveal-multiplier: var(--scroll-reveal-medium);
+}
+
+/* Intense variant - pronounced effect */
+.glass-card-scroll-reveal[data-intensity="intense"] {
+  --scroll-reveal-multiplier: var(--scroll-reveal-intense);
+}
+
+.glass-card-scroll-reveal[data-intensity="intense"] {
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(255, 255, 255, calc(var(--scroll-tint-intensity) * 0.12)) 0%,
+      transparent 60%
+    ),
+    var(--glass-opacity-base);
+}
+
+.glass-card-scroll-reveal[data-intensity="intense"]::before {
+  opacity: calc(var(--scroll-proximity) * 1.2);
+}
+
+/* Mobile optimizations */
+@media (hover: none), (pointer: coarse) {
+  .glass-card-scroll-reveal {
+    /* Simplified transitions for mobile */
+    transition:
+      background var(--scroll-timing-fast) 0.2s,
+      border-color var(--scroll-timing-fast) 0.2s;
+  }
+
+  /* Disable complex effects on mobile for performance */
+  .glass-card-scroll-reveal::before {
+    display: none;
+  }
+
+  /* Simplified background for mobile */
+  .glass-card-scroll-reveal {
+    background:
+      linear-gradient(
+        135deg,
+        rgba(255, 255, 255, calc(var(--scroll-tint-intensity) * 0.05)) 0%,
+        transparent 50%
+      ),
+      var(--glass-opacity-base);
+  }
+}
+
+/* Low-end device fallback - fade only */
+.glass-card-scroll-reveal[data-low-end="true"] {
+  transition: opacity var(--scroll-timing-fast) 0.3s;
+  opacity: calc(0.7 + var(--scroll-progress) * 0.3);
+}
+
+.glass-card-scroll-reveal[data-low-end="true"]::before {
+  display: none;
+}
+
+/* Reduced motion fallback */
+@media (prefers-reduced-motion: reduce) {
+  .glass-card-scroll-reveal {
+    transition: opacity 0.3s ease;
+  }
+
+  .glass-card-scroll-reveal::before {
+    display: none;
+  }
+
+  .glass-card-scroll-reveal {
+    background: var(--glass-opacity-base) !important;
+    border-color: var(--glass-border-base) !important;
+  }
+}
+
+/* Performance optimizations */
+
+/* Only apply will-change when actively scrolling */
+.glass-card-scroll-reveal[data-scroll-active="true"] {
+  will-change: background, border-color, transform;
+}
+
+/* Remove will-change after animation completes */
+.glass-card-scroll-reveal[data-scroll-active="false"] {
+  will-change: auto;
+}
+
+/* GPU acceleration for smooth transforms */
+.glass-card-scroll-reveal {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Prevent layout shifts */
+.glass-card-scroll-reveal {
+  contain-intrinsic-size: auto 200px;
+}
+
+/* Feature-specific variants with scroll reveal */
+
+.glass-card--body-scan.glass-card-scroll-reveal {
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      color-mix(in srgb, var(--color-body-scan-tint) calc(var(--scroll-proximity) * 100%), transparent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(circle at 30% 20%, var(--color-body-scan-tint) 0%, transparent 60%),
+    var(--glass-opacity-base);
+}
+
+.glass-card--nutrition.glass-card-scroll-reveal {
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      color-mix(in srgb, var(--color-nutrition-tint) calc(var(--scroll-proximity) * 100%), transparent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(circle at 30% 20%, var(--color-nutrition-tint) 0%, transparent 60%),
+    var(--glass-opacity-base);
+}
+
+.glass-card--activity.glass-card-scroll-reveal {
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      color-mix(in srgb, var(--color-activity-tint) calc(var(--scroll-proximity) * 100%), transparent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(circle at 30% 20%, var(--color-activity-tint) 0%, transparent 60%),
+    var(--glass-opacity-base);
+}
+
+/* Smooth reveal animation on first appearance */
+@keyframes scroll-reveal-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateZ(0);
+  }
+}
+
+.glass-card-scroll-reveal[data-first-reveal="true"] {
+  animation: scroll-reveal-fade-in 0.6s var(--scroll-timing-smooth) forwards;
+}
+
+/* Prevent animations on initial page load for performance */
+.no-scroll-animations .glass-card-scroll-reveal {
+  transition: none !important;
+  animation: none !important;
+}

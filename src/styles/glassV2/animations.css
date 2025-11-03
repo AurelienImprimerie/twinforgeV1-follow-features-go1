@@ -1,0 +1,203 @@
+/* =========================================
+   GLASS V2 ANIMATIONS - Phase 10.0 Consolidated
+   Centralized animation system using unified variables
+   ========================================= */
+
+:root {
+  /* =========================================
+     ANIMATION SYSTEM - CONSOLIDATED
+     Uses centralized animation variables from variables.css
+     ========================================= */
+
+  /* Safety fallbacks to avoid invalid var() */
+  --will-change-transform: transform;
+
+  /* Legacy Animation Mappings */
+  --glass-ease: var(--animation-ease-glass);
+  --glass-ease-bounce: var(--animation-ease-bounce);
+  --glass-ease-visionos: var(--animation-ease-smooth);
+  --glass-ease-gentle: var(--animation-ease-spring);
+
+  /* Transition Mappings */
+  --glass-transition-fast: var(--animation-duration-fast) var(--animation-ease-glass);
+  --glass-transition-medium: var(--animation-duration-medium) var(--animation-ease-glass);
+  --glass-transition-slow: var(--animation-duration-slow) var(--animation-ease-glass);
+
+  /* Micro-interactions */
+  --tap-scale: var(--interaction-scale-tap);
+  --tap-opacity: var(--interaction-opacity-active);
+  --halo-glow: 0 0 20px rgba(255, 255, 255, 0.15);
+  --reflection-gradient: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 50%, rgba(255,255,255,0.04) 100%);
+
+  /* Ambient Shadows - GPU Friendly */
+  --ambient-shadow-dynamic: var(--glass-shadow-sm);
+  --ambient-shadow-hover: var(--glass-shadow-lg);
+
+  /* Analysis speeds */
+  --analysis-scan-speed: 2s;
+  --analysis-grid-speed: 2s;
+  --analysis-keypoint-speed: 1.5s;
+  --analysis-zone-speed: 3s;
+  --analysis-focus-speed: 4s;
+  --analysis-particle-speed: 4s;
+}
+
+/* =========================================
+   CORE ANIMATION KEYFRAMES - CONSOLIDATED
+   ========================================= */
+
+@keyframes shimmer-visionos { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
+@keyframes progressShimmer  { 0%{transform:translateX(-100%) translateZ(0);} 100%{transform:translateX(200%) translateZ(0);} }
+
+@keyframes breathing-glow {
+  0%,100%{ transform:scale(1) translateZ(0); opacity:.7; }
+  50%    { transform:scale(1.02) translateZ(0); opacity:.9; }
+}
+
+@keyframes icon-pulse-css {
+  0%,100%{ transform:scale(1) translateZ(0); opacity:.9; }
+  50%    { transform:scale(1.03) translateZ(0); opacity:.95; }
+}
+
+@keyframes icon-spin-css {
+  from{ transform:rotate(0deg) translateZ(0); }
+  to  { transform:rotate(360deg) translateZ(0); }
+}
+
+@keyframes particle-float-up {
+  0%{ transform:translateY(0) scale(.6) translateZ(0); opacity:0; }
+  10%{ opacity:1; }
+  90%{ opacity:1; }
+  100%{ transform:translateY(-50px) scale(1) translateZ(0); opacity:0; }
+}
+
+/* =========================================
+   TWINFORGE SPECIFIC ANIMATIONS
+   ========================================= */
+
+@keyframes cosmic-forge-pulse {
+  0%,100%{
+    box-shadow:
+      0 0 30px rgba(255,107,53,0.2),
+      0 0 60px rgba(255,107,53,0.1),
+      inset 0 1px 0 rgba(255,255,255,0.1);
+  }
+  50%{
+    box-shadow:
+      0 0 50px rgba(255,107,53,0.35),
+      0 0 100px rgba(255,107,53,0.2),
+      inset 0 1px 0 rgba(255,255,255,0.15);
+  }
+}
+
+@keyframes circuit-glow-ember {
+  0%,100%{ opacity:.5; filter:brightness(1); }
+  50%    { opacity:1;  filter:brightness(1.4); }
+}
+
+@keyframes circuit-glow-core {
+  0%,100%{ opacity:.4; filter:hue-rotate(0deg); }
+  50%    { opacity:.8; filter:hue-rotate(15deg); }
+}
+
+/* =========================================
+   PERFORMANCE OPTIMIZATIONS (generic)
+   ========================================= */
+
+.breathing-icon,
+.icon-pulse-css,
+.icon-spin-css,
+.loader-essential,
+.particle-css {
+  transform: translateZ(0);
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  contain: layout style paint;
+}
+
+.will-change-transform-important { will-change: transform !important; }
+.will-change-auto-important      { will-change: auto !important; }
+
+/* =========================================
+   REDUCED MOTION SUPPORT
+   ========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,*::before,*::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* Keep only essential loaders animated */
+  .loader-essential,
+  .icon-spin-css.loader-essential {
+    animation: icon-spin-css 2s linear infinite !important;
+  }
+}
+
+/* =========================================
+   MOBILE OPTIMIZATIONS
+   ========================================= */
+
+@media (max-width: 768px), (hover: none), (pointer: coarse) {
+  /* Reduce animations drastically on mobile to save battery and reduce visual noise */
+  :root{
+    --animation-duration-fast: 80ms;
+    --animation-duration-medium: 150ms;
+    --animation-duration-slow: 250ms;
+    --animation-duration-slower: 400ms;
+    --interaction-scale-hover: 1.005;
+    --interaction-scale-active: 0.99;
+  }
+
+  /* Désactiver toutes les animations décoratives */
+  .breathing-icon,
+  .icon-pulse-css,
+  .icon-breathing-css,
+  .particle-css {
+    animation: none !important;
+    transform: translateZ(0) !important;
+  }
+}
+
+/* =========================================
+   LOW-END DEVICE OPTIMIZATIONS
+   ========================================= */
+
+@media (max-width: 480px), (hover: none) and (pointer: coarse) {
+  /* Simplifier drastiquement sur petits mobiles */
+  .breathing-icon,
+  .icon-pulse-css,
+  .particle-css {
+    opacity:.85 !important;
+    transform: translateZ(0) !important;
+    animation: none !important;
+  }
+
+  .loader-essential {
+    animation: icon-spin-css 3s linear infinite !important;
+  }
+
+  /* Shorten transitions globally */
+  * {
+    transition-duration: .08s !important;
+  }
+}
+
+/* =========================================
+   LEGACY SUPPORT - Compatibilité navigateurs anciens
+   ========================================= */
+
+@supports not (transform: translateZ(0)) {
+  .breathing-icon,
+  .icon-pulse-css,
+  .icon-spin-css,
+  .particle-css { transform: none !important; }
+}
+
+@supports not (will-change: transform) {
+  .breathing-icon,
+  .icon-pulse-css,
+  .icon-spin-css,
+  .particle-css { will-change: auto; }
+}

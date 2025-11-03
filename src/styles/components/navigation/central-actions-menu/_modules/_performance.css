@@ -1,0 +1,129 @@
+/* =========================================
+   PERFORMANCE MODE - Opaque Optimizations
+   Solid backgrounds, simplified effects
+   ========================================= */
+
+/* High-performance mode: opaque panel, no effects */
+.mode-high-performance .central-actions-panel {
+  background: rgba(11, 14, 23, 0.96) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Remove all decorative pseudo-elements in performance mode */
+.mode-high-performance .central-actions-panel::before,
+.mode-high-performance .central-actions-panel::after {
+  display: none !important;
+}
+
+/* Simplify glass cards (pill buttons) in performance mode */
+.mode-high-performance .central-actions-panel .glass-card {
+  background: rgba(26, 35, 50, 0.8) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Simplify icon containers in pills in performance mode */
+.mode-high-performance .central-actions-panel .glass-card .w-6.h-6 {
+  background: color-mix(in srgb, var(--pill-circuit-color, #18E3FF) 20%, rgba(11, 14, 23, 0.9)) !important;
+  border: 1.5px solid color-mix(in srgb, var(--pill-circuit-color, #18E3FF) 40%, transparent) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Remove corner highlights in performance mode */
+.mode-high-performance .central-actions-panel .glass-card .w-6.h-6::before {
+  display: none !important;
+}
+
+/* Simplify pill button rounded containers in performance mode */
+.mode-high-performance .central-actions-panel button[class*="rounded-xl"] {
+  background: rgba(26, 35, 50, 0.7) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Remove decorative highlights in performance mode */
+.mode-high-performance .central-actions-panel button[class*="rounded-xl"] > div:first-child::before {
+  display: none !important;
+}
+
+/* Simplify home button in performance mode */
+.mode-high-performance .central-actions-panel button[class*="rounded-full"] {
+  background: rgba(247, 147, 30, 0.15) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(247, 147, 30, 0.35) !important;
+  box-shadow: 0 2px 6px rgba(247, 147, 30, 0.15) !important;
+}
+
+/* Simplify Avatar Twin Button in performance mode */
+.mode-high-performance .central-actions-panel .avatar-twin-button {
+  background: rgba(217, 70, 239, 0.15) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(217, 70, 239, 0.4) !important;
+  box-shadow: 0 4px 12px rgba(217, 70, 239, 0.2) !important;
+}
+
+/* Remove Avatar Twin Button decorative elements in performance mode */
+.mode-high-performance .central-actions-panel .avatar-twin-button::before,
+.mode-high-performance .central-actions-panel .avatar-twin-button::after {
+  display: none !important;
+}
+
+/* Remove glow and complex shadows in performance mode */
+.mode-high-performance .central-actions-panel .avatar-twin-button,
+.mode-high-performance .central-actions-panel .avatar-twin-button * {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Disable all animations in performance mode */
+.mode-high-performance .central-actions-panel *,
+.mode-high-performance .central-actions-panel button,
+.mode-high-performance .central-actions-panel .glass-card {
+  animation: none !important;
+  transition: background-color 0.15s ease, transform 0.15s ease, opacity 0.15s ease !important;
+}
+
+/* Simplify hover states in performance mode */
+@media (hover: hover) and (pointer: fine) {
+  .mode-high-performance .central-actions-panel .glass-card:hover {
+    transform: translateZ(0) !important;
+    background: rgba(26, 35, 50, 0.9) !important;
+  }
+
+  .mode-high-performance .central-actions-panel .glass-card:hover .w-6.h-6 {
+    transform: translateZ(0) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18) !important;
+  }
+
+  .mode-high-performance .central-actions-panel button[class*="rounded-xl"]:hover {
+    transform: translateZ(0) !important;
+    background: rgba(26, 35, 50, 0.85) !important;
+  }
+
+  .mode-high-performance .central-actions-panel button[class*="rounded-full"]:hover {
+    transform: translateZ(0) !important;
+    box-shadow: 0 2px 8px rgba(247, 147, 30, 0.2) !important;
+  }
+
+  .mode-high-performance .central-actions-panel .avatar-twin-button:hover {
+    transform: translateZ(0) !important;
+    box-shadow: 0 4px 14px rgba(217, 70, 239, 0.25) !important;
+  }
+}
+
+/* Remove ripple effects in performance mode */
+.mode-high-performance .central-actions-panel .glass-card::after {
+  display: none !important;
+}
+
+/* Simplify focus states in performance mode */
+.mode-high-performance .central-actions-panel button:focus-visible::after {
+  animation: none !important;
+  opacity: 0.4 !important;
+}

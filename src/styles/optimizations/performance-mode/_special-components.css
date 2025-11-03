@@ -1,0 +1,140 @@
+/* =========================================
+   PERFORMANCE MODE - Special Components
+   Logos, tokens, central menu, floating buttons
+   ========================================= */
+
+/* ================== PAGE HEADER LOGO ================== */
+
+.performance-mode header [class*="logo"],
+.performance-mode header .header-logo,
+.performance-mode header .TwinForge,
+.performance-mode .HeaderLogo {
+  filter: none !important;
+}
+
+.performance-mode header [class*="logo"] span[style*="drop-shadow"],
+.performance-mode header [class*="logo"] span[style*="filter"] {
+  filter: inherit !important;
+}
+
+.performance-mode header span[style*="linear-gradient"] {
+  background: inherit !important;
+  -webkit-background-clip: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+}
+
+/* ================== TOKEN BALANCE ================== */
+
+.performance-mode [style*="-webkit-background-clip: text"],
+.performance-mode [style*="background-clip: text"],
+.performance-mode [style*="-webkit-text-fill-color: transparent"],
+.performance-mode [style*="backgroundClip"][style*="text"] {
+  background: inherit !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* ================== CENTRAL ACTIONS MENU ================== */
+
+.performance-mode .central-actions-panel {
+  background: #0F1927 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.25),
+    0 4px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+.performance-mode .central-actions-panel .glass-card {
+  background: #1A2332 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.performance-mode .central-actions-panel .glass-card .w-6.h-6 {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15) 0%, transparent 50%),
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--pill-circuit-color, #18E3FF) 20%, #1A2332),
+      color-mix(in srgb, var(--pill-circuit-color, #18E3FF) 12%, #1A2332)) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1.5px solid color-mix(in srgb, var(--pill-circuit-color, #18E3FF) 35%, transparent) !important;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.15),
+    0 0 12px color-mix(in srgb, var(--pill-circuit-color, #18E3FF) 18%, transparent) !important;
+}
+
+.performance-mode .central-actions-panel .avatar-twin-button {
+  background: #1A2332 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18) !important;
+}
+
+.performance-mode .central-actions-panel::before,
+.performance-mode .central-actions-panel::after {
+  animation: none !important;
+  opacity: 0.5 !important;
+}
+
+.performance-mode .central-actions-panel .avatar-twin-button::before {
+  animation: none !important;
+  opacity: 0.4 !important;
+}
+
+.performance-mode .central-actions-panel .avatar-twin-button::after {
+  display: none !important;
+}
+
+/* ================== FLOATING CHAT BUTTON ================== */
+
+.performance-mode .floating-chat-button,
+.performance-mode .floating-voice-coach-button,
+.performance-mode .unified-floating-button {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  animation: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+  background: rgba(11, 14, 23, 0.95) !important;
+  background-image: none !important;
+}
+
+.performance-mode .floating-chat-button:hover,
+.performance-mode .floating-voice-coach-button:hover,
+.performance-mode .unified-floating-button:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.performance-mode .floating-chat-button::before,
+.performance-mode .floating-chat-button::after,
+.performance-mode .floating-voice-coach-button::before,
+.performance-mode .floating-voice-coach-button::after {
+  display: none !important;
+  animation: none !important;
+  opacity: 0 !important;
+}
+
+.performance-mode .floating-chat-button[style*="box-shadow"],
+.performance-mode .floating-voice-coach-button[style*="box-shadow"],
+.performance-mode .unified-floating-button[style*="box-shadow"] {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+}
+
+.performance-mode .floating-chat-button > div[style*="filter"],
+.performance-mode .floating-chat-button > div[style*="blur"] {
+  display: none !important;
+}
+
+.performance-mode .floating-chat-button[style*="radial-gradient"] {
+  background: rgba(11, 14, 23, 0.95) !important;
+  background-image: none !important;
+}
+
+.performance-mode .floating-chat-button > div:first-child[style*="radial-gradient"] {
+  display: none !important;
+  opacity: 0 !important;
+}

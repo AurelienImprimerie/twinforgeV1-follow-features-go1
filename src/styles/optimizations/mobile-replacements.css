@@ -1,0 +1,347 @@
+/**
+ * ================================================================
+ * MOBILE REPLACEMENTS - High Performance Mode
+ * Alternatives simplifiées pour remplacer les effets coûteux
+ * ================================================================
+ */
+
+/* ================================================================
+   1. BACKDROP-FILTER REPLACEMENTS
+   Remplace les backdrop-filter par des backgrounds opaques
+   ================================================================ */
+
+.performance-mode-backdrop-replacement {
+  background: rgba(15, 25, 39, 0.95) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Glass Cards - Version opaque */
+.performance-mode .glass-card-mobile-solid {
+  background: #0F1927;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Premium Glass - Version simplifiée */
+.performance-mode .liquid-glass-mobile {
+  background: rgba(15, 25, 39, 0.92);
+  backdrop-filter: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ================================================================
+   2. GRADIENT REPLACEMENTS
+   Simplifie les gradients complexes en couleurs solides
+   ================================================================ */
+
+/* Linear Gradient Multi-Stops → Couleur Centrale */
+.gradient-orange-mobile {
+  background: #F7931E !important; /* Couleur centrale du gradient */
+}
+
+.gradient-blue-mobile {
+  background: #3B82F6 !important;
+}
+
+.gradient-cyan-mobile {
+  background: #06B6D4 !important;
+}
+
+.gradient-purple-mobile {
+  background: #8B5CF6 !important;
+}
+
+/* Radial Gradient → Solid + Border */
+.radial-gradient-mobile-replacement {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Gradient Border → Solid Border */
+.gradient-border-mobile {
+  border: 1px solid var(--primary-color, #F7931E);
+  background-image: none !important;
+}
+
+/* ================================================================
+   3. BOX-SHADOW REPLACEMENTS
+   Simplifie les ombres multiples en une seule ombre légère
+   ================================================================ */
+
+/* Ombre Standard Mobile */
+.shadow-mobile-simple {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Ombre Elevated Mobile */
+.shadow-mobile-elevated {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Glow Effect → Border */
+.glow-mobile-replacement {
+  border: 1px solid currentColor;
+  opacity: 0.8;
+  box-shadow: none !important;
+}
+
+/* Glow Coloré → Border Coloré */
+.glow-orange-mobile {
+  border: 1px solid rgba(247, 147, 30, 0.4);
+  box-shadow: none !important;
+}
+
+.glow-cyan-mobile {
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  box-shadow: none !important;
+}
+
+/* ================================================================
+   4. ANIMATION REPLACEMENTS
+   États statiques pour remplacer les animations décoratives
+   ================================================================ */
+
+/* Breathing → Opacity Statique */
+.breathing-mobile-static {
+  animation: none !important;
+  opacity: 0.85;
+}
+
+/* Pulse → Opacity Statique */
+.pulse-mobile-static {
+  animation: none !important;
+  opacity: 0.9;
+}
+
+/* Shimmer → Removed */
+.shimmer-mobile-removed {
+  animation: none !important;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Glow → Border Subtile */
+.glow-mobile-border {
+  animation: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Float → Static */
+.float-mobile-static {
+  animation: none !important;
+  transform: none !important;
+}
+
+/* ================================================================
+   5. SKELETON REPLACEMENTS
+   Squelettes simplifiés pour mode performance
+   ================================================================ */
+
+.performance-mode .skeleton-shimmer {
+  /* Gradient simple au lieu de complexe */
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-simple 2s ease-in-out infinite;
+}
+
+@keyframes shimmer-simple {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.performance-mode .skeleton-glow {
+  /* Pas de glow, juste pulse simple */
+  animation: pulse-subtle-mobile 3s ease-in-out infinite;
+}
+
+@keyframes pulse-subtle-mobile {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.92; }
+}
+
+/* Conteneur de squelette - Semi-transparent */
+.performance-mode .glass-card.skeleton-container {
+  background: rgba(15, 25, 39, 0.5) !important;
+  backdrop-filter: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ================================================================
+   6. FRAMER MOTION REPLACEMENTS
+   Classes CSS pour remplacer les animations Framer Motion
+   ================================================================ */
+
+/* Hover Effect Simple */
+.motion-hover-mobile {
+  transition: opacity 0.2s ease;
+}
+
+.motion-hover-mobile:hover {
+  opacity: 0.9;
+}
+
+/* Tap Effect Simple */
+.motion-tap-mobile:active {
+  transform: scale(0.98);
+  transition: transform 0.08s ease-out;
+}
+
+/* Slide In (pour modals) */
+.motion-slide-in-mobile {
+  animation: slide-in-mobile 0.3s ease-out;
+}
+
+@keyframes slide-in-mobile {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Fade In Simple */
+.motion-fade-in-mobile {
+  animation: fade-in-mobile 0.3s ease-out;
+}
+
+@keyframes fade-in-mobile {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ================================================================
+   7. LOGO FØRGE REPLACEMENT
+   Lettres individuelles au lieu de gradient complexe
+   ================================================================ */
+
+.forge-logo-letter-f { color: #FF6B35; }
+.forge-logo-letter-o { color: #F89442; }
+.forge-logo-letter-r { color: #F7931E; }
+.forge-logo-letter-g { color: #FCBB45; }
+.forge-logo-letter-e { color: #FDC830; }
+
+.forge-logo-mobile-simple {
+  filter: drop-shadow(0 0 4px rgba(247, 147, 30, 0.3));
+}
+
+/* ================================================================
+   8. DECORATIVE EFFECTS REMOVAL
+   Suppression des effets purement décoratifs
+   ================================================================ */
+
+.performance-mode .decorative-particles {
+  display: none !important;
+}
+
+.performance-mode .corner-highlight {
+  display: none !important;
+}
+
+.performance-mode .ambient-light {
+  display: none !important;
+}
+
+.performance-mode .reflection-layer {
+  display: none !important;
+}
+
+.performance-mode .pseudo-decorative::before,
+.performance-mode .pseudo-decorative::after {
+  display: none !important;
+}
+
+/* ================================================================
+   9. FIXED POSITION OPTIMIZATION
+   Optimisation des éléments en position fixed
+   ================================================================ */
+
+.fixed-optimized-mobile {
+  position: fixed;
+  transform: translateZ(0);
+  will-change: auto;
+  contain: layout style paint;
+  isolation: isolate;
+}
+
+.fixed-no-backdrop {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* ================================================================
+   10. UTILITY CLASSES
+   Classes utilitaires pour mode performance
+   ================================================================ */
+
+/* Transitions simplifiées */
+.transition-mobile-simple {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Pas de transition */
+.transition-mobile-none {
+  transition: none !important;
+}
+
+/* Pas d'animation */
+.animation-mobile-none {
+  animation: none !important;
+}
+
+/* Pas de transform sauf active */
+.transform-mobile-none:not(:active) {
+  transform: none !important;
+}
+
+/* Pas de filter */
+.filter-mobile-none {
+  filter: none !important;
+}
+
+/* Will-change auto */
+.will-change-mobile-auto {
+  will-change: auto !important;
+}
+
+/* Contain optimized */
+.contain-mobile-optimized {
+  contain: layout style paint;
+}
+
+/* ================================================================
+   11. COLOR SYSTEM - SOLID REPLACEMENTS
+   Couleurs solides pour remplacer les effets complexes
+   ================================================================ */
+
+:root {
+  /* Backgrounds solides */
+  --bg-mobile-solid: #0F1927;
+  --bg-mobile-elevated: #1A2332;
+  --bg-mobile-card: rgba(15, 25, 39, 0.95);
+
+  /* Borders */
+  --border-mobile-subtle: rgba(255, 255, 255, 0.08);
+  --border-mobile-visible: rgba(255, 255, 255, 0.12);
+
+  /* Shadows simplifiées */
+  --shadow-mobile-sm: 0 1px 4px rgba(0, 0, 0, 0.1);
+  --shadow-mobile-md: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --shadow-mobile-lg: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+  /* Couleurs primaires simplifiées */
+  --primary-mobile: #F7931E;
+  --secondary-mobile: #3B82F6;
+  --accent-mobile: #06B6D4;
+  --success-mobile: #10B981;
+  --warning-mobile: #F59E0B;
+  --error-mobile: #EF4444;
+}

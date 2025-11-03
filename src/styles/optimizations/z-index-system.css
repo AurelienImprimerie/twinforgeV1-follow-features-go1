@@ -1,0 +1,292 @@
+/**
+ * ================================================================
+ * Z-INDEX SYSTEM - Centralized Stacking Management
+ * Système cohérent pour gérer tous les z-index de l'application
+ * ================================================================
+ */
+
+:root {
+  /* ================================================================
+     BASE LAYERS (0-99)
+     Éléments de base et contenu principal
+     ================================================================ */
+  --z-base: 0;
+  --z-content: 1;
+  --z-elevated: 10;
+
+  /* ================================================================
+     INTERACTIVE ELEMENTS (100-999)
+     Éléments interactifs au-dessus du contenu
+     ================================================================ */
+  --z-dropdown: 100;
+  --z-tooltip-trigger: 200;
+  --z-sticky-content: 300;
+
+  /* ================================================================
+     OVERLAYS & MODALS (1000-1999)
+     Overlays, drawers, et modals
+     ================================================================ */
+  --z-overlay-base: 1000;
+  --z-dropdown-menu: 1010;
+  --z-sticky-header: 1020;
+  --z-drawer: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+
+  /* ================================================================
+     NOTIFICATIONS & ALERTS (2000-2999)
+     Notifications, toasts, alerts
+     ================================================================ */
+  --z-notification: 2000;
+  --z-toast: 2010;
+  --z-alert: 2020;
+
+  /* ================================================================
+     NAVIGATION (3000-3999)
+     Header, sidebar, bottom bar - toujours visibles
+     ================================================================ */
+  --z-navigation-base: 3000;
+  --z-header: 3010;
+  --z-sidebar: 3020;
+  --z-bottom-bar: 3030;
+  --z-floating-action: 3040;
+
+  /* ================================================================
+     CRITICAL UI (4000-8999)
+     Éléments critiques qui doivent toujours être visibles
+     ================================================================ */
+  --z-floating-chat: 4000;
+  --z-voice-coach: 4010;
+  --z-loading-overlay: 5000;
+  --z-error-boundary: 6000;
+
+  /* ================================================================
+     DEBUG & DEVELOPMENT (9000-9999)
+     Outils de développement et debug
+     ================================================================ */
+  --z-debug: 9000;
+  --z-dev-tools: 9500;
+  --z-maximum: 9999;
+}
+
+/* ================================================================
+   APPLICATION DES Z-INDEX - Navigation
+   ================================================================ */
+
+/* Header - Toujours au-dessus du contenu */
+header,
+.app-header,
+.page-header {
+  z-index: var(--z-header);
+  position: fixed;
+  isolation: isolate;
+}
+
+/* Sidebar Desktop */
+.sidebar,
+.app-sidebar {
+  z-index: var(--z-sidebar);
+  position: fixed;
+  isolation: isolate;
+}
+
+/* Bottom Bar Mobile */
+.bottom-bar,
+.mobile-bottom-bar,
+.new-mobile-bottom-bar {
+  z-index: var(--z-bottom-bar);
+  position: fixed;
+  isolation: isolate;
+}
+
+/* ================================================================
+   APPLICATION DES Z-INDEX - Floating Actions
+   ================================================================ */
+
+/* Floating Chat Button */
+.floating-chat-button,
+.unified-floating-button {
+  z-index: var(--z-floating-chat);
+  position: fixed;
+}
+
+/* Voice Coach Button */
+.floating-voice-coach-button,
+.voice-coach-panel {
+  z-index: var(--z-voice-coach);
+  position: fixed;
+}
+
+/* Central Actions Menu */
+.central-actions-menu {
+  z-index: var(--z-floating-action);
+  position: fixed;
+}
+
+/* ================================================================
+   APPLICATION DES Z-INDEX - Overlays & Modals
+   ================================================================ */
+
+/* Modal Backdrop */
+.modal-backdrop,
+.drawer-backdrop,
+.overlay-backdrop {
+  z-index: var(--z-modal-backdrop);
+  position: fixed;
+  inset: 0;
+}
+
+/* Modal Content */
+.modal,
+.modal-container,
+[role="dialog"] {
+  z-index: var(--z-modal);
+  position: fixed;
+}
+
+/* Drawers */
+.drawer,
+.mobile-drawer,
+.generic-drawer {
+  z-index: var(--z-drawer);
+  position: fixed;
+}
+
+/* Global Chat Drawer */
+.global-chat-drawer,
+.unified-coach-drawer {
+  z-index: var(--z-drawer);
+  position: fixed;
+}
+
+/* ================================================================
+   APPLICATION DES Z-INDEX - Dropdowns & Popovers
+   ================================================================ */
+
+/* Dropdown Menus */
+.dropdown-menu,
+.select-dropdown,
+.context-menu {
+  z-index: var(--z-dropdown-menu);
+  position: absolute;
+}
+
+/* Popovers */
+.popover,
+.popover-content {
+  z-index: var(--z-popover);
+  position: absolute;
+}
+
+/* Tooltips */
+.tooltip,
+.tooltip-content,
+[role="tooltip"] {
+  z-index: var(--z-tooltip);
+  position: absolute;
+}
+
+/* ================================================================
+   APPLICATION DES Z-INDEX - Notifications
+   ================================================================ */
+
+/* Notifications Container */
+.notifications-container,
+.toast-container {
+  z-index: var(--z-notification);
+  position: fixed;
+}
+
+/* Individual Toast */
+.toast,
+.notification-toast {
+  z-index: var(--z-toast);
+  position: relative;
+}
+
+/* Alerts */
+.alert,
+.alert-banner {
+  z-index: var(--z-alert);
+  position: relative;
+}
+
+/* ================================================================
+   APPLICATION DES Z-INDEX - Loading & States
+   ================================================================ */
+
+/* Loading Overlay Full Screen */
+.loading-overlay,
+.fullscreen-loader {
+  z-index: var(--z-loading-overlay);
+  position: fixed;
+  inset: 0;
+}
+
+/* Error Boundary */
+.error-boundary,
+.error-fallback {
+  z-index: var(--z-error-boundary);
+  position: fixed;
+  inset: 0;
+}
+
+/* ================================================================
+   OPTIMISATION PERFORMANCE MODE
+   Simplification du stacking context en mode performance
+   ================================================================ */
+
+.performance-mode {
+  /* Réduire les stacking contexts inutiles */
+  --stacking-simplification: auto;
+}
+
+.performance-mode .glass-card,
+.performance-mode .glass-base {
+  /* Éviter les stacking contexts inutiles */
+  isolation: auto;
+  transform: none;
+  filter: none;
+}
+
+/* Garder isolation uniquement pour éléments critiques */
+.performance-mode .fixed-optimized-mobile {
+  isolation: isolate;
+}
+
+/* ================================================================
+   UTILITIES - Z-Index Classes
+   ================================================================ */
+
+.z-base { z-index: var(--z-base); }
+.z-content { z-index: var(--z-content); }
+.z-elevated { z-index: var(--z-elevated); }
+.z-dropdown { z-index: var(--z-dropdown-menu); }
+.z-sticky { z-index: var(--z-sticky-header); }
+.z-drawer { z-index: var(--z-drawer); }
+.z-modal { z-index: var(--z-modal); }
+.z-notification { z-index: var(--z-notification); }
+.z-header { z-index: var(--z-header); }
+.z-maximum { z-index: var(--z-maximum); }
+
+/* ================================================================
+   DEBUGGING - Z-Index Visualization
+   ================================================================ */
+
+/* Activer avec .debug-z-index sur <body> */
+.debug-z-index [style*="z-index"]::after,
+.debug-z-index [class*="z-"]::after {
+  content: "z:" attr(style);
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  font-size: 10px;
+  padding: 2px 4px;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 99999;
+}

@@ -1,0 +1,99 @@
+/**
+ * Floating Voice Coach Button Styles
+ * Bouton vocal refondé avec animations et indicateurs d'état
+ * Optimisé pour mobile avec GPU acceleration
+ */
+
+/* Base styles */
+.floating-voice-coach-button {
+  /* GPU Acceleration */
+  transform: translateZ(0) !important;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+
+  /* Transitions optimisées */
+  transition-property: right, transform, background, box-shadow, border-color;
+  transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* Audio waves container */
+.audio-waves-container {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.audio-wave {
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+
+/* Volume indicator */
+.volume-indicator {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Error badge */
+.error-badge {
+  transform: translateZ(0);
+  animation: errorPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes errorPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+/* Desktop optimizations */
+@media (min-width: 1025px) {
+  .floating-voice-coach-button {
+    width: 60px !important;
+    height: 60px !important;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .floating-voice-coach-button {
+    width: 56px !important;
+    height: 56px !important;
+
+    /* Optimisation GPU pour mobile */
+    transform: translateZ(0) !important;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .floating-voice-coach-button,
+  .audio-waves-container,
+  .volume-indicator,
+  .error-badge {
+    animation: none !important;
+    transition: background-color 0.2s ease, color 0.2s ease !important;
+  }
+}
+
+/* Focus visible pour accessibilité */
+.floating-voice-coach-button:focus-visible {
+  outline: 3px solid rgba(24, 227, 255, 0.6);
+  outline-offset: 4px;
+  box-shadow:
+    var(--liquid-pill-shadow),
+    0 0 0 6px rgba(24, 227, 255, 0.2) !important;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .floating-voice-coach-button {
+    border-width: 2px !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+  }
+}

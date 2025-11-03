@@ -1,0 +1,420 @@
+/**
+ * Functional Training Components - GPU Optimized Styles
+ * VisionOS 26 Design System
+ *
+ * Performance optimizations:
+ * - Hardware-accelerated transforms (translate3d, scale3d)
+ * - GPU compositing with will-change
+ * - Contain for rendering isolation
+ * - 60 FPS animations with requestAnimationFrame
+ */
+
+/* ================================================
+   BASE OPTIMIZATIONS
+   ================================================ */
+
+.functional-session-container {
+  will-change: transform;
+  transform: translateZ(0);
+  contain: layout style paint;
+  isolation: isolate;
+}
+
+.functional-card-base {
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  contain: layout style;
+}
+
+/* ================================================
+   WOD TIMER - GPU OPTIMIZED
+   ================================================ */
+
+.functional-timer {
+  will-change: transform;
+  transform: translateZ(0);
+  contain: layout style paint;
+}
+
+.functional-timer-digit {
+  will-change: contents;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  font-variant-numeric: tabular-nums;
+  contain: content;
+}
+
+@keyframes timer-pulse-gpu {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+  }
+  50% {
+    transform: translate3d(0, 0, 0) scale3d(1.05, 1.05, 1);
+  }
+}
+
+.functional-timer-pulse {
+  animation: timer-pulse-gpu 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* ================================================
+   ROUNDS COUNTER - GPU OPTIMIZED
+   ================================================ */
+
+.functional-rounds-counter {
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+  contain: layout style;
+}
+
+@keyframes rounds-increment-gpu {
+  0% {
+    transform: translate3d(0, 0, 0) scale3d(0.8, 0.8, 1);
+    opacity: 0;
+  }
+  50% {
+    transform: translate3d(0, 0, 0) scale3d(1.1, 1.1, 1);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+    opacity: 1;
+  }
+}
+
+.functional-rounds-increment {
+  animation: rounds-increment-gpu 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+/* ================================================
+   PRESCRIPTION CARD - GPU OPTIMIZED
+   ================================================ */
+
+.functional-prescription-card {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  contain: layout style;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.functional-prescription-card:hover {
+  transform: translate3d(0, -2px, 0);
+}
+
+.functional-prescription-card:active {
+  transform: translate3d(0, 0, 0);
+}
+
+/* ================================================
+   WOD FORMAT BADGE - GPU OPTIMIZED
+   ================================================ */
+
+.functional-format-badge {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.functional-format-badge:hover {
+  transform: translate3d(0, 0, 0) scale3d(1.05, 1.05, 1);
+}
+
+.functional-format-badge:active {
+  transform: translate3d(0, 0, 0) scale3d(0.95, 0.95, 1);
+}
+
+/* ================================================
+   PHASE TRANSITIONS - GPU OPTIMIZED
+   ================================================ */
+
+@keyframes phase-fade-in-gpu {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes phase-fade-out-gpu {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, -20px, 0);
+  }
+}
+
+.functional-phase-enter {
+  animation: phase-fade-in-gpu 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+.functional-phase-exit {
+  animation: phase-fade-out-gpu 0.3s cubic-bezier(0.4, 0, 1, 1);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+/* ================================================
+   PROGRESS BAR - GPU OPTIMIZED
+   ================================================ */
+
+.functional-progress-bar {
+  will-change: transform;
+  transform: translateZ(0);
+  contain: layout style paint;
+  position: relative;
+  overflow: hidden;
+}
+
+.functional-progress-fill {
+  will-change: transform;
+  transform: translate3d(0, 0, 0) scaleX(var(--progress, 0));
+  transform-origin: left center;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backface-visibility: hidden;
+}
+
+@keyframes progress-shimmer-gpu {
+  0% {
+    transform: translate3d(-100%, 0, 0);
+  }
+  100% {
+    transform: translate3d(100%, 0, 0);
+  }
+}
+
+.functional-progress-shimmer {
+  animation: progress-shimmer-gpu 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* ================================================
+   BUTTONS - GPU OPTIMIZED
+   ================================================ */
+
+.functional-button {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  contain: layout style;
+}
+
+.functional-button:hover {
+  transform: translate3d(0, -2px, 0);
+}
+
+.functional-button:active {
+  transform: translate3d(0, 0, 0) scale3d(0.98, 0.98, 1);
+}
+
+@keyframes button-ripple-gpu {
+  0% {
+    transform: translate3d(-50%, -50%, 0) scale3d(0, 0, 1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate3d(-50%, -50%, 0) scale3d(2.5, 2.5, 1);
+    opacity: 0;
+  }
+}
+
+.functional-button-ripple {
+  animation: button-ripple-gpu 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+/* ================================================
+   COUNTDOWN - GPU OPTIMIZED
+   ================================================ */
+
+.functional-countdown {
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+  contain: layout style paint;
+}
+
+@keyframes countdown-scale-gpu {
+  0% {
+    transform: translate3d(0, 0, 0) scale3d(0.3, 0.3, 1);
+    opacity: 0;
+  }
+  50% {
+    transform: translate3d(0, 0, 0) scale3d(1.2, 1.2, 1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+    opacity: 1;
+  }
+}
+
+.functional-countdown-digit {
+  animation: countdown-scale-gpu 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ================================================
+   STICKY HEADER - GPU OPTIMIZED
+   ================================================ */
+
+.functional-sticky-header {
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  contain: layout style;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.functional-sticky-header-shadow {
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity;
+}
+
+/* ================================================
+   COMPLETION CELEBRATION - GPU OPTIMIZED
+   ================================================ */
+
+@keyframes celebration-burst-gpu {
+  0% {
+    transform: translate3d(0, 0, 0) scale3d(0.5, 0.5, 1);
+    opacity: 0;
+  }
+  50% {
+    transform: translate3d(0, 0, 0) scale3d(1.2, 1.2, 1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+    opacity: 1;
+  }
+}
+
+.functional-celebration {
+  animation: celebration-burst-gpu 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+@keyframes confetti-fall-gpu {
+  0% {
+    transform: translate3d(0, -100%, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 100vh, 0) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.functional-confetti {
+  animation: confetti-fall-gpu 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+/* ================================================
+   MODAL OVERLAY - GPU OPTIMIZED
+   ================================================ */
+
+.functional-modal-overlay {
+  will-change: opacity;
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.functional-modal-content {
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  contain: layout style;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.functional-modal-enter {
+  animation: phase-fade-in-gpu 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.functional-modal-exit {
+  animation: phase-fade-out-gpu 0.3s cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* ================================================
+   PERFORMANCE UTILITIES
+   ================================================ */
+
+.gpu-accelerate {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.gpu-isolate {
+  contain: layout style paint;
+  isolation: isolate;
+}
+
+.smooth-60fps {
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* ================================================
+   RESPONSIVE OPTIMIZATIONS
+   ================================================ */
+
+@media (max-width: 768px) {
+  .functional-card-base {
+    contain: layout;
+  }
+
+  .functional-timer-digit {
+    font-size: clamp(2rem, 8vw, 4rem);
+  }
+}
+
+/* ================================================
+   REDUCED MOTION
+   ================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .functional-timer-pulse,
+  .functional-rounds-increment,
+  .functional-celebration,
+  .functional-confetti {
+    animation: none;
+  }
+}

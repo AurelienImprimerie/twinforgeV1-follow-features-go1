@@ -1,0 +1,146 @@
+/**
+ * Floating Chat Button Step 2 Animation
+ * Animation glassmorphism simplifiée - VisionOS 26 style
+ */
+
+.floating-chat-button--step2 {
+  position: relative;
+  animation: step2-pulse 2s ease-in-out infinite;
+}
+
+/* Disable animations in high-performance mode */
+.mode-high-performance .floating-chat-button--step2 {
+  animation: none !important;
+}
+
+.mode-high-performance .floating-chat-button--step2::before {
+  display: none !important;
+}
+
+.mode-high-performance .floating-chat-button--step2 .button-icon {
+  animation: none !important;
+  filter: none !important;
+}
+
+@keyframes step2-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.floating-chat-button--step2::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  padding: 3px;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    rgba(59, 130, 246, 0.6) 0deg,
+    rgba(147, 51, 234, 0.6) 90deg,
+    rgba(236, 72, 153, 0.6) 180deg,
+    rgba(59, 130, 246, 0.6) 270deg,
+    rgba(59, 130, 246, 0.6) 360deg
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: step2-border-rotate 3s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes step2-border-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.floating-chat-button--step2 .button-icon {
+  animation: step2-icon-glow 2s ease-in-out infinite;
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes step2-icon-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 16px rgba(59, 130, 246, 0.8));
+  }
+}
+
+.floating-chat-button--step2-notification {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+  border: 3px solid rgba(11, 14, 23, 0.95);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+  animation: notification-bounce 1s ease-in-out infinite;
+  box-shadow:
+    0 4px 12px rgba(239, 68, 68, 0.5),
+    0 0 20px rgba(239, 68, 68, 0.3);
+  z-index: 100;
+  pointer-events: none;
+}
+
+/* Simplify notification in high-performance mode */
+.mode-high-performance .floating-chat-button--step2-notification {
+  animation: none !important;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.6) !important;
+}
+
+@keyframes notification-bounce {
+  0%, 100% {
+    transform: scale(1) translateY(0);
+  }
+  50% {
+    transform: scale(1.1) translateY(-2px);
+  }
+}
+
+.floating-chat-button--step2:hover {
+  animation: step2-pulse-fast 1s ease-in-out infinite;
+}
+
+@keyframes step2-pulse-fast {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+.floating-chat-button--step2:hover::before {
+  animation: step2-border-rotate 1.5s linear infinite;
+}
+
+.floating-chat-button--step2:hover .button-icon {
+  animation: step2-icon-glow-intense 1s ease-in-out infinite;
+}
+
+@keyframes step2-icon-glow-intense {
+  0%, 100% {
+    filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.7));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(59, 130, 246, 1));
+  }
+}

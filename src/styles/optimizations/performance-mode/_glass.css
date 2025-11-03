@@ -1,0 +1,48 @@
+/* =========================================
+   PERFORMANCE MODE - Glass Effects
+   Solid backgrounds Apple-like
+   ========================================= */
+
+.performance-mode .glass-card,
+.performance-mode .glass-base,
+.performance-mode .glass-card-cta {
+  background: #0F1927 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Skeleton containers fix */
+.performance-mode .glass-card.skeleton-container,
+.performance-mode [class*="skeleton-"] .glass-card,
+.performance-mode [class*="Skeleton"] .glass-card {
+  background: rgba(15, 25, 39, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Remove pseudo-element glows and highlights */
+.performance-mode .glass-card::before,
+.performance-mode .glass-card::after,
+.performance-mode .glass-card-cta::before,
+.performance-mode .glass-card-cta::after {
+  display: none !important;
+}
+
+/* Disable sheen completely */
+.performance-mode .glass-sheen {
+  display: none !important;
+}
+
+/* Hover effects */
+.performance-mode .glass-card:hover,
+.performance-mode .glass-card-cta:hover {
+  transform: none !important;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: none !important;
+}

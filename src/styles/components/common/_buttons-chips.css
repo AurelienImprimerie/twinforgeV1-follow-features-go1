@@ -1,0 +1,305 @@
+/* =========================================
+   BUTTONS & CHIPS – Harmonized v10 (Optimisé)
+   - Rounding forcé sur TOUTES les variantes (même sans .btn-glass)
+   - Safari-safe: mask + clip-path
+   - Focus visible a11y
+   ========================================= */
+
+/* Fallbacks de sûreté */
+:root{
+  --glass-radius-pill: 9999px;
+  --spacing-sm: .625rem;
+  --spacing-xl: 1.5rem;
+}
+
+/* >>> PATCH CRITIQUE: toutes les variantes deviennent "pill" même sans .btn-glass */
+:where(.btn-glass, .btn-glass--primary, .btn-glass--secondary-nav, .btn-glass--warning){
+  border-radius: var(--glass-radius-pill);
+  /* Safari radius + backdrop-filter fix */
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+          mask-image: radial-gradient(white, black);
+  -webkit-clip-path: inset(0 round var(--glass-radius-pill));
+          clip-path: inset(0 round var(--glass-radius-pill));
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:44px;
+  padding: var(--spacing-sm) var(--spacing-xl);
+}
+
+/* Focus visible accessible */
+:where(.btn-glass, .btn-glass--primary, .btn-glass--secondary-nav, .btn-glass--warning):focus-visible{
+  outline: 2px solid color-mix(in srgb, var(--brand-primary, #8B5CF6) 65%, transparent);
+  outline-offset: 2px;
+}
+
+/* Base glass button */
+.btn-glass{
+  --_radius: var(--glass-radius-pill);
+  background:var(--glass-button-background);
+  color:var(--text-primary);
+  border:1px solid var(--glass-border-base);
+  border-radius:var(--_radius);
+  padding:var(--spacing-sm) var(--spacing-xl);
+  min-height:44px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-weight:var(--font-weight-semibold);
+  box-shadow:var(--glass-shadow-sm);
+  position:relative;
+  overflow:visible;
+  backdrop-filter:blur(var(--glass-blur-md)) saturate(var(--glass-saturate-md));
+  -webkit-backdrop-filter:blur(var(--glass-blur-md)) saturate(var(--glass-saturate-md));
+  transition:
+    transform var(--animation-duration-medium) var(--animation-ease-glass),
+    background var(--glass-transition-medium),
+    box-shadow var(--glass-transition-medium),
+    border-color var(--glass-transition-medium);
+  /* Safari pill fix */
+  -webkit-mask-image:-webkit-radial-gradient(white, black);
+          mask-image:radial-gradient(white, black);
+}
+
+/* Primary */
+.btn-glass--primary{
+  color:#fff !important;
+  background:linear-gradient(135deg,
+              color-mix(in srgb, var(--brand-primary) 85%, transparent),
+              color-mix(in srgb, var(--color-plasma-cyan) 70%, transparent));
+  border:2px solid color-mix(in srgb, var(--brand-primary) 60%, transparent);
+  box-shadow:0 8px 24px color-mix(in srgb, var(--brand-primary) 25%, transparent),
+             0 2px 8px rgba(0, 0, 0, 0.3),
+             inset 0 3px 0 rgba(255,255,255,.4);
+  backdrop-filter:blur(20px) saturate(160%);
+  -webkit-backdrop-filter:blur(20px) saturate(160%);
+  overflow:visible;
+}
+.btn-glass--primary *{color:#fff !important;}
+
+/* Secondary nav */
+.btn-glass--secondary-nav{
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.12) 0%, transparent 70%),
+    var(--glass-button-secondary-background);
+  border:2px solid var(--glass-border-md);
+  color:var(--text-primary);
+  font-weight:var(--font-weight-semibold);
+  box-shadow:
+    var(--glass-shadow-sm),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter:blur(var(--glass-blur-medium)) saturate(var(--glass-saturate-medium));
+  -webkit-backdrop-filter:blur(var(--glass-blur-medium)) saturate(var(--glass-saturate-medium));
+  transition: all var(--animation-duration-fast) var(--animation-ease-glass);
+  will-change: transform, box-shadow, background;
+}
+
+/* Warning */
+.btn-glass--warning{
+  color:#fff !important;
+  background:var(--glass-button-warning-background);
+  border:1px solid var(--glass-button-warning-border);
+  box-shadow:var(--glass-button-warning-shadow);
+  font-weight:var(--font-weight-bold);
+}
+
+/* Hover (pointer fin) */
+@media (hover:hover) and (pointer:fine){
+  .btn-glass:hover{
+    transform:translateY(-2px) scale(var(--interaction-scale-hover));
+    box-shadow:var(--glass-shadow-lg);
+  }
+  .btn-glass--primary:hover{
+    background:linear-gradient(135deg,
+                color-mix(in srgb, var(--brand-primary) 90%, transparent),
+                color-mix(in srgb, var(--color-plasma-cyan) 80%, transparent));
+    box-shadow:0 4px 12px rgba(0, 0, 0, 0.4),
+               0 12px 32px color-mix(in srgb, var(--brand-primary) 30%, transparent),
+               inset 0 3px 0 rgba(255,255,255,.5);
+    border-color:color-mix(in srgb, var(--color-plasma-cyan) 70%, transparent);
+    transform:translateY(-3px) scale(1.03);
+  }
+  .btn-glass--secondary-nav:hover{
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.18) 0%, transparent 70%),
+      var(--glass-button-secondary-hover);
+    border-color:color-mix(in srgb, var(--color-plasma-cyan) 40%, rgba(255, 255, 255, 0.3));
+    color:white;
+    transform:translateY(-2px) scale(1.02);
+    box-shadow:
+      var(--glass-shadow-md),
+      0 0 24px color-mix(in srgb, var(--color-plasma-cyan) 15%, transparent),
+      inset 0 2px 0 rgba(255, 255, 255, 0.15);
+  }
+  .btn-glass--warning:hover{
+    background:var(--glass-button-warning-hover);
+    box-shadow:var(--glass-button-warning-shadow-hover);
+    transform:translateY(-3px) scale(1.03);
+    border-color:var(--glass-button-warning-border-hover);
+  }
+
+/* Danger */
+.btn-glass--danger{
+  color:#fff !important;
+  background:linear-gradient(135deg,
+              color-mix(in srgb, #EF4444 85%, transparent),
+              color-mix(in srgb, #DC2626 70%, transparent));
+  border:2px solid color-mix(in srgb, #EF4444 60%, transparent);
+  box-shadow:0 12px 40px color-mix(in srgb, #EF4444 40%, transparent),
+             0 0 60px color-mix(in srgb, #EF4444 30%, transparent),
+             inset 0 3px 0 rgba(255,255,255,.4);
+  backdrop-filter:blur(20px) saturate(160%);
+  -webkit-backdrop-filter:blur(20px) saturate(160%);
+}
+.btn-glass--danger *{color:#fff !important;}
+
+@media (hover:hover) and (pointer:fine){
+  .btn-glass--danger:hover{
+    background:linear-gradient(135deg,
+                color-mix(in srgb, #EF4444 90%, transparent),
+                color-mix(in srgb, #DC2626 80%, transparent));
+    box-shadow:0 16px 50px color-mix(in srgb, #EF4444 50%, transparent),
+               0 0 80px color-mix(in srgb, #EF4444 40%, transparent),
+               inset 0 3px 0 rgba(255,255,255,.5);
+    border-color:color-mix(in srgb, #DC2626 70%, transparent);
+    transform:translateY(-3px) scale(1.03);
+  }
+}
+
+@media (hover:none), (pointer:coarse){
+  .btn-glass--danger:active{
+    background:linear-gradient(135deg,
+                color-mix(in srgb, #EF4444 75%, transparent),
+                color-mix(in srgb, #DC2626 60%, transparent)) !important;
+    box-shadow:inset 0 4px 8px rgba(0,0,0,.4),
+               0 8px 32px color-mix(in srgb, #EF4444 30%, transparent) !important;
+  }
+}
+}
+
+/* Touch feedback - R\u00e9duit pour mobile */
+@media (hover:none), (pointer:coarse){
+  /* D\u00e9sactiver hover sur mobile */
+  .btn-glass:hover,
+  .btn-glass--primary:hover,
+  .btn-glass--secondary-nav:hover,
+  .btn-glass--warning:hover{
+    transform: none !important;
+    box-shadow: initial !important;
+    background: initial !important;
+  }
+
+  /* Feedback r\u00e9duit au tap */
+  .btn-glass:active,
+  .btn-glass--primary:active,
+  .btn-glass--secondary-nav:active,
+  .btn-glass--warning:active{
+    transition:all 80ms ease-out !important;
+  }
+  .btn-glass:active{
+    background:var(--glass-mobile-button-active) !important;
+    transform:scale(0.97) translateZ(0) !important;
+    box-shadow:inset 0 2px 6px rgba(0,0,0,.3) !important;
+  }
+  .btn-glass--primary:active{
+    background:linear-gradient(135deg,
+                color-mix(in srgb, var(--brand-primary) 80%, transparent),
+                color-mix(in srgb, var(--color-plasma-cyan) 65%, transparent)) !important;
+    box-shadow:inset 0 3px 6px rgba(0,0,0,.35),
+               0 3px 12px color-mix(in srgb, var(--brand-primary) 18%, transparent) !important;
+    transform:scale(0.97) translateZ(0) !important;
+  }
+  .btn-glass--secondary-nav:active{
+    background:var(--glass-button-secondary-mobile-active) !important;
+    transform:scale(0.97) translateZ(0) !important;
+    box-shadow:inset 0 2px 4px rgba(0,0,0,.25) !important;
+  }
+  .btn-glass--warning:active{
+    background:var(--glass-button-warning-mobile-active) !important;
+    box-shadow:inset 0 2px 6px rgba(0,0,0,.3) !important;
+    transform:scale(0.97) translateZ(0) !important;
+  }
+}
+
+/* Breathing effect (optionnel) - DESKTOP UNIQUEMENT */
+.btn-breathing{position:relative;overflow:visible;}
+.btn-breathing::before{
+  content:'';position:absolute;inset:-2px;border-radius:inherit;
+  background:var(--glass-breathing-glow);opacity:0;z-index:-1;
+  transition:opacity var(--animation-duration-slow) var(--animation-ease-smooth);
+}
+@media (hover:hover) and (pointer:fine){
+  .btn-breathing:hover::before{opacity:0.8;animation:breathing-glow var(--animation-duration-slower) var(--animation-ease-smooth) infinite;}
+}
+/* D\u00e9sactiver sur mobile */
+@media (hover:none), (pointer:coarse){
+  .btn-breathing::before{display:none !important;}
+}
+
+/* Chips */
+.chip{
+  border:1px solid var(--glass-border-base);
+  background:var(--glass-opacity-base);
+  backdrop-filter:blur(var(--glass-blur-base)) saturate(var(--glass-saturate-base));
+  padding:6px 16px;border-radius:var(--glass-radius-pill);
+  transition:background var(--glass-transition-medium), border-color var(--glass-transition-medium), transform var(--glass-transition-medium);
+  font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);
+  color:var(--text-secondary);
+  min-height:44px;display:flex;align-items:center;justify-content:center;
+  overflow:visible;box-shadow:var(--glass-shadow-sm);
+  /* Safari pill fix */
+  -webkit-mask-image:-webkit-radial-gradient(white, black);
+          mask-image:radial-gradient(white, black);
+}
+.chip:hover{
+  background:var(--glass-opacity-lg);border-color:var(--glass-hover-border);
+  box-shadow:var(--glass-shadow-md);
+  transform:translateY(-1px) scale(var(--interaction-scale-hover));
+}
+.chip--on{
+  background:var(--glass-chip-active-background);
+  border-color:var(--glass-chip-active-border);
+  color:var(--brand-primary);
+  box-shadow:var(--glass-chip-active-shadow);
+}
+@media (hover:none), (pointer:coarse){
+  .chip:active{
+    background:var(--glass-mobile-active-bg) !important;
+    transform:scale(var(--glass-mobile-scale)) translateZ(0) !important;
+    box-shadow:var(--glass-mobile-shadow) !important;
+  }
+  .chip--on:active{
+    background:var(--glass-chip-mobile-active) !important;
+    box-shadow:var(--glass-mobile-shadow-accent) !important;
+  }
+}
+
+/* Disabled */
+.btn-glass:disabled,
+.btn-glass--primary:disabled,
+.btn-glass--secondary-nav:disabled,
+.btn-glass--warning:disabled,
+.chip:disabled{
+  opacity:var(--disabled-opacity);
+  cursor:not-allowed;
+  transform:none !important;
+}
+
+/* Button container helper - permet aux glows de ne pas être clippés */
+.btn-container-glow-safe{
+  overflow:visible !important;
+  position:relative;
+  isolation:isolate;
+  padding:0.25rem;
+}
+
+/* CRITICAL FIX: Empêcher le clipping des glows sur tous les boutons primary */
+.btn-glass--primary{
+  margin: 0.5rem 0;
+}
+
+/* Conteneurs parents de boutons - forcer overflow visible */
+:where(
+  .glass-card,
+  .space-y-6 > *,
+  .space-y-4 > *,
+  [class*="container"]
+):has(.btn-glass--primary){
+  overflow: visible !important;
+}
