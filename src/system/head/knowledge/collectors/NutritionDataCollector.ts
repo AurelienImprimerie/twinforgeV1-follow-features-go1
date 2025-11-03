@@ -18,15 +18,19 @@ export class NutritionDataCollector {
     try {
       logger.info('NUTRITION_DATA_COLLECTOR', 'Starting nutrition data collection', { userId });
 
-      const [mealsResult, mealPlansResult, profileResult] = await Promise.allSettled([
+      const [mealsResult, mealPlansResult, profileResult, fridgeResult, recipesResult] = await Promise.allSettled([
         this.collectRecentMeals(userId),
         this.collectMealPlans(userId),
-        this.getUserProfile(userId)
+        this.getUserProfile(userId),
+        this.collectFridgeInventory(userId),
+        this.collectGeneratedRecipes(userId)
       ]);
 
       const recentMeals = mealsResult.status === 'fulfilled' ? mealsResult.value : [];
       const mealPlan = mealPlansResult.status === 'fulfilled' ? mealPlansResult.value : null;
       const profile = profileResult.status === 'fulfilled' ? profileResult.value : null;
+      const fridgeInventory = fridgeResult.status === 'fulfilled' ? fridgeResult.value : [];
+      const generatedRecipes = recipesResult.status === 'fulfilled' ? recipesResult.value : [];
 
       // Calculate nutrition stats from recent meals
       const { avgCalories, avgProtein } = this.calculateNutritionStats(recentMeals);
@@ -35,12 +39,17 @@ export class NutritionDataCollector {
       const lastScanDate = recentMeals.length > 0 ? recentMeals[0].date : null;
       const scanFrequency = recentMeals.length; // Total meals in last 30 days
 
-      const hasData = recentMeals.length > 0 || !!mealPlan;
+      // Extract culinary preferences
+      const culinaryPreferences = this.extractCulinaryPreferences(profile, recentMeals, generatedRecipes);
+
+      const hasData = recentMeals.length > 0 || !!mealPlan || fridgeInventory.length > 0;
 
       logger.info('NUTRITION_DATA_COLLECTOR', 'Nutrition data collected', {
         userId,
         mealsCount: recentMeals.length,
         hasMealPlan: !!mealPlan,
+        fridgeItemsCount: fridgeInventory.length,
+        recipesCount: generatedRecipes.length,
         avgCalories,
         avgProtein,
         hasData
@@ -54,6 +63,10 @@ export class NutritionDataCollector {
         averageCalories: avgCalories,
         averageProtein: avgProtein,
         dietaryPreferences: profile?.dietary_preferences || [],
+        fridgeInventory,
+        generatedRecipes: generatedRecipes.slice(0, 10), // Top 10 most recent
+        lastFridgeScanDate: fridgeInventory.length > 0 ? fridgeInventory[0].scannedAt : null,
+        culinaryPreferences,
         hasData
       };
     } catch (error) {
@@ -148,6 +161,141 @@ export class NutritionDataCollector {
       .maybeSingle();
 
     return profile?.nutrition || {};
+  }
+
+  /**
+   * Collect fridge inventory items
+   */
+  private async collectFridgeInventory(userId: string): Promise<Array<{
+    id: string;
+    name: string;
+    category: string;
+    quantity: string;
+    scannedAt: string;
+  }>> {
+    const { data: sessions, error: sessionsError } = await this.supabase
+      .from('fridge_scan_sessions')
+      .select('id, created_at, inventory_data')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (sessionsError || !sessions || !sessions.inventory_data) {
+      return [];
+    }
+
+    // Extract items from inventory_data
+    const inventoryData = sessions.inventory_data as any;
+    if (!Array.isArray(inventoryData)) {
+      return [];
+    }
+
+    return inventoryData
+      .filter((item: any) => item && item.name)
+      .map((item: any) => ({
+        id: item.id || `item-${Math.random()}`,
+        name: item.name || item.label || 'Inconnu',
+        category: item.category || 'autre',
+        quantity: item.quantity || item.estimatedQuantity || '1',
+        scannedAt: sessions.created_at
+      }))
+      .slice(0, 50); // Limit to 50 items
+  }
+
+  /**
+   * Collect generated recipes
+   */
+  private async collectGeneratedRecipes(userId: string): Promise<Array<{
+    id: string;
+    title: string;
+    cuisine: string;
+    cookingTime: number;
+    difficulty: string;
+    createdAt: string;
+  }>> {
+    const { data: sessions, error } = await this.supabase
+      .from('fridge_scan_sessions')
+      .select('id, created_at, recipe_candidates')
+      .eq('user_id', userId)
+      .not('recipe_candidates', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(5);
+
+    if (error || !sessions) {
+      return [];
+    }
+
+    const allRecipes: Array<{
+      id: string;
+      title: string;
+      cuisine: string;
+      cookingTime: number;
+      difficulty: string;
+      createdAt: string;
+    }> = [];
+
+    sessions.forEach((session) => {
+      const recipeCandidates = session.recipe_candidates as any;
+      if (Array.isArray(recipeCandidates)) {
+        recipeCandidates.forEach((recipe: any) => {
+          if (recipe && recipe.title) {
+            allRecipes.push({
+              id: recipe.id || `recipe-${Math.random()}`,
+              title: recipe.title,
+              cuisine: recipe.cuisine || 'international',
+              cookingTime: recipe.cookingTime || recipe.cooking_time || 30,
+              difficulty: recipe.difficulty || 'medium',
+              createdAt: session.created_at
+            });
+          }
+        });
+      }
+    });
+
+    return allRecipes.slice(0, 20); // Top 20 most recent
+  }
+
+  /**
+   * Extract culinary preferences from user data
+   */
+  private extractCulinaryPreferences(
+    profile: any,
+    meals: MealSummary[],
+    recipes: Array<{ cuisine: string }>
+  ): {
+    favoriteCuisines: string[];
+    cookingSkillLevel: string;
+    mealPrepTime: { weekday: number; weekend: number };
+  } {
+    // Extract favorite cuisines from generated recipes
+    const cuisineCounts: Record<string, number> = {};
+    recipes.forEach((recipe) => {
+      cuisineCounts[recipe.cuisine] = (cuisineCounts[recipe.cuisine] || 0) + 1;
+    });
+
+    const favoriteCuisines = Object.entries(cuisineCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([cuisine]) => cuisine);
+
+    // Get cooking skill level from profile
+    const cookingSkillLevel =
+      profile?.nutrition?.meal_prep_preferences?.cooking_skill || 'intermediate';
+
+    // Get meal prep time preferences
+    const mealPrepTime = {
+      weekday:
+        profile?.nutrition?.meal_prep_preferences?.weekday_time_min || 30,
+      weekend:
+        profile?.nutrition?.meal_prep_preferences?.weekend_time_min || 60
+    };
+
+    return {
+      favoriteCuisines,
+      cookingSkillLevel,
+      mealPrepTime
+    };
   }
 
   /**

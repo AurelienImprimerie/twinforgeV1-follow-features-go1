@@ -7,7 +7,7 @@
 // Core Brain Types
 // ============================================
 
-export type ForgeType = 'training' | 'nutrition' | 'fasting' | 'body-scan' | 'equipment';
+export type ForgeType = 'training' | 'nutrition' | 'fasting' | 'body-scan' | 'equipment' | 'energy' | 'temporal';
 
 export type ActivityState =
   | 'idle'
@@ -45,6 +45,8 @@ export interface UserKnowledge {
   nutrition: NutritionKnowledge;
   fasting: FastingKnowledge;
   bodyScan: BodyScanKnowledge;
+  energy: EnergyKnowledge;
+  temporal: TemporalKnowledge;
   lastUpdated: Record<ForgeType, number>;
   completeness: Record<ForgeType, number>; // 0-100%
 }
@@ -170,6 +172,27 @@ export interface NutritionKnowledge {
   averageCalories: number;
   averageProtein: number;
   dietaryPreferences: string[];
+  fridgeInventory: Array<{
+    id: string;
+    name: string;
+    category: string;
+    quantity: string;
+    scannedAt: string;
+  }>;
+  generatedRecipes: Array<{
+    id: string;
+    title: string;
+    cuisine: string;
+    cookingTime: number;
+    difficulty: string;
+    createdAt: string;
+  }>;
+  lastFridgeScanDate: string | null;
+  culinaryPreferences: {
+    favoriteCuisines: string[];
+    cookingSkillLevel: string;
+    mealPrepTime: { weekday: number; weekend: number };
+  };
   hasData: boolean;
 }
 
@@ -236,6 +259,86 @@ export interface BodyMeasurements {
   chest?: number;
   arms?: number;
   legs?: number;
+}
+
+export interface EnergyKnowledge {
+  recentActivities: BiometricActivity[];
+  connectedDevices: Array<{
+    id: string;
+    deviceType: string;
+    deviceName: string;
+    isActive: boolean;
+    lastSyncDate: string | null;
+  }>;
+  hasWearableConnected: boolean;
+  biometrics: {
+    hrResting: number | null;
+    hrMax: number | null;
+    hrAvg: number | null;
+    hrvAvg: number | null;
+    vo2maxEstimated: number | null;
+  };
+  recoveryScore: number;
+  fatigueScore: number;
+  trainingLoad7d: number;
+  lastActivityDate: string | null;
+  hasData: boolean;
+}
+
+export interface BiometricActivity {
+  id: string;
+  timestamp: string;
+  discipline: string;
+  duration: number;
+  distance: number | null;
+  caloriesBurned: number;
+  hrAvg: number | null;
+  hrMax: number | null;
+  hrMin: number | null;
+  hrvPreActivity: number | null;
+  hrvPostActivity: number | null;
+  vo2maxEstimated: number | null;
+  trainingLoadScore: number | null;
+  recoveryScore: number | null;
+  fatigueLevel: number | null;
+  wearableDeviceId: string;
+  weatherConditions: any | null;
+  perceivedEffort: number | null;
+}
+
+export interface TemporalKnowledge {
+  trainingPatterns: TrainingPattern[];
+  availabilityWindows: AvailabilityWindow[];
+  optimalTrainingTimes: Array<{
+    dayOfWeek: number;
+    timeOfDay: 'morning' | 'afternoon' | 'evening';
+    score: number;
+  }>;
+  restDayPatterns: {
+    preferredRestDays: number[];
+    averageRestDaysBetweenSessions: number;
+  };
+  weeklyFrequency: number;
+  preferredTimeOfDay: 'morning' | 'afternoon' | 'evening' | null;
+  averageSessionDuration: number;
+  consistencyScore: number;
+  hasData: boolean;
+}
+
+export interface TrainingPattern {
+  dayOfWeek: number;
+  timeOfDay: 'morning' | 'afternoon' | 'evening';
+  frequency: number;
+  discipline: string;
+  completionRate: number;
+}
+
+export interface AvailabilityWindow {
+  dayOfWeek: number;
+  startHour: number;
+  endHour: number;
+  label: string;
+  isPreferred: boolean;
 }
 
 // ============================================
