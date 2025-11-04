@@ -115,6 +115,20 @@ export class CSRFProtection {
       };
     }
 
+    // Allow development environments (localhost, WebContainer, etc.)
+    const isDevelopment =
+      requestOrigin.includes('localhost') ||
+      requestOrigin.includes('127.0.0.1') ||
+      requestOrigin.includes('.webcontainer-api.io') ||
+      requestOrigin.includes('.stackblitz.io');
+
+    if (isDevelopment) {
+      return {
+        valid: true,
+        origin: requestOrigin
+      };
+    }
+
     const isAllowed = this.allowedOrigins.some(allowed =>
       this.normalizeOrigin(requestOrigin) === this.normalizeOrigin(allowed)
     );
