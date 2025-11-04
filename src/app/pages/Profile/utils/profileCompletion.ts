@@ -261,6 +261,31 @@ export function calculateTrainingCompletion(profile: UserProfile | null): number
 }
 
 /**
+ * Complétion de l'onglet Menstruel
+ * Calcule le pourcentage de complétion basé sur 2 composants:
+ * - MenstrualCycleSection (lastPeriodDate, averageCycleLength, averagePeriodDuration)
+ * - CycleRegularitySection (cycleRegularity)
+ */
+export function calculateMenstrualCompletion(menstrualData: {
+  lastPeriodDate?: string;
+  averageCycleLength?: number;
+  averagePeriodDuration?: number;
+  cycleRegularity?: 'regular' | 'irregular' | 'very_irregular';
+} | null): number {
+  if (!menstrualData) return 0;
+
+  const fields = [
+    menstrualData.lastPeriodDate && menstrualData.lastPeriodDate.trim() !== '',
+    menstrualData.averageCycleLength && menstrualData.averageCycleLength >= 21 && menstrualData.averageCycleLength <= 45,
+    menstrualData.averagePeriodDuration && menstrualData.averagePeriodDuration >= 2 && menstrualData.averagePeriodDuration <= 10,
+    menstrualData.cycleRegularity && ['regular', 'irregular', 'very_irregular'].includes(menstrualData.cycleRegularity),
+  ];
+
+  const completedFields = fields.filter(Boolean).length;
+  return Math.round((completedFields / fields.length) * 100);
+}
+
+/**
  * @deprecated Utiliser calculateRecipeWorkshopCompletion du service
  */
 export function calculateRecipeWorkshopCompletionLegacy(profile: UserProfile | null): number {

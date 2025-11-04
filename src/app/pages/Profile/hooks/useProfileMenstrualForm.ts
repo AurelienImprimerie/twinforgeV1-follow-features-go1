@@ -9,7 +9,6 @@ interface MenstrualFormData {
   averageCycleLength: number;
   averagePeriodDuration: number;
   cycleRegularity: 'regular' | 'irregular' | 'very_irregular';
-  trackingSymptoms: boolean;
 }
 
 export function useProfileMenstrualForm() {
@@ -21,7 +20,6 @@ export function useProfileMenstrualForm() {
     averageCycleLength: 28,
     averagePeriodDuration: 5,
     cycleRegularity: 'regular',
-    trackingSymptoms: false,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -55,7 +53,6 @@ export function useProfileMenstrualForm() {
           averageCycleLength: data.cycle_length || 28,
           averagePeriodDuration: data.period_duration || 5,
           cycleRegularity: data.cycle_regularity || 'regular',
-          trackingSymptoms: data.notes ? true : false,
         });
       }
     } catch (error) {
@@ -105,7 +102,6 @@ export function useProfileMenstrualForm() {
           cycle_length: formData.averageCycleLength,
           period_duration: formData.averagePeriodDuration,
           cycle_regularity: formData.cycleRegularity,
-          notes: formData.trackingSymptoms ? 'Suivi activé' : null,
         },
         {
           onConflict: 'user_id,cycle_start_date',
