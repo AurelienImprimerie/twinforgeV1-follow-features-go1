@@ -33,6 +33,7 @@ const MealPlanGenerationPage: React.FC = () => {
     startPipeline,
     setConfig,
     generateMealPlans,
+    generateDetailedRecipes,
     saveMealPlans,
     discardMealPlans,
     resetPipeline
@@ -128,13 +129,17 @@ const MealPlanGenerationPage: React.FC = () => {
 
   const handleGenerateAllRecipes = async () => {
     click();
-    // TODO: Implement recipe generation
-    showToast({
-      type: 'info',
-      title: 'En cours de développement',
-      message: 'La génération de recettes détaillées sera bientôt disponible !',
-      duration: 3000
-    });
+    try {
+      await generateDetailedRecipes();
+      success();
+    } catch (error) {
+      showToast({
+        type: 'error',
+        title: 'Erreur de génération',
+        message: error instanceof Error ? error.message : 'Une erreur est survenue',
+        duration: 5000
+      });
+    }
   };
 
   const handleSaveCompletePlan = async () => {
