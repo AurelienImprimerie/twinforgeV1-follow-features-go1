@@ -72,6 +72,12 @@ interface MealPlan {
   };
 }
 
+function isValidUUID(value: string | undefined): boolean {
+  if (!value) return false;
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(value);
+}
+
 function safeSerialize(data: any): string {
   try {
     return JSON.stringify(data, null, 2);
@@ -441,7 +447,7 @@ Deno.serve(async (req) => {
 
     // Consume tokens after successful generation
     const requestId = crypto.randomUUID();
-await consumeTokensAtomic(supabase, {
+    await consumeTokensAtomic(supabase, {
       userId: requestData.user_id,
       edgeFunctionName: 'meal-plan-generator',
       operationType: 'meal_plan_generation',
@@ -494,7 +500,7 @@ await consumeTokensAtomic(supabase, {
 
     const mealPlanData = {
       user_id: requestData.user_id,
-      session_id: requestData.session_id,
+      session_id: isValidUUID(requestData.session_id) ? requestData.session_id : null,
       plan_data: mealPlan,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
