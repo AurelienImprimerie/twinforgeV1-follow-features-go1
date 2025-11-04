@@ -55,6 +55,7 @@ const ActivityInputPage = lazy(() => import('./app/pages/Activity/ActivityInputP
 const FastingInputPage = lazy(() => import('./app/pages/Fasting/FastingInputPage'));
 const FridgeScanPage = lazy(() => import('./app/pages/FridgeScanPage'));
 const RecipeGenerationPage = lazy(() => import('./app/pages/RecipeGeneration/RecipeGenerationPage'));
+const MealPlanGenerationPage = lazy(() => import('./app/pages/MealPlanGeneration/MealPlanGenerationPage'));
 const VitalPage = lazy(() => import('./app/pages/VitalPage'));
 const DevCachePage = lazy(() => import('./app/pages/DevCachePage'));
 const LogoGalleryPage = lazy(() => import('./app/pages/LogoGalleryPage'));
@@ -190,6 +191,10 @@ const router = createBrowserRouter([
       {
         path: "fridge/generate-recipes",
         element: <Suspense fallback={<LoadingFallback />}><RecipeGenerationPage /></Suspense>
+      },
+      {
+        path: "meal-plan-generation",
+        element: <Suspense fallback={<LoadingFallback />}><MealPlanGenerationPage /></Suspense>
       },
       {
         path: "training",
