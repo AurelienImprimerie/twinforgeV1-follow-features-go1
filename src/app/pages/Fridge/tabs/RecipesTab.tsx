@@ -82,11 +82,11 @@ const RecipesTab: React.FC = () => {
   const { handleDeleteAllRecipes } = useRecipeDeletion({
     allRecipes,
     persistedRecipes,
-    newlyGeneratedRecipes,
+    newlyGeneratedRecipes: [],
     userId,
     showToast,
     click,
-    clearRecipeCandidates,
+    clearRecipeCandidates: () => {},
     deleteRecipeFromDb
   });
 
@@ -151,7 +151,7 @@ const RecipesTab: React.FC = () => {
             setSelectedFilters={setSelectedFilters}
             recipesCount={filteredRecipes.length}
             totalRecipesCount={allRecipes.length}
-            isGenerating={isGenerating}
+            isGenerating={false}
             maxPrepTime={maxPrepTime}
             setMaxPrepTime={setMaxPrepTime}
             maxCookTime={maxCookTime}
