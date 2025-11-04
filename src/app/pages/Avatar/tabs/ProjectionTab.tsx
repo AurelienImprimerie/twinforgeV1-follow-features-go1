@@ -47,6 +47,26 @@ const ProjectionTab: React.FC = () => {
   // Debug: Log modal state changes
   React.useEffect(() => {
     console.log('🟢 Modal state changed:', showSaveModal);
+    if (showSaveModal) {
+      console.log('🔍 Checking DOM for modal elements...');
+      setTimeout(() => {
+        const backdrop = document.querySelector('[style*="z-index: 99999"]');
+        const modalCard = document.querySelector('[style*="z-index: 100001"]');
+        console.log('🔍 Modal backdrop found:', !!backdrop);
+        console.log('🔍 Modal card found:', !!modalCard);
+        if (backdrop) {
+          const styles = window.getComputedStyle(backdrop);
+          console.log('🔍 Backdrop computed styles:', {
+            position: styles.position,
+            zIndex: styles.zIndex,
+            display: styles.display,
+            visibility: styles.visibility,
+            opacity: styles.opacity,
+            pointerEvents: styles.pointerEvents
+          });
+        }
+      }, 100);
+    }
   }, [showSaveModal]);
 
   // Hook de calcul des projections
@@ -374,15 +394,17 @@ const ProjectionTab: React.FC = () => {
 
       {/* Modal de sauvegarde */}
       <AnimatePresence>
-        {showSaveModal && createPortal(
-          <ConditionalMotion
-            className="fixed inset-0 bg-black/80 backdrop-blur-lg flex items-center justify-center p-4"
-            style={{ zIndex: 99999 }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setShowSaveModal(false)}
-          >
+        {showSaveModal && (() => {
+          console.log('🎨 Creating portal for modal to document.body');
+          return createPortal(
+            <ConditionalMotion
+              className="fixed inset-0 bg-black/80 backdrop-blur-lg flex items-center justify-center p-4"
+              style={{ zIndex: 99999 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowSaveModal(false)}
+            >
             <ConditionalMotion
               className="relative w-full max-w-md"
               style={{ zIndex: 100000 }}
@@ -452,7 +474,8 @@ const ProjectionTab: React.FC = () => {
             </ConditionalMotion>
           </ConditionalMotion>,
           document.body
-        )}
+        );
+        })()}
       </AnimatePresence>
 
       {/* Liste des projections sauvegardées */}
