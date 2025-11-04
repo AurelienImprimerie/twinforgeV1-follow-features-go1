@@ -27,6 +27,7 @@ import { BodyScanDataCollector } from './collectors/BodyScanDataCollector';
 import { EnergyDataCollector } from './collectors/EnergyDataCollector';
 import { TemporalDataCollector } from './collectors/TemporalDataCollector';
 import { TodayDataCollector, type TodayData } from './collectors/TodayDataCollector';
+import { BreastfeedingDataCollector, type BreastfeedingKnowledge } from './collectors/BreastfeedingDataCollector';
 
 export class UserKnowledgeBase {
   private supabase: SupabaseClient;
@@ -41,6 +42,7 @@ export class UserKnowledgeBase {
   private energyCollector: EnergyDataCollector;
   private temporalCollector: TemporalDataCollector;
   private todayCollector: TodayDataCollector;
+  private breastfeedingCollector: BreastfeedingDataCollector;
   private todayData: TodayData | null = null;
 
   constructor(supabase: SupabaseClient, cacheManager: CacheManager) {
@@ -54,6 +56,7 @@ export class UserKnowledgeBase {
     this.energyCollector = new EnergyDataCollector(supabase);
     this.temporalCollector = new TemporalDataCollector(supabase);
     this.todayCollector = new TodayDataCollector(supabase);
+    this.breastfeedingCollector = new BreastfeedingDataCollector(supabase);
   }
 
   /**
@@ -85,7 +88,8 @@ export class UserKnowledgeBase {
         this.bodyScanCollector.collect(userId),
         this.energyCollector.collect(userId),
         this.temporalCollector.collect(userId),
-        this.todayCollector.collect(userId)
+        this.todayCollector.collect(userId),
+        this.breastfeedingCollector.collect(userId)
       ]);
 
       const profile = results[0].status === 'fulfilled'
@@ -124,6 +128,10 @@ export class UserKnowledgeBase {
         ? results[8].value
         : null;
 
+      const breastfeeding = results[9].status === 'fulfilled'
+        ? results[9].value
+        : this.getDefaultBreastfeedingKnowledge();
+
       // Log any failures
       const failures = [
         { index: 0, name: 'profile' },
@@ -134,7 +142,8 @@ export class UserKnowledgeBase {
         { index: 5, name: 'bodyScan' },
         { index: 6, name: 'energy' },
         { index: 7, name: 'temporal' },
-        { index: 8, name: 'today' }
+        { index: 8, name: 'today' },
+        { index: 9, name: 'breastfeeding' }
       ];
 
       failures.forEach(({ index, name }) => {
@@ -533,6 +542,32 @@ export class UserKnowledgeBase {
       averageSessionDuration: 0,
       consistencyScore: 0,
       hasData: false
+    };
+  }
+
+  private getDefaultBreastfeedingKnowledge(): BreastfeedingKnowledge {
+    return {
+      hasData: false,
+      isBreastfeeding: false,
+      breastfeedingType: null,
+      babyAgeMonths: null,
+      startDate: null,
+      durationMonths: null,
+      nutritionalNeeds: {
+        extraCalories: 0,
+        extraProtein: 0,
+        calciumNeed: 1000,
+        ironNeed: 18,
+        omega3Need: 250,
+        waterIntake: 2.0,
+      },
+      recommendations: {
+        priorityFoods: [],
+        limitedFoods: [],
+        avoidFoods: [],
+        mealFrequency: 'Standard',
+      },
+      notes: null,
     };
   }
 

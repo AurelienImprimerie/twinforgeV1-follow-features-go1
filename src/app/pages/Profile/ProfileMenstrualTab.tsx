@@ -6,8 +6,10 @@ import CurrentCycleInfoCard from './components/menstrual/CurrentCycleInfoCard';
 import ReproductiveStatusSelector from './components/menstrual/ReproductiveStatusSelector';
 import MenopauseInfoCard from './components/menstrual/MenopauseInfoCard';
 import MenopauseDetailsSection from './components/menstrual/MenopauseDetailsSection';
+import BreastfeedingSection from './components/menstrual/BreastfeedingSection';
 import { useProfileMenstrualForm } from './hooks/useProfileMenstrualForm';
 import { useMenopauseForm } from './hooks/useMenopauseForm';
+import { useBreastfeedingForm } from './hooks/useBreastfeedingForm';
 import GlassCard from '../../../ui/cards/GlassCard';
 import { ProgressBar } from './components/ProfileIdentityComponents';
 import UnsavedChangesIndicator from '../../../ui/components/UnsavedChangesIndicator';
@@ -16,10 +18,11 @@ import { calculateMenstrualCompletion } from './utils/profileCompletion';
 const ProfileMenstrualTab: React.FC = () => {
   const menstrualForm = useProfileMenstrualForm();
   const menopauseForm = useMenopauseForm();
+  const breastfeedingForm = useBreastfeedingForm();
 
   const isMenstruating = menopauseForm.formData.reproductive_status === 'menstruating';
-  const isLoading = menstrualForm.isLoading || menopauseForm.isLoading;
-  const isSaving = menstrualForm.isSaving || menopauseForm.isSaving;
+  const isLoading = menstrualForm.isLoading || menopauseForm.isLoading || breastfeedingForm.isLoading;
+  const isSaving = menstrualForm.isSaving || menopauseForm.isSaving || breastfeedingForm.isSaving;
 
   // Calculate completion percentage based on active form
   const completionPercentage = useMemo(() => {
@@ -40,12 +43,17 @@ const ProfileMenstrualTab: React.FC = () => {
 
   // Reset dirty state after successful save
   const handleSaveWithReset = async () => {
-    if (isMenstruating) {
-      await menstrualForm.handleSave();
-    } else {
-      await menopauseForm.handleSave();
+    try {
+      if (isMenstruating) {
+        await menstrualForm.handleSave();
+      } else {
+        await menopauseForm.handleSave();
+      }
+      await breastfeedingForm.handleSave();
+      setIsDirty(false);
+    } catch (error) {
+      console.error('Error saving profile data:', error);
     }
-    setIsDirty(false);
   };
 
   const errors = isMenstruating ? menstrualForm.errors : menopauseForm.errors;
@@ -141,6 +149,19 @@ const ProfileMenstrualTab: React.FC = () => {
         />
       )}
 
+      {/* Breastfeeding Section - Available for all statuses */}
+      <BreastfeedingSection
+        value={{
+          is_breastfeeding: breastfeedingForm.formData.is_breastfeeding,
+          breastfeeding_type: breastfeedingForm.formData.breastfeeding_type,
+          baby_age_months: breastfeedingForm.formData.baby_age_months,
+          start_date: breastfeedingForm.formData.start_date,
+          notes: breastfeedingForm.formData.notes,
+        }}
+        onChange={(value) => breastfeedingForm.updateFormData(value)}
+        errors={breastfeedingForm.errors}
+      />
+
       <GlassCard variant="frosted" className="p-6">
         <div className="space-y-2">
           <h3 className="text-white font-medium flex items-center gap-2">
@@ -178,6 +199,7 @@ const ProfileMenstrualTab: React.FC = () => {
                   {isMenstruating
                     ? "Recommandations alimentaires adaptées à votre phase cyclique"
                     : "Nutrition optimisée pour vos besoins hormonaux et santé osseuse"}
+                  {breastfeedingForm.formData.is_breastfeeding && " + besoins de l'allaitement"}
                 </p>
               </div>
             </div>
