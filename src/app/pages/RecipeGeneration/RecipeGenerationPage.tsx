@@ -50,24 +50,26 @@ const RecipeGenerationPage: React.FC = () => {
     }
   }, []);
 
-  // Load inventories on mount
+  // Load inventories on mount and auto-select the latest one
   useEffect(() => {
     if (session?.user?.id) {
       loadAvailableInventories();
     }
   }, [session?.user?.id, loadAvailableInventories]);
 
-  // Handle inventory selection
-  const handleSelectInventory = (inventoryId: string) => {
-    click();
-    setConfig({ selectedInventoryId: inventoryId });
+  // Auto-select latest inventory when available inventories change
+  useEffect(() => {
+    if (availableInventories.length > 0 && !config.selectedInventoryId) {
+      const latestInventory = availableInventories[0];
+      setConfig({ selectedInventoryId: latestInventory.id });
 
-    logger.info('RECIPE_GENERATION_PAGE', 'Inventory selected', {
-      inventoryId,
-      sessionId: currentSessionId,
-      timestamp: new Date().toISOString()
-    });
-  };
+      logger.info('RECIPE_GENERATION_PAGE', 'Auto-selected latest inventory', {
+        inventoryId: latestInventory.id,
+        sessionId: currentSessionId,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }, [availableInventories, config.selectedInventoryId, setConfig, currentSessionId]);
 
   // Handle recipe count change
   const handleSetRecipeCount = (count: number) => {
@@ -249,7 +251,6 @@ const RecipeGenerationPage: React.FC = () => {
           availableInventories={availableInventories}
           selectedInventoryId={config.selectedInventoryId}
           recipeCount={config.recipeCount}
-          onSelectInventory={handleSelectInventory}
           onSetRecipeCount={handleSetRecipeCount}
           onGenerate={handleGenerate}
           isGenerating={isGenerating}

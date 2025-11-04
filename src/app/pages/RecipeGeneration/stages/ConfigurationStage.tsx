@@ -11,7 +11,6 @@ interface ConfigurationStageProps {
   availableInventories: any[];
   selectedInventoryId: string | null;
   recipeCount: number;
-  onSelectInventory: (inventoryId: string) => void;
   onSetRecipeCount: (count: number) => void;
   onGenerate: () => void;
   isGenerating: boolean;
@@ -21,7 +20,6 @@ const ConfigurationStage: React.FC<ConfigurationStageProps> = ({
   availableInventories,
   selectedInventoryId,
   recipeCount,
-  onSelectInventory,
   onSetRecipeCount,
   onGenerate,
   isGenerating
@@ -31,16 +29,6 @@ const ConfigurationStage: React.FC<ConfigurationStageProps> = ({
 
   const selectedInventory = availableInventories.find(inv => inv.id === selectedInventoryId);
   const hasValidInventory = selectedInventory && selectedInventory.inventory_final?.length > 0;
-
-  const inventoryOptions = availableInventories.map(inventory => ({
-    value: inventory.id,
-    label: `Inventaire du ${new Date(inventory.created_at).toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    })} (${inventory.inventory_final?.length || 0} ingrédients)`,
-    subtitle: new Date(inventory.created_at).toLocaleDateString('fr-FR')
-  }));
 
   const recipeCountOptions = RECIPE_COUNT_OPTIONS.map(option => ({
     value: option.value.toString(),
@@ -118,27 +106,6 @@ const ConfigurationStage: React.FC<ConfigurationStageProps> = ({
 
             {/* Configuration Form */}
             <div className="space-y-6">
-              {/* Inventory Selection */}
-              <div className="space-y-3">
-                <label className="block text-white font-semibold text-sm">
-                  Sélectionner un inventaire
-                </label>
-                <CustomDropdown
-                  options={inventoryOptions}
-                  value={selectedInventoryId || ''}
-                  onChange={onSelectInventory}
-                  placeholder="Sélectionner un inventaire"
-                  className="w-full"
-                  disabled={isGenerating}
-                />
-                {!availableInventories.length && (
-                  <p className="text-amber-400 text-sm flex items-center gap-2">
-                    <SpatialIcon Icon={ICONS.AlertTriangle} size={16} />
-                    Aucun inventaire disponible. Scannez votre frigo pour commencer !
-                  </p>
-                )}
-              </div>
-
               {/* Recipe Count Selection */}
               <div className="space-y-3">
                 <label className="block text-white font-semibold text-sm">
@@ -155,7 +122,29 @@ const ConfigurationStage: React.FC<ConfigurationStageProps> = ({
               </div>
 
               {/* Selected Inventory Info */}
-              {hasValidInventory && (
+              {!availableInventories.length ? (
+                <MotionDiv
+                  {...(!isPerformanceMode && {
+                    initial: { opacity: 0 },
+                    animate: { opacity: 1 }
+                  })}
+                  className="p-4 rounded-xl"
+                  style={{
+                    background: 'rgba(251, 146, 60, 0.1)',
+                    border: '1px solid rgba(251, 146, 60, 0.3)'
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <SpatialIcon Icon={ICONS.AlertTriangle} size={20} className="text-amber-400" />
+                    <div>
+                      <p className="text-white font-medium">Aucun inventaire disponible</p>
+                      <p className="text-white/70 text-sm">
+                        Scannez votre frigo pour commencer à générer des recettes !
+                      </p>
+                    </div>
+                  </div>
+                </MotionDiv>
+              ) : hasValidInventory && (
                 <MotionDiv
                   {...(!isPerformanceMode && {
                     initial: { opacity: 0 },
@@ -170,7 +159,7 @@ const ConfigurationStage: React.FC<ConfigurationStageProps> = ({
                   <div className="flex items-center gap-3">
                     <SpatialIcon Icon={ICONS.Check} size={20} className="text-green-400" />
                     <div>
-                      <p className="text-white font-medium">Inventaire sélectionné</p>
+                      <p className="text-white font-medium">Inventaire le plus récent sélectionné</p>
                       <p className="text-white/70 text-sm">
                         {selectedInventory.inventory_final.length} ingrédients disponibles
                       </p>

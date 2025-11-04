@@ -319,6 +319,20 @@ export const createGenerationActions = (
 
             set({ recipeCandidates: updatedCandidates });
 
+            // Transition to validation step when first recipe arrives
+            const currentStep = get().currentStep;
+            if (currentStep === 'generating') {
+              logger.info('RECIPE_GENERATION_PIPELINE', 'First recipe received, transitioning to validation', {
+                recipeId: recipe.id,
+                recipeTitle: recipe.title
+              });
+              set({
+                currentStep: 'validation',
+                loadingState: 'streaming',
+                simulatedOverallProgress: 66
+              });
+            }
+
             // Trigger background image generation
             get()._triggerImageGenerationForRecipes([recipe], state.currentSessionId!);
 
@@ -337,7 +351,6 @@ export const createGenerationActions = (
             });
 
             set({
-              currentStep: 'validation',
               loadingState: 'idle',
               loadingMessage: '',
               simulatedOverallProgress: 100

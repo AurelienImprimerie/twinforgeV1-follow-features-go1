@@ -53,4 +53,5 @@ export interface RecipeGenerationPipelineState {
     isGeneratingImage?: boolean,
     imageGenerationError?: boolean
   ) => void;
+  _triggerImageGenerationForRecipes: (recipes: Recipe[], sessionId: string) => Promise<void>;
 }

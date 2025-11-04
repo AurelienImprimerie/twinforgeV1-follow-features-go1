@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePerformanceMode } from '../../../../system/context/PerformanceModeContext';
+import { useRecipeGenerationPipeline } from '../../../../system/store/recipeGeneration';
 import GlassCard from '../../../../ui/cards/GlassCard';
 import SpatialIcon from '../../../../ui/icons/SpatialIcon';
 import { ICONS } from '../../../../ui/icons/registry';
@@ -24,9 +25,14 @@ const ValidationStage: React.FC<ValidationStageProps> = ({
   isSaving
 }) => {
   const { isPerformanceMode } = usePerformanceMode();
+  const { loadingState } = useRecipeGenerationPipeline();
   const MotionDiv = isPerformanceMode ? 'div' : motion.div;
   const [showRecipeDetailModal, setShowRecipeDetailModal] = useState(false);
   const [selectedRecipeForDetail, setSelectedRecipeForDetail] = useState<Recipe | null>(null);
+
+  const isStreaming = loadingState === 'streaming';
+  const readyRecipes = recipes.filter(r => r.status === 'ready');
+  const loadingRecipes = recipes.filter(r => r.status === 'loading');
 
   const handleViewRecipe = (recipe: Recipe) => {
     setSelectedRecipeForDetail(recipe);
@@ -84,10 +90,13 @@ const ValidationStage: React.FC<ValidationStageProps> = ({
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-1">
-                    Vos Recettes sont Prêtes !
+                    {isStreaming ? 'Génération en Cours...' : 'Vos Recettes sont Prêtes !'}
                   </h2>
                   <p className="text-white/70">
-                    {recipes.length} recette{recipes.length > 1 ? 's' : ''} générée{recipes.length > 1 ? 's' : ''}
+                    {isStreaming
+                      ? `${readyRecipes.length} / ${recipes.length} recette${recipes.length > 1 ? 's' : ''} générée${recipes.length > 1 ? 's' : ''}`
+                      : `${recipes.length} recette${recipes.length > 1 ? 's' : ''} générée${recipes.length > 1 ? 's' : ''}`
+                    }
                   </p>
                 </div>
               </div>
@@ -95,15 +104,19 @@ const ValidationStage: React.FC<ValidationStageProps> = ({
               <div className="flex items-center gap-3">
                 <button
                   onClick={onDiscard}
-                  disabled={isSaving}
-                  className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white font-medium transition-all duration-200"
+                  disabled={isSaving || isStreaming}
+                  className={`px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white font-medium transition-all duration-200 ${
+                    (isSaving || isStreaming) ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 >
                   Régénérer
                 </button>
                 <button
                   onClick={onSaveAll}
-                  disabled={isSaving}
-                  className="px-6 py-2 text-white font-semibold rounded-xl transition-all duration-200 flex items-center gap-2"
+                  disabled={isSaving || isStreaming}
+                  className={`px-6 py-2 text-white font-semibold rounded-xl transition-all duration-200 flex items-center gap-2 ${
+                    (isSaving || isStreaming) ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                   style={{
                     background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(34, 197, 94, 0.85) 100%)',
                     border: '2px solid color-mix(in srgb, #10B981 60%, transparent)',
@@ -130,16 +143,16 @@ const ValidationStage: React.FC<ValidationStageProps> = ({
           </GlassCard>
         </MotionDiv>
 
-        {/* Recipes Grid */}
+        {/* Recipes Grid with Progressive Loading */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <AnimatePresence>
+          <AnimatePresence mode="sync">
             {recipes.map((recipe, index) => (
               <RecipeCard
                 key={recipe.id}
                 recipe={recipe}
                 index={index}
                 isSaved={false}
-                isNewlyGenerated={true}
+                isNewlyGenerated={recipe.status === 'ready'}
                 isLoading={recipe.status === 'loading'}
                 onToggleSaveStatus={() => {}}
                 onView={handleViewRecipe}
@@ -148,31 +161,46 @@ const ValidationStage: React.FC<ValidationStageProps> = ({
           </AnimatePresence>
         </div>
 
-        {/* Info Card */}
-        <MotionDiv
-          {...(!isPerformanceMode && {
-            initial: { opacity: 0 },
-            animate: { opacity: 1 },
-            transition: { delay: 0.3 }
-          })}
-        >
-          <GlassCard
-            className="p-4"
-            style={{
-              background: 'rgba(16, 185, 129, 0.05)',
-              borderColor: 'rgba(16, 185, 129, 0.2)',
-              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
-            }}
+        {/* Streaming Status Indicator */}
+        {isStreaming && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex items-center justify-center gap-2 text-sm text-white/70 mt-6"
           >
-            <div className="flex items-center gap-3">
-              <SpatialIcon Icon={ICONS.Lightbulb} size={20} className="text-green-400" />
-              <p className="text-white/80 text-sm">
-                <strong className="text-white">Astuce :</strong> Enregistrez vos recettes dans votre bibliothèque
-                pour y accéder facilement à tout moment !
-              </p>
-            </div>
-          </GlassCard>
-        </MotionDiv>
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+            <span>Création des recettes suivantes...</span>
+          </motion.div>
+        )}
+
+        {/* Info Card */}
+        {!isStreaming && (
+          <MotionDiv
+            {...(!isPerformanceMode && {
+              initial: { opacity: 0 },
+              animate: { opacity: 1 },
+              transition: { delay: 0.3 }
+            })}
+          >
+            <GlassCard
+              className="p-4"
+              style={{
+                background: 'rgba(16, 185, 129, 0.05)',
+                borderColor: 'rgba(16, 185, 129, 0.2)',
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <SpatialIcon Icon={ICONS.Lightbulb} size={20} className="text-green-400" />
+                <p className="text-white/80 text-sm">
+                  <strong className="text-white">Astuce :</strong> Enregistrez vos recettes dans votre bibliothèque
+                  pour y accéder facilement à tout moment !
+                </p>
+              </div>
+            </GlassCard>
+          </MotionDiv>
+        )}
       </div>
 
       {/* Recipe Detail Modal */}
