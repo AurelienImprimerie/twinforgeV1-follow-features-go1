@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useMealPlanGenerationStore } from '../../../system/store/mealPlanGenerationStore';
-import { useMealPlanStore } from '../../../system/store/mealPlanStore';
+import { useMealPlanLibraryStore } from '../../../system/store/mealPlanLibraryStore';
 import { useUserStore } from '../../../system/store/userStore';
 import { useFeedback } from '../../../hooks/useFeedback';
 import { useToast } from '../../../ui/components/ToastProvider';
@@ -41,10 +41,30 @@ const MealPlanGenerationPage: React.FC = () => {
     regenerateMeal
   } = useMealPlanGenerationStore();
 
-  const {
-    availableInventories,
-    loadAvailableInventories
-  } = useMealPlanStore();
+  const { loadSavedPlans } = useMealPlanLibraryStore();
+
+  // Load available inventories from fridge scan sessions
+  const [availableInventories, setAvailableInventories] = React.useState<any[]>([]);
+
+  const loadAvailableInventories = async () => {
+    if (!session?.user?.id) return;
+
+    try {
+      const { data, error } = await import('../../../system/supabase/client').then(m => m.supabase)
+        .from('fridge_scan_sessions')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .eq('status', 'completed')
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (!error && data) {
+        setAvailableInventories(data);
+      }
+    } catch (error) {
+      logger.error('MEAL_PLAN_GENERATION_PAGE', 'Failed to load inventories', { error });
+    }
+  };
 
   useEffect(() => {
     if (!isActive) {
@@ -128,6 +148,9 @@ const MealPlanGenerationPage: React.FC = () => {
       await savePlans();
       success();
 
+      // Reload library to show new plans
+      await loadSavedPlans();
+
       showToast({
         type: 'success',
         title: 'Plans sauvegardés',
@@ -136,7 +159,7 @@ const MealPlanGenerationPage: React.FC = () => {
       });
 
       setTimeout(() => {
-        navigate('/fridge#plan');
+        navigate('/fridge?tab=plan');
       }, 500);
 
     } catch (error) {
@@ -173,7 +196,7 @@ const MealPlanGenerationPage: React.FC = () => {
     }
 
     resetPipeline();
-    navigate('/fridge#plan');
+    navigate('/fridge?tab=plan');
   };
 
   const currentStepData = steps.find(s => s.id === currentStep) || steps[0];
