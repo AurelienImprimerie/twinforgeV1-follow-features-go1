@@ -28,8 +28,7 @@ export async function getReproductiveHealthContext(
       .eq('user_id', userId)
       .maybeSingle();
 
-    // Ignore table not found errors (PGRST205) - tables may not exist yet
-    if (breastfeedingError && breastfeedingError.code !== 'PGRST205') {
+    if (breastfeedingError) {
       console.error('Error fetching breastfeeding data:', breastfeedingError);
     }
 
@@ -39,8 +38,7 @@ export async function getReproductiveHealthContext(
       .eq('user_id', userId)
       .maybeSingle();
 
-    // Ignore table not found errors (PGRST205) - tables may not exist yet
-    if (menopauseError && menopauseError.code !== 'PGRST205') {
+    if (menopauseError) {
       console.error('Error fetching menopause data:', menopauseError);
     }
 
@@ -64,8 +62,7 @@ export async function getReproductiveHealthContext(
       .limit(1)
       .maybeSingle();
 
-    // Ignore table not found errors (PGRST205) - tables may not exist yet
-    if (menstrualError && menstrualError.code !== 'PGRST205') {
+    if (menstrualError) {
       console.error('Error fetching menstrual data:', menstrualError);
     }
 
