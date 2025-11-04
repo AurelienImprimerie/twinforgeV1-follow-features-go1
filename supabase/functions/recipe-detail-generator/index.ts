@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { checkTokenBalance, consumeTokensAtomic, createInsufficientTokensResponse } from '../_shared/tokenMiddleware.ts'
+import { getReproductiveHealthContext } from '../_shared/utils/reproductiveHealthContext.ts'
 
 const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!
@@ -83,10 +84,10 @@ function calculateCost(inputTokens: number, outputTokens: number): number {
 }
 
 // Generate detailed recipe using GPT-5-mini
-async function generateDetailedRecipe(request: RecipeDetailRequest): Promise<DetailedRecipe> {
+async function generateDetailedRecipe(request: RecipeDetailRequest, userId: string, supabase: any): Promise<{ recipe: DetailedRecipe; tokenUsage: { input: number; output: number; costUsd: number } }> {
   // Ensure meal title is not undefined
-  const mealTitle = request.meal_title && request.meal_title !== 'undefined' 
-    ? request.meal_title 
+  const mealTitle = request.meal_title && request.meal_title !== 'undefined'
+    ? request.meal_title
     : 'Repas personnalisé'
 
   // Ensure mealTitle is always valid
@@ -99,7 +100,7 @@ async function generateDetailedRecipe(request: RecipeDetailRequest): Promise<Det
     snack: 'collation saine'
   }
 
-  const prompt = `Tu es un chef cuisinier expert spécialisé dans les recettes détaillées et personnalisées.
+  let prompt = `Tu es un chef cuisinier expert spécialisé dans les recettes détaillées et personnalisées.
 
 CONTEXTE:
 - Repas à détailler: "${mealTitle}"
@@ -117,6 +118,8 @@ CONTRAINTES:
 - Propose des instructions claires et précises
 - Inclus des conseils pratiques et des variations
 - Adapte la difficulté selon l'équipement disponible
+- SI des données de santé reproductive sont fournies (cycle menstruel, ménopause, allaitement), adapter la recette en conséquence
+- Privilégier les aliments bénéfiques selon la phase hormonale si applicable
 
 FORMAT DE RÉPONSE (JSON strict):
 {
@@ -158,6 +161,16 @@ FORMAT DE RÉPONSE (JSON strict):
 }
 
 IMPORTANT: Réponds UNIQUEMENT avec le JSON, sans texte additionnel.`
+
+  // Add reproductive health context if available
+  try {
+    const reproductiveContext = await getReproductiveHealthContext(userId, supabase);
+    if (reproductiveContext && reproductiveContext.formattedContext) {
+      prompt += `\n\n${reproductiveContext.formattedContext}`;
+    }
+  } catch (error) {
+    console.warn('RECIPE_DETAIL_GENERATOR', 'Failed to fetch reproductive health context', { error });
+  }
 
   const requestBody = {
     model: 'gpt-5-mini',
@@ -335,7 +348,7 @@ serve(async (req) => {
 
     // Generate detailed recipe with AI
     console.log('Generating detailed recipe with GPT-5-mini for:', request.meal_title)
-    const { recipe, tokenUsage } = await generateDetailedRecipe(request)
+    const { recipe, tokenUsage } = await generateDetailedRecipe(request, request.user_id, supabase)
 
     // Consume tokens after successful generation
     const requestId = crypto.randomUUID();
