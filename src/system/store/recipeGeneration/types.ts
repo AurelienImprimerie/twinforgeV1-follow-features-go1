@@ -14,10 +14,6 @@ export interface RecipeGenerationStepData {
 export interface RecipeGenerationConfig {
   selectedInventoryId: string | null;
   recipeCount: number;
-  cuisineTypes?: string[];
-  difficultyLevel?: 'easy' | 'medium' | 'advanced';
-  maxPrepTime?: number;
-  mealTypes?: string[];
 }
 
 export interface RecipeGenerationPipelineState {

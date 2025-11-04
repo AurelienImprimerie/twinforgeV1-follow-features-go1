@@ -212,9 +212,8 @@ export const createGenerationActions = (
               skeletonCount: actualSkeletonCount
             });
 
-            // Create only ONE placeholder initially to show UI faster
-            const placeholderRecipes: Recipe[] = [{
-              id: `placeholder-0-${Date.now()}`,
+            const placeholderRecipes: Recipe[] = Array.from({ length: actualSkeletonCount }, (_, index) => ({
+              id: `placeholder-${index}-${Date.now()}`,
               sessionId: state.currentSessionId!,
               title: '',
               description: '',
@@ -236,16 +235,9 @@ export const createGenerationActions = (
               createdAt: new Date().toISOString(),
               status: 'loading',
               isGeneratingImage: true
-            }];
+            }));
 
-            // Transition to validation immediately with first placeholder
-            set({
-              recipeCandidates: placeholderRecipes,
-              currentStep: 'validation',
-              simulatedOverallProgress: 70
-            });
-
-            logger.info('RECIPE_GENERATION_PIPELINE', 'Transitioned to validation with first placeholder');
+            set({ recipeCandidates: placeholderRecipes });
           } catch (error) {
             logger.error('RECIPE_GENERATION_PIPELINE', 'Error parsing skeleton event', {
               error: error instanceof Error ? error.message : 'Unknown error'
@@ -314,7 +306,6 @@ export const createGenerationActions = (
 
             let updatedCandidates;
             if (placeholderIndex !== -1) {
-              // Replace first loading placeholder with real recipe
               updatedCandidates = [...currentCandidates];
               updatedCandidates[placeholderIndex] = {
                 ...updatedCandidates[placeholderIndex],
@@ -322,34 +313,7 @@ export const createGenerationActions = (
                 status: 'ready',
                 isGeneratingImage: true
               };
-
-              // Add a new loading placeholder for next recipe
-              updatedCandidates.push({
-                id: `placeholder-${updatedCandidates.length}-${Date.now()}`,
-                sessionId: get().currentSessionId!,
-                title: '',
-                description: '',
-                ingredients: [],
-                instructions: [],
-                prepTimeMin: 0,
-                cookTimeMin: 0,
-                servings: 0,
-                dietaryTags: [],
-                nutritionalInfo: {
-                  calories: 0,
-                  protein: 0,
-                  carbs: 0,
-                  fat: 0
-                },
-                imageUrl: undefined,
-                imageSignature: undefined,
-                reasons: [],
-                createdAt: new Date().toISOString(),
-                status: 'loading',
-                isGeneratingImage: true
-              });
             } else {
-              // No placeholder found, just add the recipe
               updatedCandidates = [...currentCandidates, recipe];
             }
 
@@ -372,14 +336,8 @@ export const createGenerationActions = (
               costUsd: parsedData.cost_usd
             });
 
-            // Remove any remaining loading placeholders
-            const currentCandidates = get().recipeCandidates;
-            const filteredCandidates = currentCandidates.filter(
-              candidate => candidate.status !== 'loading' || candidate.title !== ''
-            );
-
             set({
-              recipeCandidates: filteredCandidates,
+              currentStep: 'validation',
               loadingState: 'idle',
               loadingMessage: '',
               simulatedOverallProgress: 100
