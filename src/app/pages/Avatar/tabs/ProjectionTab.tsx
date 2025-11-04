@@ -50,22 +50,38 @@ const ProjectionTab: React.FC = () => {
     if (showSaveModal) {
       console.log('🔍 Checking DOM for modal elements...');
       setTimeout(() => {
-        const backdrop = document.querySelector('[style*="z-index: 99999"]');
-        const modalCard = document.querySelector('[style*="z-index: 100001"]');
+        // Chercher par position fixed et backgroundColor
+        const allFixed = document.querySelectorAll('[style*="position: fixed"]');
+        console.log('🔍 All fixed position elements:', allFixed.length);
+
+        // Chercher spécifiquement notre modal
+        const backdrop = document.querySelector('[style*="z-index: 999999"]');
+        const modalCard = document.querySelector('.p-6.bg-gradient-to-br');
+
         console.log('🔍 Modal backdrop found:', !!backdrop);
         console.log('🔍 Modal card found:', !!modalCard);
+
         if (backdrop) {
           const styles = window.getComputedStyle(backdrop);
+          const rect = backdrop.getBoundingClientRect();
           console.log('🔍 Backdrop computed styles:', {
             position: styles.position,
             zIndex: styles.zIndex,
             display: styles.display,
             visibility: styles.visibility,
             opacity: styles.opacity,
-            pointerEvents: styles.pointerEvents
+            pointerEvents: styles.pointerEvents,
+            top: styles.top,
+            left: styles.left,
+            width: rect.width,
+            height: rect.height
           });
+        } else {
+          console.error('❌ BACKDROP NOT FOUND IN DOM!');
+          console.log('🔍 Body children count:', document.body.children.length);
+          console.log('🔍 Body last child:', document.body.lastElementChild?.tagName, document.body.lastElementChild?.className);
         }
-      }, 100);
+      }, 200);
     }
   }, [showSaveModal]);
 
@@ -393,28 +409,29 @@ const ProjectionTab: React.FC = () => {
       )}
 
       {/* Modal de sauvegarde */}
-      <AnimatePresence>
-        {showSaveModal && (() => {
-          console.log('🎨 Creating portal for modal to document.body');
-          return createPortal(
-            <ConditionalMotion
-              className="fixed inset-0 bg-black/80 backdrop-blur-lg flex items-center justify-center p-4"
-              style={{ zIndex: 99999 }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowSaveModal(false)}
-            >
-            <ConditionalMotion
+      {showSaveModal && (() => {
+        console.log('🎨 Creating portal for modal to document.body');
+        return createPortal(
+          <div
+            className="fixed inset-0 flex items-center justify-center p-4"
+            style={{
+              zIndex: 999999,
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              backdropFilter: 'blur(12px)'
+            }}
+            onClick={() => setShowSaveModal(false)}
+          >
+            <div
               className="relative w-full max-w-md"
-              style={{ zIndex: 100000 }}
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              style={{ zIndex: 1000000 }}
               onClick={(e: React.MouseEvent) => e.stopPropagation()}
             >
-              <GlassCard className="p-6 bg-gradient-to-br from-emerald-900/20 to-green-900/20 border-emerald-500/30" style={{ position: 'relative', zIndex: 100001 }}>
+              <GlassCard className="p-6 bg-gradient-to-br from-emerald-900/20 to-green-900/20 border-emerald-500/30">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-white font-semibold text-lg">Sauvegarder la projection</h3>
                   <button
@@ -471,12 +488,11 @@ const ProjectionTab: React.FC = () => {
                   </div>
                 </div>
               </GlassCard>
-            </ConditionalMotion>
-          </ConditionalMotion>,
+            </div>
+          </div>,
           document.body
         );
-        })()}
-      </AnimatePresence>
+      })()}
 
       {/* Liste des projections sauvegardées */}
       {projections.length > 0 && (
