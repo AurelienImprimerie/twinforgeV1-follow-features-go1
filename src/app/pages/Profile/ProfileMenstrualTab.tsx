@@ -49,6 +49,7 @@ const ProfileMenstrualTab: React.FC = () => {
   };
 
   const errors = isMenstruating ? menstrualForm.errors : menopauseForm.errors;
+  const activeFormData = isMenstruating ? menstrualForm.formData : menopauseForm.formData;
 
   if (isLoading) {
     return (
@@ -66,7 +67,7 @@ const ProfileMenstrualTab: React.FC = () => {
         onSave={handleSaveWithReset}
         isSaving={isSaving}
         isValid={Object.keys(errors).length === 0}
-        modifiedFieldsCount={Object.keys(formData).filter(key => formData[key as keyof typeof formData] !== '').length}
+        modifiedFieldsCount={Object.keys(activeFormData).filter(key => activeFormData[key as keyof typeof activeFormData] !== null && activeFormData[key as keyof typeof activeFormData] !== '').length}
       />
 
       {/* Enhanced Progress Header */}
