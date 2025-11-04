@@ -861,6 +861,14 @@ export function useAvatarViewerOrchestrator(
 
     // Skip if model is not loaded yet or if we're still initializing
     if (!modelLifecycle.model || !modelLifecycle.modelRef.current || !viewerState.isViewerReady) {
+      if (import.meta.env.DEV) {
+        logger.debug('ORCHESTRATOR', '⏭️ Skipping morph update - viewer not ready', {
+          hasModel: !!modelLifecycle.model,
+          hasModelRef: !!modelLifecycle.modelRef.current,
+          isViewerReady: viewerState.isViewerReady,
+          philosophy: 'morph_update_skip_not_ready'
+        });
+      }
       return;
     }
 

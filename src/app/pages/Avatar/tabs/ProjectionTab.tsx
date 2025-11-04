@@ -337,7 +337,7 @@ const ProjectionTab: React.FC = () => {
 
       {/* Bouton de sauvegarde */}
       {hasSignificantChange && (
-        <GlassCard className="p-4">
+        <GlassCard className="p-4" style={{ position: 'relative', zIndex: 10 }}>
           <button
             onClick={() => {
               click();
@@ -349,7 +349,10 @@ const ProjectionTab: React.FC = () => {
               background: 'linear-gradient(135deg, rgba(16,185,129,0.3), rgba(5,150,105,0.2))',
               border: '2px solid rgba(16,185,129,0.5)',
               boxShadow: '0 0 20px rgba(16,185,129,0.2)',
-              opacity: isCreating ? 0.5 : 1
+              opacity: isCreating ? 0.5 : 1,
+              position: 'relative',
+              zIndex: 11,
+              cursor: isCreating ? 'not-allowed' : 'pointer'
             }}
           >
             <div className="flex items-center justify-center gap-2">

@@ -25,6 +25,7 @@ export function useModelLifecycle({
 }: UseModelLifecycleProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [modelState, setModelState] = useState<THREE.Group | null>(null);
   
   const modelRef = useRef<THREE.Group | null>(null);
   const skeletonHelperRef = useRef<THREE.SkeletonHelper | null>(null);
@@ -87,6 +88,7 @@ export function useModelLifecycle({
 
       // Store references
       modelRef.current = result.modelInstance;
+      setModelState(result.modelInstance);
       skeletonHelperRef.current = result.skeletonHelper || null;
       lastLoadedScanIdRef.current = serverScanId || null;
       lastLoadedGenderRef.current = finalGender;
@@ -152,6 +154,7 @@ export function useModelLifecycle({
     }
 
     modelRef.current = null;
+    setModelState(null);
     skeletonHelperRef.current = null;
     modelLoadedRef.current = false;
     loadInFlightRef.current = false;
@@ -169,6 +172,7 @@ export function useModelLifecycle({
   return {
     isLoading,
     error,
+    model: modelState,
     modelRef,
     skeletonHelperRef,
     modelLoadedRef,
