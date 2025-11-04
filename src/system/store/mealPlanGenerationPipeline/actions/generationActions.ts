@@ -42,6 +42,11 @@ export const createGenerationActions = (
       timestamp: new Date().toISOString()
     });
 
+    logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Transitioning to generating step', {
+      sessionId: currentSessionId,
+      timestamp: new Date().toISOString()
+    });
+
     set({
       currentStep: 'generating',
       loadingState: 'generating',
@@ -70,6 +75,12 @@ export const createGenerationActions = (
           aiExplanation: 'Plan en cours de génération...'
         });
       }
+
+      logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Starting SSE streaming phase', {
+        planCount: initialPlans.length,
+        sessionId: currentSessionId,
+        timestamp: new Date().toISOString()
+      });
 
       set({
         mealPlanCandidates: initialPlans,
@@ -135,6 +146,15 @@ export const createGenerationActions = (
                 if (data.type === 'day') {
                   receivedDays.push(data.data);
 
+                  logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'SSE day event received', {
+                    weekNumber: plan.weekNumber,
+                    dayIndex: receivedDays.length,
+                    date: data.data.date,
+                    hasMeals: !!data.data.breakfast,
+                    sessionId: currentSessionId,
+                    timestamp: new Date().toISOString()
+                  });
+
                   // Update plan with received day
                   set(state => ({
                     mealPlanCandidates: state.mealPlanCandidates.map((p, idx) =>
@@ -196,6 +216,14 @@ export const createGenerationActions = (
                 } else if (data.type === 'complete') {
                   weeklyData = data.data;
 
+                  logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'SSE complete event received', {
+                    weekNumber: plan.weekNumber,
+                    totalDays: receivedDays.length,
+                    hasWeeklySummary: !!data.data.weekly_summary,
+                    sessionId: currentSessionId,
+                    timestamp: new Date().toISOString()
+                  });
+
                   // Update plan with weekly summary
                   set(state => ({
                     mealPlanCandidates: state.mealPlanCandidates.map((p, idx) =>
@@ -218,14 +246,24 @@ export const createGenerationActions = (
                 }
               } catch (parseError) {
                 logger.error('MEAL_PLAN_GENERATION_PIPELINE', 'Failed to parse SSE data', {
-                  error: parseError,
-                  line
+                  error: parseError instanceof Error ? parseError.message : String(parseError),
+                  line,
+                  linePreview: line.substring(0, 200),
+                  sessionId: currentSessionId,
+                  timestamp: new Date().toISOString()
                 });
               }
             }
           }
         }
       }
+
+      logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Transitioning to validation step', {
+        planCount: config.weekCount,
+        totalDaysReceived: initialPlans.reduce((sum, p) => sum + (p.days?.length || 0), 0),
+        sessionId: currentSessionId,
+        timestamp: new Date().toISOString()
+      });
 
       set({
         loadingState: 'idle',
@@ -295,6 +333,12 @@ export const createGenerationActions = (
         sensory_preferences: profileData?.sensory_preferences
       };
 
+      logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Transitioning to recipe streaming phase', {
+        totalMeals,
+        sessionId: currentSessionId,
+        timestamp: new Date().toISOString()
+      });
+
       set({
         loadingState: 'streaming_recipes',
         currentStep: 'recipe_details_validation',
@@ -323,7 +367,10 @@ export const createGenerationActions = (
               planId: plan.id,
               dayIndex: day.dayIndex,
               mealName: meal.name,
-              mealType: meal.type
+              mealType: meal.type,
+              progress: `${processedMeals + 1}/${totalMeals}`,
+              sessionId: currentSessionId,
+              timestamp: new Date().toISOString()
             });
 
             try {
@@ -399,10 +446,14 @@ export const createGenerationActions = (
                   loadingMessage: `Génération des recettes... ${processedMeals}/${totalMeals}`
                 });
 
-                logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Recipe generated via streaming', {
+                logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Recipe generated and displayed', {
                   mealName: meal.name,
+                  recipeTitle: detailedRecipe.title,
                   progress: `${processedMeals}/${totalMeals}`,
-                  cached: result.cached
+                  percentComplete: Math.round((processedMeals / totalMeals) * 100),
+                  cached: result.cached,
+                  sessionId: currentSessionId,
+                  timestamp: new Date().toISOString()
                 });
               } else {
                 logger.error('MEAL_PLAN_GENERATION_PIPELINE', 'Recipe generation failed for meal', {
@@ -466,16 +517,27 @@ export const createGenerationActions = (
 
     set({ loadingState: 'saving' });
 
-    logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Saving meal plans', {
+    logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Starting meal plans save operation', {
       planCount: mealPlanCandidates.length,
       sessionId: currentSessionId,
+      sessionIdType: typeof currentSessionId,
+      sessionIdLength: currentSessionId?.length,
       userId,
+      withRecipes,
       timestamp: new Date().toISOString()
     });
 
     try {
       // Save each meal plan to Supabase
       for (const plan of mealPlanCandidates) {
+        logger.debug('MEAL_PLAN_GENERATION_PIPELINE', 'Inserting meal plan to database', {
+          planWeekNumber: plan.weekNumber,
+          sessionId: currentSessionId,
+          inventorySessionId: config.selectedInventoryId,
+          daysCount: plan.days.length,
+          timestamp: new Date().toISOString()
+        });
+
         const { data: mealPlanData, error: planError } = await supabase
           .from('meal_plans')
           .insert({
@@ -496,7 +558,18 @@ export const createGenerationActions = (
           .select()
           .single();
 
-        if (planError) throw planError;
+        if (planError) {
+          logger.error('MEAL_PLAN_GENERATION_PIPELINE', 'Database insert error', {
+            error: planError.message,
+            code: planError.code,
+            details: planError.details,
+            hint: planError.hint,
+            planWeekNumber: plan.weekNumber,
+            sessionId: currentSessionId,
+            timestamp: new Date().toISOString()
+          });
+          throw planError;
+        }
 
         logger.debug('MEAL_PLAN_GENERATION_PIPELINE', 'Meal plan saved', {
           planId: mealPlanData.id,
@@ -528,10 +601,15 @@ export const createGenerationActions = (
     } catch (error) {
       logger.error('MEAL_PLAN_GENERATION_PIPELINE', 'Failed to save meal plans', {
         error: error instanceof Error ? error.message : 'Unknown error',
+        errorStack: error instanceof Error ? error.stack : undefined,
+        errorDetails: error,
         sessionId: currentSessionId,
+        sessionIdType: typeof currentSessionId,
+        planCount: mealPlanCandidates.length,
         timestamp: new Date().toISOString()
       });
 
+      set({ loadingState: 'idle' });
       throw error;
     }
   },

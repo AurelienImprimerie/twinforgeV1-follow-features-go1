@@ -1,9 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { usePerformanceMode } from '../../../../system/context/PerformanceModeContext';
+import { useMealPlanGenerationPipeline } from '../../../../system/store/mealPlanGenerationPipeline';
 import GlassCard from '../../../../ui/cards/GlassCard';
 import SpatialIcon from '../../../../ui/icons/SpatialIcon';
 import { ICONS } from '../../../../ui/icons/registry';
+import SkeletonBase from '../../../../ui/components/skeletons/SkeletonBase';
 
 interface GeneratingStageProps {
   onExit: () => void;
@@ -11,7 +13,15 @@ interface GeneratingStageProps {
 
 const GeneratingStage: React.FC<GeneratingStageProps> = ({ onExit }) => {
   const { isPerformanceMode } = usePerformanceMode();
+  const { mealPlanCandidates, loadingState, config } = useMealPlanGenerationPipeline();
   const MotionDiv = isPerformanceMode ? 'div' : motion.div;
+
+  // Calculate progress based on received days
+  const currentPlan = mealPlanCandidates[0];
+  const totalDays = 7;
+  const receivedDays = currentPlan?.days?.length || 0;
+  const progressPercentage = Math.round((receivedDays / totalDays) * 100);
+  const isStreaming = loadingState === 'streaming' && receivedDays > 0;
 
   return (
     <div className="space-y-6">
@@ -127,52 +137,195 @@ const GeneratingStage: React.FC<GeneratingStageProps> = ({ onExit }) => {
               </p>
             </div>
 
-            {/* Loading Steps */}
-            <div className="space-y-3 max-w-md mx-auto">
-              {[
-                'Analyse de votre inventaire',
-                'Optimisation nutritionnelle',
-                'Création des plans hebdomadaires',
-                'Génération de la structure des repas'
-              ].map((step, index) => (
-                <MotionDiv
-                  key={step}
-                  className="flex items-center gap-3 p-3 rounded-lg"
-                  style={{
-                    background: 'rgba(139, 92, 246, 0.1)',
-                    border: '1px solid rgba(139, 92, 246, 0.2)'
-                  }}
-                  {...(!isPerformanceMode && {
-                    initial: { opacity: 0, x: -20 },
-                    animate: { opacity: 1, x: 0 },
-                    transition: { duration: 0.3, delay: index * 0.15 }
-                  })}
-                >
-                  <div
-                    className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+            {/* Progress Bar */}
+            {isStreaming && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-white/80">Génération en cours...</span>
+                  <span className="text-violet-400 font-semibold">{receivedDays}/{totalDays} jours</span>
+                </div>
+                <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-gradient-to-r from-violet-500 to-purple-500"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progressPercentage}%` }}
+                    transition={{ duration: 0.5, ease: 'easeOut' }}
                     style={{
-                      background: 'linear-gradient(135deg, #8B5CF6, #A855F7)',
-                      boxShadow: '0 0 12px rgba(139, 92, 246, 0.5)'
+                      boxShadow: '0 0 20px rgba(139, 92, 246, 0.6)'
                     }}
+                  />
+                </div>
+                <div className="text-center">
+                  <span className="text-violet-300 text-2xl font-bold">{progressPercentage}%</span>
+                </div>
+              </div>
+            )}
+
+            {/* Loading Steps - Only show when not streaming */}
+            {!isStreaming && (
+              <div className="space-y-3 max-w-md mx-auto">
+                {[
+                  'Analyse de votre inventaire',
+                  'Optimisation nutritionnelle',
+                  'Création des plans hebdomadaires',
+                  'Génération de la structure des repas'
+                ].map((step, index) => (
+                  <MotionDiv
+                    key={step}
+                    className="flex items-center gap-3 p-3 rounded-lg"
+                    style={{
+                      background: 'rgba(139, 92, 246, 0.1)',
+                      border: '1px solid rgba(139, 92, 246, 0.2)'
+                    }}
+                    {...(!isPerformanceMode && {
+                      initial: { opacity: 0, x: -20 },
+                      animate: { opacity: 1, x: 0 },
+                      transition: { duration: 0.3, delay: index * 0.15 }
+                    })}
                   >
-                    <motion.div
-                      className="w-2 h-2 bg-white rounded-full"
-                      animate={{ scale: [1, 1.3, 1], opacity: [1, 0.7, 1] }}
-                      transition={{
-                        duration: 1.5,
-                        delay: index * 0.3,
-                        repeat: Infinity,
-                        ease: 'easeInOut'
+                    <div
+                      className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+                      style={{
+                        background: 'linear-gradient(135deg, #8B5CF6, #A855F7)',
+                        boxShadow: '0 0 12px rgba(139, 92, 246, 0.5)'
                       }}
-                    />
-                  </div>
-                  <span className="text-white/90 text-sm font-medium">{step}</span>
-                </MotionDiv>
-              ))}
-            </div>
+                    >
+                      <motion.div
+                        className="w-2 h-2 bg-white rounded-full"
+                        animate={{ scale: [1, 1.3, 1], opacity: [1, 0.7, 1] }}
+                        transition={{
+                          duration: 1.5,
+                          delay: index * 0.3,
+                          repeat: Infinity,
+                          ease: 'easeInOut'
+                        }}
+                      />
+                    </div>
+                    <span className="text-white/90 text-sm font-medium">{step}</span>
+                  </MotionDiv>
+                ))}
+              </div>
+            )}
           </div>
         </GlassCard>
       </MotionDiv>
+
+      {/* Days Streaming Display */}
+      {isStreaming && currentPlan && (
+        <MotionDiv
+          {...(!isPerformanceMode && {
+            initial: { opacity: 0, y: 20 },
+            animate: { opacity: 1, y: 0 },
+            transition: { duration: 0.5 }
+          })}
+        >
+          <GlassCard
+            className="p-6"
+            style={{
+              background: 'rgba(11, 14, 23, 0.8)',
+              borderColor: 'rgba(139, 92, 246, 0.25)',
+              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)'
+            }}
+          >
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 mb-5">
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center"
+                  style={{
+                    background: 'linear-gradient(135deg, #8B5CF6, #A855F7)',
+                    boxShadow: '0 0 16px rgba(139, 92, 246, 0.4)'
+                  }}
+                >
+                  <SpatialIcon
+                    Icon={ICONS.Calendar}
+                    size={24}
+                    className="text-white"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-xl">{currentPlan.title}</h3>
+                  <p className="text-white/60 text-sm">
+                    {receivedDays} jour{receivedDays > 1 ? 's' : ''} généré{receivedDays > 1 ? 's' : ''}
+                  </p>
+                </div>
+              </div>
+
+              {/* Days Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                {/* Show generated days */}
+                {currentPlan.days.map((day, index) => (
+                  <MotionDiv
+                    key={`day-${index}`}
+                    {...(!isPerformanceMode && {
+                      initial: { opacity: 0, scale: 0.95 },
+                      animate: { opacity: 1, scale: 1 },
+                      transition: { duration: 0.3, delay: index * 0.1 }
+                    })}
+                    className="p-4 rounded-lg"
+                    style={{
+                      background: 'rgba(139, 92, 246, 0.08)',
+                      border: '1px solid rgba(139, 92, 246, 0.2)'
+                    }}
+                  >
+                    <div className="font-semibold text-white mb-3 text-sm">
+                      {new Date(day.date).toLocaleDateString('fr-FR', {
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'short'
+                      })}
+                    </div>
+                    <div className="space-y-2">
+                      {day.meals?.map((meal, mealIndex) => {
+                        const mealIcons = {
+                          breakfast: ICONS.Coffee,
+                          lunch: ICONS.UtensilsCrossed,
+                          dinner: ICONS.UtensilsCrossed,
+                          snack: ICONS.Cookie
+                        };
+                        return (
+                          <div
+                            key={`meal-${mealIndex}`}
+                            className="flex items-start gap-2 p-2 rounded"
+                            style={{ background: 'rgba(139, 92, 246, 0.08)' }}
+                          >
+                            <SpatialIcon
+                              Icon={mealIcons[meal.type as keyof typeof mealIcons] || ICONS.UtensilsCrossed}
+                              size={14}
+                              className="text-violet-400 mt-0.5 flex-shrink-0"
+                            />
+                            <p className="text-white/90 text-sm font-medium leading-tight">
+                              {meal.name}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </MotionDiv>
+                ))}
+
+                {/* Show skeleton placeholders for remaining days */}
+                {Array.from({ length: totalDays - receivedDays }).map((_, index) => (
+                  <div
+                    key={`skeleton-${index}`}
+                    className="p-4 rounded-lg"
+                    style={{
+                      background: 'rgba(139, 92, 246, 0.05)',
+                      border: '1px solid rgba(139, 92, 246, 0.1)'
+                    }}
+                  >
+                    <SkeletonBase width="60%" height="16px" className="mb-3" />
+                    <div className="space-y-2">
+                      <SkeletonBase width="100%" height="32px" />
+                      <SkeletonBase width="100%" height="32px" />
+                      <SkeletonBase width="100%" height="32px" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </GlassCard>
+        </MotionDiv>
+      )}
 
       {/* Exit Button */}
       <MotionDiv

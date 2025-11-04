@@ -1,9 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { usePerformanceMode } from '../../../../system/context/PerformanceModeContext';
+import { useMealPlanGenerationPipeline } from '../../../../system/store/mealPlanGenerationPipeline';
 import GlassCard from '../../../../ui/cards/GlassCard';
 import SpatialIcon from '../../../../ui/icons/SpatialIcon';
 import { ICONS } from '../../../../ui/icons/registry';
+import SkeletonBase from '../../../../ui/components/skeletons/SkeletonBase';
 
 interface RecipeDetailsGeneratingStageProps {
   onExit: () => void;
@@ -11,7 +13,27 @@ interface RecipeDetailsGeneratingStageProps {
 
 const RecipeDetailsGeneratingStage: React.FC<RecipeDetailsGeneratingStageProps> = ({ onExit }) => {
   const { isPerformanceMode } = usePerformanceMode();
+  const { mealPlanCandidates, loadingState, loadingMessage } = useMealPlanGenerationPipeline();
   const MotionDiv = isPerformanceMode ? 'div' : motion.div;
+
+  // Calculate progress based on generated recipes
+  const currentPlan = mealPlanCandidates[0];
+  let totalMeals = 0;
+  let generatedMeals = 0;
+
+  if (currentPlan) {
+    currentPlan.days.forEach(day => {
+      day.meals?.forEach(meal => {
+        totalMeals++;
+        if (meal.recipeGenerated && meal.status === 'ready') {
+          generatedMeals++;
+        }
+      });
+    });
+  }
+
+  const progressPercentage = totalMeals > 0 ? Math.round((generatedMeals / totalMeals) * 100) : 0;
+  const isStreaming = loadingState === 'streaming_recipes' && generatedMeals > 0;
 
   return (
     <div className="space-y-6">
@@ -123,56 +145,191 @@ const RecipeDetailsGeneratingStage: React.FC<RecipeDetailsGeneratingStageProps> 
                 Génération des Recettes Détaillées
               </h2>
               <p className="text-white/80 text-lg max-w-2xl mx-auto leading-relaxed">
-                La Forge Nutritionnelle crée des recettes complètes avec instructions détaillées, temps de préparation et informations nutritionnelles...
+                {loadingMessage || 'La Forge Nutritionnelle crée des recettes complètes avec instructions détaillées, temps de préparation et informations nutritionnelles...'}
               </p>
             </div>
 
-            {/* Loading Steps */}
-            <div className="space-y-3 max-w-md mx-auto">
-              {[
-                'Analyse des repas planifiés',
-                'Création des recettes détaillées',
-                'Optimisation des instructions',
-                'Calcul des valeurs nutritionnelles'
-              ].map((step, index) => (
-                <MotionDiv
-                  key={step}
-                  className="flex items-center gap-3 p-3 rounded-lg"
-                  style={{
-                    background: 'rgba(168, 85, 247, 0.1)',
-                    border: '1px solid rgba(168, 85, 247, 0.2)'
-                  }}
-                  {...(!isPerformanceMode && {
-                    initial: { opacity: 0, x: -20 },
-                    animate: { opacity: 1, x: 0 },
-                    transition: { duration: 0.3, delay: index * 0.15 }
-                  })}
-                >
-                  <div
-                    className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+            {/* Progress Bar */}
+            {isStreaming && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-white/80">Génération des recettes en cours...</span>
+                  <span className="text-purple-400 font-semibold">{generatedMeals}/{totalMeals} recettes</span>
+                </div>
+                <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-gradient-to-r from-purple-500 to-violet-600"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progressPercentage}%` }}
+                    transition={{ duration: 0.5, ease: 'easeOut' }}
                     style={{
-                      background: 'linear-gradient(135deg, #A855F7, #7C3AED)',
-                      boxShadow: '0 0 12px rgba(168, 85, 247, 0.5)'
+                      boxShadow: '0 0 20px rgba(168, 85, 247, 0.6)'
                     }}
+                  />
+                </div>
+                <div className="text-center">
+                  <span className="text-purple-300 text-2xl font-bold">{progressPercentage}%</span>
+                </div>
+              </div>
+            )}
+
+            {/* Loading Steps - Only show when not streaming */}
+            {!isStreaming && (
+              <div className="space-y-3 max-w-md mx-auto">
+                {[
+                  'Analyse des repas planifiés',
+                  'Création des recettes détaillées',
+                  'Optimisation des instructions',
+                  'Calcul des valeurs nutritionnelles'
+                ].map((step, index) => (
+                  <MotionDiv
+                    key={step}
+                    className="flex items-center gap-3 p-3 rounded-lg"
+                    style={{
+                      background: 'rgba(168, 85, 247, 0.1)',
+                      border: '1px solid rgba(168, 85, 247, 0.2)'
+                    }}
+                    {...(!isPerformanceMode && {
+                      initial: { opacity: 0, x: -20 },
+                      animate: { opacity: 1, x: 0 },
+                      transition: { duration: 0.3, delay: index * 0.15 }
+                    })}
                   >
-                    <motion.div
-                      className="w-2 h-2 bg-white rounded-full"
-                      animate={{ scale: [1, 1.3, 1], opacity: [1, 0.7, 1] }}
-                      transition={{
-                        duration: 1.5,
-                        delay: index * 0.3,
-                        repeat: Infinity,
-                        ease: 'easeInOut'
+                    <div
+                      className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+                      style={{
+                        background: 'linear-gradient(135deg, #A855F7, #7C3AED)',
+                        boxShadow: '0 0 12px rgba(168, 85, 247, 0.5)'
                       }}
-                    />
-                  </div>
-                  <span className="text-white/90 text-sm font-medium">{step}</span>
-                </MotionDiv>
-              ))}
-            </div>
+                    >
+                      <motion.div
+                        className="w-2 h-2 bg-white rounded-full"
+                        animate={{ scale: [1, 1.3, 1], opacity: [1, 0.7, 1] }}
+                        transition={{
+                          duration: 1.5,
+                          delay: index * 0.3,
+                          repeat: Infinity,
+                          ease: 'easeInOut'
+                        }}
+                      />
+                    </div>
+                    <span className="text-white/90 text-sm font-medium">{step}</span>
+                  </MotionDiv>
+                ))}
+              </div>
+            )}
           </div>
         </GlassCard>
       </MotionDiv>
+
+      {/* Recipes Streaming Display */}
+      {isStreaming && currentPlan && (
+        <MotionDiv
+          {...(!isPerformanceMode && {
+            initial: { opacity: 0, y: 20 },
+            animate: { opacity: 1, y: 0 },
+            transition: { duration: 0.5 }
+          })}
+        >
+          <GlassCard
+            className="p-6"
+            style={{
+              background: 'rgba(11, 14, 23, 0.8)',
+              borderColor: 'rgba(168, 85, 247, 0.25)',
+              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)'
+            }}
+          >
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 mb-5">
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center"
+                  style={{
+                    background: 'linear-gradient(135deg, #A855F7, #7C3AED)',
+                    boxShadow: '0 0 16px rgba(168, 85, 247, 0.4)'
+                  }}
+                >
+                  <SpatialIcon
+                    Icon={ICONS.ChefHat}
+                    size={24}
+                    className="text-white"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-xl">Recettes Générées</h3>
+                  <p className="text-white/60 text-sm">
+                    {generatedMeals}/{totalMeals} recettes complètes
+                  </p>
+                </div>
+              </div>
+
+              {/* Recipes List */}
+              <div className="space-y-2">
+                {currentPlan.days.map((day, dayIndex) => (
+                  <div key={`day-${dayIndex}`}>
+                    {day.meals?.map((meal, mealIndex) => {
+                      const isGenerated = meal.recipeGenerated && meal.status === 'ready';
+
+                      return (
+                        <MotionDiv
+                          key={`meal-${dayIndex}-${mealIndex}`}
+                          {...(!isPerformanceMode && isGenerated && {
+                            initial: { opacity: 0, x: -20 },
+                            animate: { opacity: 1, x: 0 },
+                            transition: { duration: 0.3 }
+                          })}
+                          className="flex items-center gap-3 p-3 rounded-lg mb-2"
+                          style={{
+                            background: isGenerated
+                              ? 'rgba(168, 85, 247, 0.1)'
+                              : 'rgba(168, 85, 247, 0.05)',
+                            border: `1px solid ${isGenerated
+                              ? 'rgba(168, 85, 247, 0.3)'
+                              : 'rgba(168, 85, 247, 0.1)'}`
+                          }}
+                        >
+                          {isGenerated ? (
+                            <>
+                              <div
+                                className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                                style={{
+                                  background: 'linear-gradient(135deg, #A855F7, #7C3AED)',
+                                  boxShadow: '0 0 12px rgba(168, 85, 247, 0.4)'
+                                }}
+                              >
+                                <SpatialIcon
+                                  Icon={ICONS.Check}
+                                  size={16}
+                                  className="text-white"
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-white font-medium text-sm">
+                                  {meal.detailedRecipe?.title || meal.name}
+                                </p>
+                                <p className="text-white/60 text-xs">
+                                  Jour {dayIndex + 1} - {meal.type}
+                                </p>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <SkeletonBase width="32px" height="32px" borderRadius="50%" />
+                              <div className="flex-1">
+                                <SkeletonBase width="60%" height="14px" className="mb-1" />
+                                <SkeletonBase width="40%" height="12px" />
+                              </div>
+                            </>
+                          )}
+                        </MotionDiv>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </GlassCard>
+        </MotionDiv>
+      )}
 
       {/* Exit Button */}
       <MotionDiv

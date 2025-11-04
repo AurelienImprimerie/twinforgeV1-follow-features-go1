@@ -74,7 +74,7 @@ export interface MealPlanGenerationPipelineState {
   mealPlanCandidates: MealPlan[];
 
   // Loading states
-  loadingState: 'idle' | 'generating' | 'streaming' | 'generating_recipes' | 'streaming_recipes';
+  loadingState: 'idle' | 'generating' | 'streaming' | 'generating_recipes' | 'streaming_recipes' | 'saving';
   loadingMessage: string;
 
   // Steps configuration
