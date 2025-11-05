@@ -293,10 +293,17 @@ export const createSessionActions = (
         detail: { sessionId: state.currentSessionId }
       }));
 
+      // Mark session as completed - this will prevent re-hydration on next mount
       set({
         loadingState: 'idle',
         loadingMessage: 'Session sauvegardée avec succès',
-        simulatedOverallProgress: 100
+        simulatedOverallProgress: 100,
+        isActive: false  // Deactivate pipeline after successful save
+      });
+
+      logger.info('FRIDGE_SCAN_PIPELINE', 'Pipeline deactivated after successful save', {
+        sessionId: state.currentSessionId,
+        timestamp: new Date().toISOString()
       });
 
     } catch (error) {

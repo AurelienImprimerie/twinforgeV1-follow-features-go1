@@ -211,22 +211,47 @@ export const useFridgeScanPipeline = create<FridgeScanPipelineState>()(
         });
 
         // Validate session ID format
-        const isValidSessionId = persistedData?.currentSessionId && 
+        const isValidSessionId = persistedData?.currentSessionId &&
           /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(persistedData.currentSessionId);
-        
-        if (isValidSessionId) {
+
+        // Check if session is marked as completed (isActive: false from validation)
+        const isSessionCompleted = persistedData?.isActive === false &&
+                                   persistedData?.simulatedOverallProgress === 100;
+
+        if (isSessionCompleted) {
+          // Session was completed and deactivated - start fresh
+          logger.info('FRIDGE_SCAN_PIPELINE_STORE', 'Detected completed session, resetting to fresh state', {
+            completedSessionId: persistedData?.currentSessionId,
+            wasAtStep: persistedData?.currentStep,
+            progress: persistedData?.simulatedOverallProgress,
+            timestamp: new Date().toISOString()
+          });
+
+          mergedState.currentSessionId = null;
+          mergedState.isActive = false;
+          mergedState.currentStep = 'photo';
+          mergedState.simulatedOverallProgress = 0;
+          mergedState.rawDetectedItems = [];
+          mergedState.userEditedInventory = [];
+          mergedState.suggestedComplementaryItems = [];
+          mergedState.recipeCandidates = [];
+          mergedState.selectedRecipes = [];
+          mergedState.capturedPhotos = [];
+        } else if (isValidSessionId) {
           mergedState.currentSessionId = persistedData.currentSessionId;
-          
+
           // Determine if pipeline should be active based on persisted data
+          // Only reactivate if explicitly marked as active OR has persisted data
           const hasPersistedData = (persistedData?.rawDetectedItems?.length > 0) ||
                                  (persistedData?.userEditedInventory?.length > 0);
-          
-          mergedState.isActive = hasPersistedData;
-          
+
+          // Respect the persisted isActive state, but ensure it has data to back it up
+          mergedState.isActive = persistedData?.isActive === true && hasPersistedData;
+
           // Determine the correct step based on available data
           if (persistedData?.userEditedInventory?.length > 0) {
             mergedState.currentStep = 'validation';
-          } else if (persistedData?.suggestedComplementaryItems?.length > 0 && 
+          } else if (persistedData?.suggestedComplementaryItems?.length > 0 &&
                      (persistedData?.rawDetectedItems?.length || 0) < MINIMUM_ITEMS_THRESHOLD) {
             mergedState.currentStep = 'complement';
           } else if (persistedData?.rawDetectedItems?.length > 0) {
@@ -234,13 +259,14 @@ export const useFridgeScanPipeline = create<FridgeScanPipelineState>()(
           } else {
             mergedState.currentStep = 'photo';
           }
-          
+
           logger.debug('FRIDGE_SCAN_PIPELINE_STORE', 'Session validation result', {
             sessionId: persistedData.currentSessionId,
             hasPersistedData,
+            persistedIsActive: persistedData?.isActive,
             rawDetectedItemsCount: persistedData?.rawDetectedItems?.length || 0,
             inventoryCount: persistedData?.userEditedInventory?.length || 0,
-            setActive: hasPersistedData,
+            setActive: mergedState.isActive,
             determinedStep: mergedState.currentStep,
           });
         } else {

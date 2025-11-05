@@ -33,7 +33,7 @@ const ReviewEditActionsCard: React.FC<ReviewEditActionsCardProps> = ({
   const { click } = useFeedback();
   const { showToast } = useToast();
   const navigate = useNavigate();
-  const { currentSessionId } = useFridgeScanPipeline();
+  const { currentSessionId, resetPipeline } = useFridgeScanPipeline();
   const { selectInventory, loadAvailableInventories } = useMealPlanStore();
   const { isPerformanceMode } = usePerformanceMode();
 
@@ -54,6 +54,7 @@ const ReviewEditActionsCard: React.FC<ReviewEditActionsCardProps> = ({
     try {
       logger.info('REVIEW_EDIT_ACTIONS', 'Starting meal plan generation', {
         inventoryCount: userEditedInventory.length,
+        sessionId: currentSessionId,
         timestamp: new Date().toISOString()
       });
 
@@ -61,6 +62,13 @@ const ReviewEditActionsCard: React.FC<ReviewEditActionsCardProps> = ({
       if (currentSessionId) {
         selectInventory(currentSessionId);
       }
+
+      // Reset the pipeline before navigation to prevent re-hydration loop
+      logger.info('REVIEW_EDIT_ACTIONS', 'Resetting pipeline before navigation to plan tab', {
+        sessionId: currentSessionId,
+        timestamp: new Date().toISOString()
+      });
+      resetPipeline();
 
       // Navigate to plan tab
       navigate('/fridge#plan');
@@ -86,6 +94,7 @@ const ReviewEditActionsCard: React.FC<ReviewEditActionsCardProps> = ({
     try {
       logger.info('REVIEW_EDIT_ACTIONS', 'Starting recipe generation', {
         inventoryCount: userEditedInventory.length,
+        sessionId: currentSessionId,
         timestamp: new Date().toISOString()
       });
 
@@ -93,6 +102,13 @@ const ReviewEditActionsCard: React.FC<ReviewEditActionsCardProps> = ({
       if (currentSessionId) {
         selectInventory(currentSessionId);
       }
+
+      // Reset the pipeline before navigation to prevent re-hydration loop
+      logger.info('REVIEW_EDIT_ACTIONS', 'Resetting pipeline before navigation to recipes tab', {
+        sessionId: currentSessionId,
+        timestamp: new Date().toISOString()
+      });
+      resetPipeline();
 
       // Navigate to recipes tab
       navigate('/fridge#recipes');
@@ -606,6 +622,14 @@ const ReviewEditActionsCard: React.FC<ReviewEditActionsCardProps> = ({
                 <button
                   onClick={() => {
                     click();
+
+                    // Reset pipeline before navigation to home
+                    logger.info('REVIEW_EDIT_ACTIONS', 'Resetting pipeline before navigation to home', {
+                      sessionId: currentSessionId,
+                      timestamp: new Date().toISOString()
+                    });
+                    resetPipeline();
+
                     navigate('/');
                   }}
                   className="px-8 py-4 rounded-2xl font-semibold text-base transition-all duration-300"
