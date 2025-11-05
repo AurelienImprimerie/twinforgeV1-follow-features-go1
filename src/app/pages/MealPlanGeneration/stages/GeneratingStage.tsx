@@ -26,11 +26,11 @@ const GeneratingStage: React.FC<GeneratingStageProps> = ({ onExit }) => {
 
   // Calculate progress based on received days from store
   const currentPlan = mealPlanCandidates[0];
-  const totalDays = totalDaysToGenerate || 7;
-  const receivedDays = currentPlan?.days?.length || 0;
-  const progressPercentage = totalDaysToGenerate > 0
-    ? Math.round((receivedDaysCount / totalDaysToGenerate) * 100)
-    : Math.round((receivedDays / totalDays) * 100);
+  const totalDays = totalDaysToGenerate || config.weekCount * 7;
+  const receivedDays = receivedDaysCount || currentPlan?.days?.length || 0;
+  const progressPercentage = totalDays > 0
+    ? Math.round((receivedDays / totalDays) * 100)
+    : 0;
   const isStreaming = loadingState === 'streaming' && receivedDays > 0;
 
   // Force re-render when lastStateUpdate changes
@@ -194,7 +194,7 @@ const GeneratingStage: React.FC<GeneratingStageProps> = ({ onExit }) => {
                   {receivedDays > 0 ? 'Génération en cours...' : 'Initialisation...'}
                 </span>
                 <span className="text-violet-400 font-semibold">
-                  {receivedDaysCount || receivedDays}/{totalDays} jours
+                  {receivedDays}/{totalDays} jours
                 </span>
               </div>
               <div className="relative w-full h-4 bg-white/5 rounded-full overflow-hidden">
