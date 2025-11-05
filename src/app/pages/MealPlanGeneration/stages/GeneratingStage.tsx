@@ -27,10 +27,9 @@ const GeneratingStage: React.FC<GeneratingStageProps> = ({ onExit }) => {
   // Calculate progress based on received days from store
   const currentPlan = mealPlanCandidates[0];
   const totalDays = totalDaysToGenerate || 7;
-  const receivedDays = currentPlan?.days?.length || 0;
-  const progressPercentage = totalDaysToGenerate > 0
-    ? Math.round((receivedDaysCount / totalDaysToGenerate) * 100)
-    : Math.round((receivedDays / totalDays) * 100);
+  // CRITICAL: Use receivedDaysCount from store as the source of truth
+  const receivedDays = receivedDaysCount || (currentPlan?.days?.length || 0);
+  const progressPercentage = Math.round((receivedDays / totalDays) * 100);
   const isStreaming = loadingState === 'streaming' && receivedDays > 0;
 
   // Force re-render when lastStateUpdate changes
@@ -75,14 +74,15 @@ const GeneratingStage: React.FC<GeneratingStageProps> = ({ onExit }) => {
 
   return (
     <div className="space-y-6">
-      {/* Loader Card */}
-      <MotionDiv
-        {...(!isPerformanceMode && {
-          initial: { opacity: 0, scale: 0.95 },
-          animate: { opacity: 1, scale: 1 },
-          transition: { duration: 0.5 }
-        })}
-      >
+      {/* Loader Card - Affiche SEULEMENT pendant l'initialisation (0 jour) */}
+      {receivedDays === 0 && (
+        <MotionDiv
+          {...(!isPerformanceMode && {
+            initial: { opacity: 0, scale: 0.95 },
+            animate: { opacity: 1, scale: 1 },
+            transition: { duration: 0.5 }
+          })}
+        >
         <GlassCard
           className="p-12"
           style={{
@@ -194,7 +194,7 @@ const GeneratingStage: React.FC<GeneratingStageProps> = ({ onExit }) => {
                   {receivedDays > 0 ? 'Génération en cours...' : 'Initialisation...'}
                 </span>
                 <span className="text-violet-400 font-semibold">
-                  {receivedDaysCount || receivedDays}/{totalDays} jours
+                  {receivedDays}/{totalDays} jours
                 </span>
               </div>
               <div className="relative w-full h-4 bg-white/5 rounded-full overflow-hidden">
@@ -270,10 +270,11 @@ const GeneratingStage: React.FC<GeneratingStageProps> = ({ onExit }) => {
             )}
           </div>
         </GlassCard>
-      </MotionDiv>
+        </MotionDiv>
+      )}
 
-      {/* Real-time Stats Card */}
-      {isStreaming && currentPlan && (
+      {/* Real-time Stats Card - Affiche dès que le streaming commence */}
+      {receivedDays > 0 && currentPlan && (
         <MotionDiv
           {...(!isPerformanceMode && {
             initial: { opacity: 0, scale: 0.95 },
@@ -313,8 +314,8 @@ const GeneratingStage: React.FC<GeneratingStageProps> = ({ onExit }) => {
         </MotionDiv>
       )}
 
-      {/* Days Streaming Display */}
-      {isStreaming && currentPlan && (
+      {/* Days Streaming Display - UI Dynamique Principale */}
+      {receivedDays > 0 && currentPlan && (
         <MotionDiv
           {...(!isPerformanceMode && {
             initial: { opacity: 0, y: 20 },
@@ -364,18 +365,40 @@ const GeneratingStage: React.FC<GeneratingStageProps> = ({ onExit }) => {
                 </motion.div>
               </div>
 
+              {/* Progress Bar - Remplace le loader statique */}
+              <div className="mb-5 space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-white/80">
+                    {receivedDays === totalDays ? 'Génération terminée !' : 'Génération en cours...'}
+                  </span>
+                  <span className="text-violet-400 font-semibold">
+                    {receivedDays}/{totalDays} jours · {progressPercentage}%
+                  </span>
+                </div>
+                <div className="relative w-full h-3 bg-white/5 rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-gradient-to-r from-violet-500 via-purple-500 to-violet-600"
+                    initial={{ width: '0%' }}
+                    animate={{ width: `${progressPercentage}%` }}
+                    transition={{ duration: 0.5, ease: 'easeOut' }}
+                    style={{
+                      boxShadow: '0 0 16px rgba(139, 92, 246, 0.6)'
+                    }}
+                  />
+                </div>
+              </div>
+
               {/* Days Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                {/* Show generated days with staggered animation */}
+                {/* Show generated days with progressive streaming animation */}
                 {currentPlan.days.map((day, index) => (
                   <MotionDiv
-                    key={`day-${day.date}-${index}`}
+                    key={`day-${day.date}`}
                     {...(!isPerformanceMode && {
                       initial: { opacity: 0, y: 20, scale: 0.95 },
                       animate: { opacity: 1, y: 0, scale: 1 },
                       transition: {
-                        duration: 0.4,
-                        delay: index * 0.15,
+                        duration: 0.5,
                         ease: [0.4, 0, 0.2, 1]
                       }
                     })}
