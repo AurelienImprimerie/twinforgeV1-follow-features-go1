@@ -427,6 +427,54 @@ function calculateAge(birthdate: string): number {
   return age
 }
 
+/**
+ * Parse budget string like "60-85 EUR" or "45-65€" to extract min/max
+ */
+function parseBudgetString(budgetStr: string): { minCents: number; maxCents: number; avgCents: number } {
+  const defaultResult = { minCents: 0, maxCents: 0, avgCents: 0 };
+
+  if (!budgetStr || budgetStr === 'Non estimé') {
+    return defaultResult;
+  }
+
+  try {
+    // Remove currency symbols and trim
+    const cleaned = budgetStr.replace(/EUR|€|\$/gi, '').trim();
+
+    // Match patterns like "60-85" or "45-65"
+    const rangeMatch = cleaned.match(/(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)/);
+
+    if (rangeMatch) {
+      const min = parseFloat(rangeMatch[1]);
+      const max = parseFloat(rangeMatch[2]);
+      const avg = (min + max) / 2;
+
+      // Convert to cents (multiply by 100)
+      return {
+        minCents: Math.round(min * 100),
+        maxCents: Math.round(max * 100),
+        avgCents: Math.round(avg * 100)
+      };
+    }
+
+    // If no range, try to match a single number
+    const singleMatch = cleaned.match(/(\d+(?:\.\d+)?)/);
+    if (singleMatch) {
+      const value = parseFloat(singleMatch[1]);
+      const cents = Math.round(value * 100);
+      return { minCents: cents, maxCents: cents, avgCents: cents };
+    }
+
+    return defaultResult;
+  } catch (error) {
+    logger.error('[PARSE_BUDGET_ERROR] Failed to parse budget string', {
+      budgetStr,
+      error: error.message
+    });
+    return defaultResult;
+  }
+}
+
 function parseAIResponse(aiContent: string, country: string): ShoppingListResponse {
   logger.debug('[PARSE_START] Starting to parse AI response', {
     content_length: aiContent.length,
@@ -499,16 +547,33 @@ function parseAIResponse(aiContent: string, country: string): ShoppingListRespon
       }
     });
 
+    // Parse budget estimation string to extract min/max/avg
+    const budgetString = parsedResponse.budget_estimation?.estimated_cost || 'Non estimé';
+    const parsedBudget = parseBudgetString(budgetString);
+
+    logger.info('[PARSE_BUDGET] Budget parsed', {
+      original: budgetString,
+      minCents: parsedBudget.minCents,
+      maxCents: parsedBudget.maxCents,
+      avgCents: parsedBudget.avgCents,
+      minEur: (parsedBudget.minCents / 100).toFixed(2),
+      maxEur: (parsedBudget.maxCents / 100).toFixed(2),
+      avgEur: (parsedBudget.avgCents / 100).toFixed(2)
+    });
+
     // Validate and ensure required structure
     const result = {
       shopping_list: parsedResponse.shopping_list || [],
       suggestions: parsedResponse.suggestions || [],
       advice: parsedResponse.advice || [],
       budget_estimation: {
-        estimated_cost: parsedResponse.budget_estimation?.estimated_cost || 'Non estimé',
+        estimated_cost: budgetString,
         confidence_level: parsedResponse.budget_estimation?.confidence_level || 'Faible',
         currency: parsedResponse.budget_estimation?.currency || 'EUR',
-        notes: parsedResponse.budget_estimation?.notes || []
+        notes: parsedResponse.budget_estimation?.notes || [],
+        minCents: parsedBudget.minCents,
+        maxCents: parsedBudget.maxCents,
+        avgCents: parsedBudget.avgCents
       }
     };
 
@@ -519,7 +584,12 @@ function parseAIResponse(aiContent: string, country: string): ShoppingListRespon
       total_items: totalItems,
       suggestions: result.suggestions.length,
       advice: result.advice.length,
-      budget: result.budget_estimation.estimated_cost
+      budget: result.budget_estimation.estimated_cost,
+      budget_cents: {
+        min: parsedBudget.minCents,
+        max: parsedBudget.maxCents,
+        avg: parsedBudget.avgCents
+      }
     });
 
     if (totalItems === 0) {

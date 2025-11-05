@@ -320,28 +320,37 @@ export const useShoppingListGenerationPipeline = create<ShoppingListGenerationPi
           });
         }
 
+        // Calculate category total from items (in cents)
+        const categoryItems = (cat.items || []).map((item: any, itemIndex: number) => {
+          // Item price should already be in cents from AI, apply coefficient
+          const itemPriceCents = Math.round((item.estimatedPrice || 0) * coefficient);
+
+          logger.debug('SHOPPING_LIST_PIPELINE', `[TRANSFORM_ITEM_${catIndex}_${itemIndex}]`, {
+            name: item.name,
+            quantity: item.quantity,
+            estimatedPrice_cents: itemPriceCents
+          });
+
+          return {
+            id: item.id || `item-${Date.now()}-${Math.random()}`,
+            name: item.name || 'Unknown Item',
+            quantity: item.quantity || '1',
+            estimatedPrice: itemPriceCents, // Store in cents
+            priority: item.priority || 'medium',
+            isChecked: false
+          };
+        });
+
+        // Sum category total from items
+        const categoryTotalCents = categoryItems.reduce((sum, item) => sum + (item.estimatedPrice || 0), 0);
+
         return {
           id: cat.id || `category-${Date.now()}-${Math.random()}`,
           name: cat.category || cat.name || 'Unknown Category',
           icon: cat.icon || 'Package',
           color: cat.color || '#fb923c',
-          estimatedTotal: (cat.estimatedTotal || 0) * coefficient,
-          items: (cat.items || []).map((item: any, itemIndex: number) => {
-            logger.debug('SHOPPING_LIST_PIPELINE', `[TRANSFORM_ITEM_${catIndex}_${itemIndex}]`, {
-              name: item.name,
-              quantity: item.quantity,
-              estimatedPrice: item.estimatedPrice
-            });
-
-            return {
-              id: item.id || `item-${Date.now()}-${Math.random()}`,
-              name: item.name || 'Unknown Item',
-              quantity: item.quantity || '1',
-              estimatedPrice: (item.estimatedPrice || 0) * coefficient,
-              priority: item.priority || 'medium',
-              isChecked: false
-            };
-          })
+          estimatedTotal: categoryTotalCents, // Store in cents
+          items: categoryItems
         };
       });
 
@@ -364,10 +373,26 @@ export const useShoppingListGenerationPipeline = create<ShoppingListGenerationPi
         throw new Error('No items in shopping list after transformation');
       }
 
+      // Parse budget estimation from API response
+      const minCents = (data.budget_estimation?.minCents || 0) * coefficient;
+      const maxCents = (data.budget_estimation?.maxCents || 0) * coefficient;
+      const avgCents = (data.budget_estimation?.avgCents || 0) * coefficient;
+
+      logger.info('SHOPPING_LIST_PIPELINE', '[BUDGET_PARSING] Budget from API', {
+        api_minCents: data.budget_estimation?.minCents,
+        api_maxCents: data.budget_estimation?.maxCents,
+        api_avgCents: data.budget_estimation?.avgCents,
+        coefficient,
+        final_minCents: minCents,
+        final_maxCents: maxCents,
+        final_avgCents: avgCents,
+        estimated_cost_string: data.budget_estimation?.estimated_cost
+      });
+
       const budgetEstimation: BudgetEstimation = {
-        minTotal: (data.budget_estimation?.minTotal || 0) * coefficient,
-        maxTotal: (data.budget_estimation?.maxTotal || 0) * coefficient,
-        averageTotal: (data.budget_estimation?.averageTotal || 0) * coefficient,
+        minTotal: minCents,
+        maxTotal: maxCents,
+        averageTotal: avgCents,
         byCategory: data.budget_estimation?.byCategory || {},
         region,
         coefficient
@@ -456,6 +481,16 @@ export const useShoppingListGenerationPipeline = create<ShoppingListGenerationPi
       }
 
       // Insert shopping list into database
+      logger.info('SHOPPING_LIST_PIPELINE', '[SAVE_START] Saving shopping list to database', {
+        user_id: user.id,
+        name: shoppingListCandidate.name,
+        total_items: shoppingListCandidate.totalItems,
+        total_estimated_cost_cents: shoppingListCandidate.totalEstimatedCost,
+        has_budget_estimation: !!shoppingListCandidate.budgetEstimation,
+        has_suggestions: !!shoppingListCandidate.suggestions,
+        has_advice: !!shoppingListCandidate.advice
+      });
+
       const { data: savedList, error: listError } = await supabase
         .from('shopping_lists')
         .insert({
@@ -464,7 +499,7 @@ export const useShoppingListGenerationPipeline = create<ShoppingListGenerationPi
           generation_mode: shoppingListCandidate.generationMode,
           meal_plan_id: state.config.selectedMealPlanId,
           total_items: shoppingListCandidate.totalItems,
-          total_estimated_cost: shoppingListCandidate.totalEstimatedCost,
+          total_estimated_cost_cents: shoppingListCandidate.totalEstimatedCost, // Column name with _cents suffix
           budget_estimation: shoppingListCandidate.budgetEstimation,
           suggestions: shoppingListCandidate.suggestions,
           advice: shoppingListCandidate.advice
@@ -473,9 +508,18 @@ export const useShoppingListGenerationPipeline = create<ShoppingListGenerationPi
         .single();
 
       if (listError) {
-        logger.error('SHOPPING_LIST_PIPELINE', 'Failed to save list', { error: listError });
+        logger.error('SHOPPING_LIST_PIPELINE', 'Failed to save list', {
+          error: listError,
+          error_message: listError.message,
+          error_code: listError.code,
+          error_details: listError.details
+        });
         throw listError;
       }
+
+      logger.info('SHOPPING_LIST_PIPELINE', '[SAVE_LIST_SUCCESS] Shopping list saved', {
+        list_id: savedList.id
+      });
 
       // Insert all items
       const itemsToInsert = shoppingListCandidate.categories.flatMap(category =>
@@ -486,11 +530,15 @@ export const useShoppingListGenerationPipeline = create<ShoppingListGenerationPi
           category_color: category.color,
           item_name: item.name,
           quantity: item.quantity,
-          estimated_price: item.estimatedPrice,
+          estimated_price_cents: item.estimatedPrice, // Column name with _cents suffix
           priority: item.priority,
           is_checked: false
         }))
       );
+
+      logger.info('SHOPPING_LIST_PIPELINE', '[SAVE_ITEMS_START] Inserting items', {
+        items_count: itemsToInsert.length
+      });
 
       const { error: itemsError } = await supabase
         .from('shopping_list_items')

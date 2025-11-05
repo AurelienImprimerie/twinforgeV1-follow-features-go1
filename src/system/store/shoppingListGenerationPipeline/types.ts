@@ -22,7 +22,7 @@ export interface ShoppingListCandidate {
   name: string;
   generationMode: 'user_only' | 'user_and_family';
   totalItems: number;
-  totalEstimatedCost: number;
+  totalEstimatedCost: number; // in cents
   categories: ShoppingListCategory[];
   suggestions?: string[];
   advice?: string[];
@@ -35,7 +35,7 @@ export interface ShoppingListCategory {
   name: string;
   icon: string;
   color: string;
-  estimatedTotal: number;
+  estimatedTotal: number; // in cents
   items: ShoppingListItem[];
 }
 
@@ -43,16 +43,16 @@ export interface ShoppingListItem {
   id: string;
   name: string;
   quantity: string;
-  estimatedPrice: number;
+  estimatedPrice: number; // in cents
   priority: 'low' | 'medium' | 'high';
   isChecked: boolean;
 }
 
 export interface BudgetEstimation {
-  minTotal: number;
-  maxTotal: number;
-  averageTotal: number;
-  byCategory: Record<string, { min: number; max: number; average: number }>;
+  minTotal: number; // in cents
+  maxTotal: number; // in cents
+  averageTotal: number; // in cents
+  byCategory: Record<string, { min: number; max: number; average: number }>; // in cents
   region: string;
   coefficient: number;
 }

@@ -2,30 +2,44 @@ import React from 'react';
 import GlassCard from '../../../../../../ui/cards/GlassCard';
 import SpatialIcon from '../../../../../../ui/icons/SpatialIcon';
 import { ICONS } from '../../../../../../ui/icons/registry';
-import { cssSupports } from './shoppingListUtils';
+import { cssSupports, formatCentsToEuros, formatBudgetRange } from './shoppingListUtils';
+import type { BudgetEstimation } from '../../../../../../system/store/shoppingListGenerationPipeline/types';
 
 export interface BudgetEstimationCardProps {
-  budgetEstimation?: any;
+  budgetEstimation?: BudgetEstimation;
 }
 
 /**
  * Budget Estimation Card Component
  * VisionOS 26 inspired aluminum-like design
+ * Displays min, max, and average budget estimates in euros
  */
 const BudgetEstimationCard: React.FC<BudgetEstimationCardProps> = ({
   budgetEstimation
 }) => {
-  if (!budgetEstimation || !budgetEstimation.estimated_cost || budgetEstimation.estimated_cost === 'Non estimé') {
+  if (!budgetEstimation) {
     return null;
   }
+
+  const { minTotal, maxTotal, averageTotal } = budgetEstimation;
+
+  // Don't show card if all values are 0
+  if (minTotal === 0 && maxTotal === 0 && averageTotal === 0) {
+    return null;
+  }
+
+  const minFormatted = formatCentsToEuros(minTotal);
+  const maxFormatted = formatCentsToEuros(maxTotal);
+  const avgFormatted = formatCentsToEuros(averageTotal);
+  const rangeFormatted = formatBudgetRange(minTotal, maxTotal);
 
   return (
     <GlassCard
       className="border-slate-400/30 p-1 mb-4"
       style={{
         background: `
-          linear-gradient(135deg, 
-            rgba(148, 163, 184, 0.15) 0%, 
+          linear-gradient(135deg,
+            rgba(148, 163, 184, 0.15) 0%,
             rgba(100, 116, 139, 0.12) 25%,
             rgba(71, 85, 105, 0.08) 50%,
             rgba(51, 65, 85, 0.06) 75%,
@@ -50,13 +64,13 @@ const BudgetEstimationCard: React.FC<BudgetEstimationCardProps> = ({
         <div className="flex items-center gap-4 mb-3">
           <div className="relative">
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-slate-300/40 to-slate-500/20 blur-xl"></div>
-            <div 
+            <div
               className="relative w-12 h-12 rounded-full flex items-center justify-center shadow-2xl"
               style={{
                 background: `
-                  radial-gradient(circle at 30% 30%, 
-                    rgba(148, 163, 184, 0.4) 0%, 
-                    rgba(100, 116, 139, 0.3) 40%, 
+                  radial-gradient(circle at 30% 30%,
+                    rgba(148, 163, 184, 0.4) 0%,
+                    rgba(100, 116, 139, 0.3) 40%,
                     rgba(71, 85, 105, 0.2) 70%,
                     rgba(51, 65, 85, 0.1) 100%
                   )
@@ -81,49 +95,54 @@ const BudgetEstimationCard: React.FC<BudgetEstimationCardProps> = ({
             </h4>
             <div className="flex items-baseline gap-2">
               <span className="text-2xl font-bold text-slate-100 drop-shadow-lg">
-                {budgetEstimation.estimated_cost}
+                {rangeFormatted}
               </span>
-              {budgetEstimation.confidence_level && (
+              {budgetEstimation.region && (
                 <span className="text-xs text-slate-300/80 font-medium">
-                  {budgetEstimation.confidence_level}
+                  {budgetEstimation.region}
                 </span>
               )}
             </div>
           </div>
         </div>
 
-        {budgetEstimation.notes && budgetEstimation.notes.length > 0 && (
-          <div 
-            className="mt-3 p-3 rounded-lg"
-            style={{
-              background: `
-                linear-gradient(135deg, 
-                  rgba(148, 163, 184, 0.08) 0%, 
-                  rgba(100, 116, 139, 0.06) 50%,
-                  rgba(71, 85, 105, 0.04) 100%
-                )
-              `,
-              border: `1px solid ${cssSupports('color', 'color-mix(in srgb, #94a3b8 20%, transparent)', 'rgba(148, 163, 184, 0.2)')}`,
-              boxShadow: `
-                inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                inset 0 -1px 0 rgba(0, 0, 0, 0.1)
-              `
-            }}
-          >
-            <div className="space-y-1">
-              {budgetEstimation.notes.map((note: string, index: number) => (
-                <div key={index} className="flex items-start gap-2 text-xs text-slate-300/90">
-                  <div 
-                    className="w-1 h-1 rounded-full mt-1.5 flex-shrink-0"
-                    style={{
-                      background: 'linear-gradient(45deg, rgba(148, 163, 184, 0.6), rgba(100, 116, 139, 0.4))',
-                      boxShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
-                    }}
-                  ></div>
-                  <span>{note}</span>
-                </div>
-              ))}
+        {/* Price breakdown */}
+        <div
+          className="mt-3 p-3 rounded-lg"
+          style={{
+            background: `
+              linear-gradient(135deg,
+                rgba(148, 163, 184, 0.08) 0%,
+                rgba(100, 116, 139, 0.06) 50%,
+                rgba(71, 85, 105, 0.04) 100%
+              )
+            `,
+            border: `1px solid ${cssSupports('color', 'color-mix(in srgb, #94a3b8 20%, transparent)', 'rgba(148, 163, 184, 0.2)')}`,
+            boxShadow: `
+              inset 0 1px 0 rgba(255, 255, 255, 0.1),
+              inset 0 -1px 0 rgba(0, 0, 0, 0.1)
+            `
+          }}
+        >
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div>
+              <div className="text-xs text-slate-400 mb-1">Minimum</div>
+              <div className="text-sm font-semibold text-slate-200">{minFormatted}</div>
             </div>
+            <div>
+              <div className="text-xs text-slate-400 mb-1">Moyenne</div>
+              <div className="text-sm font-semibold text-slate-200">{avgFormatted}</div>
+            </div>
+            <div>
+              <div className="text-xs text-slate-400 mb-1">Maximum</div>
+              <div className="text-sm font-semibold text-slate-200">{maxFormatted}</div>
+            </div>
+          </div>
+        </div>
+
+        {budgetEstimation.coefficient && budgetEstimation.coefficient !== 1 && (
+          <div className="mt-2 text-xs text-slate-400 text-center">
+            Prix ajustés selon votre région (×{budgetEstimation.coefficient.toFixed(2)})
           </div>
         )}
       </div>
