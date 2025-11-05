@@ -231,25 +231,7 @@ serve(async (req) => {
           messages: [
             {
               role: 'system',
-              content: `Tu es un expert en nutrition et en planification de repas. Tu aides les utilisateurs à créer des listes de courses personnalisées et optimisées.
-
-RÈGLES ABSOLUES QUE TU DOIS RESPECTER:
-1. Tu dois TOUJOURS générer une liste COMPLÈTE et DÉTAILLÉE avec un MINIMUM de 30-50 articles uniques
-2. CHAQUE catégorie doit contenir AU MINIMUM 5-10 articles
-3. Tu dois ANALYSER EN DÉTAIL chaque repas du plan alimentaire et LISTER TOUS les ingrédients
-4. Tu dois INCLURE les ingrédients de base (huile, sel, poivre, épices, condiments, etc.)
-5. Tu dois TOUJOURS retourner du JSON valide et COMPLET
-6. JAMAIS de liste minimaliste ou incomplète - c'est INACCEPTABLE
-
-STRUCTURE MINIMALE REQUISE:
-- Fruits & Légumes: minimum 8-12 articles
-- Viandes & Poissons: minimum 4-6 articles
-- Produits laitiers: minimum 3-5 articles
-- Épicerie: minimum 6-10 articles
-- Boulangerie: minimum 2-3 articles
-- Condiments & Épices: minimum 4-6 articles
-
-Si le plan de repas contient 7 jours de repas (petit-déjeuner, déjeuner, dîner), tu DOIS générer une liste proportionnellement complète.`
+              content: 'Tu es un expert en nutrition et en planification de repas. Tu aides les utilisateurs à créer des listes de courses personnalisées et optimisées.\n\nRÈGLES ABSOLUES QUE TU DOIS RESPECTER:\n1. Tu dois TOUJOURS générer une liste COMPLÈTE et DÉTAILLÉE avec un MINIMUM de 30-50 articles uniques\n2. CHAQUE catégorie doit contenir AU MINIMUM 5-10 articles\n3. Tu dois ANALYSER EN DÉTAIL chaque repas du plan alimentaire et LISTER TOUS les ingrédients\n4. Tu dois INCLURE les ingrédients de base (huile, sel, poivre, épices, condiments, etc.)\n5. Tu dois TOUJOURS retourner du JSON valide et COMPLET\n6. JAMAIS de liste minimaliste ou incomplète - c\'est INACCEPTABLE\n\nSTRUCTURE MINIMALE REQUISE:\n- Fruits & Légumes: minimum 8-12 articles\n- Viandes & Poissons: minimum 4-6 articles\n- Produits laitiers: minimum 3-5 articles\n- Épicerie: minimum 6-10 articles\n- Boulangerie: minimum 2-3 articles\n- Condiments & Épices: minimum 4-6 articles\n\nSi le plan de repas contient 7 jours de repas (petit-déjeuner, déjeuner, dîner), tu DOIS générer une liste proportionnellement complète.'
             },
             {
               role: 'user',
