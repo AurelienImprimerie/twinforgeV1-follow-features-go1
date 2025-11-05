@@ -241,7 +241,29 @@ export const createGenerationActions = (
               try {
                 const data = JSON.parse(line.slice(6));
 
-                if (data.type === 'day') {
+                if (data.type === 'progress') {
+                  // Handle progress events from backend
+                  logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'SSE progress event received', {
+                    weekNumber: plan.weekNumber,
+                    phase: data.data.phase,
+                    message: data.data.message,
+                    progress: data.data.progress,
+                    sessionId: currentSessionId,
+                    timestamp: new Date().toISOString()
+                  });
+
+                  set((currentState) => ({
+                    loadingMessage: data.data.message || 'Génération en cours...',
+                    simulatedOverallProgress: data.data.progress || currentState.simulatedOverallProgress,
+                    lastStateUpdate: Date.now()
+                  }));
+                } else if (data.type === 'heartbeat') {
+                  // Heartbeat to keep connection alive
+                  logger.debug('MEAL_PLAN_GENERATION_PIPELINE', 'Heartbeat received', {
+                    daysGenerated: data.data.daysGenerated,
+                    timestamp: data.data.timestamp
+                  });
+                } else if (data.type === 'day') {
                   receivedDays.push(data.data);
 
                   logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'SSE day event received', {
@@ -258,7 +280,7 @@ export const createGenerationActions = (
                   set((currentState) => {
                     const totalDays = currentState.totalDaysToGenerate;
                     const newReceivedCount = (i * 7) + receivedDays.length;
-                    const progressPercent = 15 + (newReceivedCount / totalDays) * 35; // 15% to 50%
+                    const progressPercent = 5 + (newReceivedCount / totalDays) * 70; // 5% to 75%
 
                     return {
                       mealPlanCandidates: currentState.mealPlanCandidates.map((p, idx) =>
@@ -311,7 +333,7 @@ export const createGenerationActions = (
                       ),
                       simulatedOverallProgress: Math.round(progressPercent),
                       receivedDaysCount: newReceivedCount,
-                      loadingMessage: `Génération en cours... ${newReceivedCount}/${totalDays} jours`,
+                      loadingMessage: `Jour ${newReceivedCount}/${totalDays} généré`,
                       lastStateUpdate: Date.now()
                     };
                   });

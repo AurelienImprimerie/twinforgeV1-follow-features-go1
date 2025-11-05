@@ -54,23 +54,10 @@ const GeneratingStage: React.FC<GeneratingStageProps> = ({ onExit }) => {
   };
 
   const getDynamicSubtitle = (): string => {
-    if (receivedDays === 0) {
-      return 'Analyse de votre inventaire et de vos préférences nutritionnelles';
-    } else if (receivedDays === 1) {
-      return 'Premier jour généré avec succès, création de la suite de votre semaine';
-    } else if (receivedDays === 2) {
-      return 'Début de semaine créé, équilibrage des macronutriments';
-    } else if (receivedDays === 3) {
-      return 'Milieu de semaine en cours, variété et équilibre optimisés';
-    } else if (receivedDays === 4) {
-      return 'Plus de la moitié générée, ajustements caloriques en cours';
-    } else if (receivedDays === 5) {
-      return 'Fin de semaine en préparation, optimisation finale';
-    } else if (receivedDays === 6) {
-      return 'Dernier jour en création, vérification de l\'équilibre hebdomadaire';
-    } else {
-      return 'Semaine complète générée et optimisée pour vos objectifs';
+    if (receivedDays > 0) {
+      return `${receivedDays} jour${receivedDays > 1 ? 's' : ''} généré${receivedDays > 1 ? 's' : ''} sur ${totalDays}`;
     }
+    return 'Analyse de votre inventaire et de vos préférences nutritionnelles';
   };
 
   return (
@@ -191,7 +178,7 @@ const GeneratingStage: React.FC<GeneratingStageProps> = ({ onExit }) => {
             <div className="space-y-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-white/80">
-                  {receivedDays > 0 ? 'Génération en cours...' : 'Initialisation...'}
+                  {isGenerating ? (loadingMessage || 'Génération en cours...') : 'Initialisation...'}
                 </span>
                 <span className="text-violet-400 font-semibold">
                   {receivedDays}/{totalDays} jours

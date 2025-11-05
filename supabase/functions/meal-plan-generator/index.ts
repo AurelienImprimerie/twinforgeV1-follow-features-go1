@@ -141,15 +141,16 @@ function extractJsonFromResponse(content: string): string {
   return sanitizeJsonString(extractedJson);
 }
 
-async function generateMealPlanWithAI(
+async function generateSingleDayWithAI(
   userProfile: any,
   inventory: any[],
-  weekNumber: number,
-  startDate: string,
+  dayNumber: number,
+  date: string,
   userId: string,
   supabase: any,
-  batchCookingEnabled: boolean = false
-): Promise<{ mealPlan: MealPlan; tokenUsage: { input: number; output: number; costUsd: number } }> {
+  batchCookingEnabled: boolean = false,
+  previousDays: MealPlanDay[] = []
+): Promise<{ day: MealPlanDay; tokenUsage: { input: number; output: number; costUsd: number } }> {
   const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
   if (!openaiApiKey) {
     throw new Error('OpenAI API key not found');
@@ -167,7 +168,13 @@ async function generateMealPlanWithAI(
   const textureAversions = sensoryPreferences.textureAversions || [];
   const spiceTolerance = sensoryPreferences.spiceTolerance || 1;
 
-  let prompt = `Tu es un expert nutritionniste et chef cuisinier. Génère un plan de repas personnalisé pour une semaine complète.
+  const previousMealsContext = previousDays.length > 0
+    ? `\n\nREPAS PRÉCÉDENTS CETTE SEMAINE:\n${previousDays.map((d, i) =>
+        `Jour ${i + 1} (${d.date}):\n- Petit-déjeuner: ${d.breakfast.title}\n- Déjeuner: ${d.lunch.title}\n- Dîner: ${d.dinner.title}`
+      ).join('\n\n')}\n\nIMPORTANT: Évite de répéter ces plats ou combinaisons similaires.`
+    : '';
+
+  let prompt = `Tu es un expert nutritionniste et chef cuisinier. Génère les repas pour UN SEUL JOUR (jour ${dayNumber}, date ${date}).
 
 PROFIL UTILISATEUR:
 ${profileText}
@@ -181,59 +188,41 @@ PRÉFÉRENCES DE VARIÉTÉ:
 - Saveurs appréciées: ${likedFlavors.length > 0 ? likedFlavors.join(', ') : 'Aucune préférence spécifique'}
 - Ingrédients à éviter: ${dislikedIngredients.length > 0 ? dislikedIngredients.join(', ') : 'Aucun'}
 - Textures à éviter: ${textureAversions.length > 0 ? textureAversions.join(', ') : 'Aucune'}
-- Tolérance aux épices (1-5): ${spiceTolerance}
+- Tolérance aux épices (1-5): ${spiceTolerance}${previousMealsContext}
 
 CONTRAINTES:
-- Semaine ${weekNumber} commençant le ${startDate}
+- Date: ${date} (jour ${dayNumber} de la semaine)
 - Utiliser prioritairement les ingrédients de l'inventaire
 - Respecter les préférences alimentaires et objectifs nutritionnels
 - Équilibrer les macronutriments selon le profil
 - SI des données de santé reproductive sont fournies (cycle menstruel ou ménopause), adapter les recommandations nutritionnelles en conséquence
-- IMPÉRATIF: Éviter la répétition des plats ou des combinaisons d'ingrédients similaires sur plusieurs jours consécutifs
-- IMPÉRATIF: Proposer une variété de cuisines et de types de repas (ex: soupes, salades, plats mijotés, grillades, sautés, currys, etc.)
-- Alterner entre les cuisines appréciées si plusieurs sont mentionnées
-- Explorer différentes combinaisons de saveurs et techniques de cuisson
-- Varier les textures et les présentations pour éviter la monotonie
+- IMPÉRATIF: Éviter la répétition des plats des jours précédents
+- IMPÉRATIF: Proposer une variété de cuisines et de types de repas
 - Optimiser pour réduire le gaspillage alimentaire
-${batchCookingEnabled ? '- BATCH COOKING ACTIVÉ: Proposer des recettes qui peuvent être préparées en grande quantité et réutilisées intelligemment (ex: poulet rôti utilisé pour salade le lendemain, base de sauce pour plusieurs repas, légumes grillés en batch). Indiquer clairement les opportunités de batch cooking dans les recettes.' : ''}
+${batchCookingEnabled ? '- BATCH COOKING ACTIVÉ: Proposer des recettes qui peuvent être préparées en grande quantité et réutilisées intelligemment.' : ''}
 
 INSTRUCTIONS CRÉATIVITÉ:
-- Faire preuve de CRÉATIVITÉ et de NOUVEAUTÉ dans chaque repas
+- Faire preuve de CRÉATIVITÉ et de NOUVEAUTÉ
 - Proposer des associations d'ingrédients originales mais équilibrées
-- Varier les méthodes de cuisson (grillé, rôti, sauté, mijoté, cru, vapeur, etc.)
-- Intégrer des éléments de différentes traditions culinaires
+- Varier les méthodes de cuisson
 - Créer des repas visuellement attrayants et savoureux
-- Éviter absolument la répétition de combinaisons d'ingrédients identiques
-- IMPÉRATIF: Assurer que toutes les valeurs prep_time_min, cook_time_min, calories_est et total_calories sont des nombres entiers ou décimaux (pas de chaînes de caractères)
-- IMPÉRATIF: Retourner strictement prep_time_min, cook_time_min, calories_est et total_calories comme des nombres purs (ex: 10, pas "10min" ou "10")
-- CRITIQUE: Les champs prep_time_min, cook_time_min, calories_est et total_calories DOIVENT être des nombres sans unités ni caractères non-numériques
-- CRITIQUE: Tout caractère non-numérique dans ces champs causera des erreurs système
-- EXEMPLE CORRECT: "prep_time_min": 15, "cook_time_min": 20, "calories_est": 350
-- EXEMPLE INCORRECT: "prep_time_min": "15min", "cook_time_min": "20 minutes", "calories_est": "350 kcal"
-
-TU DOIS GÉNÉRER UN OBJET JSON UNIQUE. CE JSON DOIT CONTENIR UNE CLÉ "DAYS" QUI EST UN TABLEAU CONTENANT EXACTEMENT 7 OBJETS 'DAY', UN POUR CHAQUE JOUR DE LA SEMAINE. NE FOURNIS PAS D'EXEMPLE PARTIEL.
+- IMPÉRATIF: Tous les champs numériques (prep_time_min, cook_time_min, calories_est, total_calories) DOIVENT être des nombres purs sans unités
 
 FORMAT DE RÉPONSE REQUIS (JSON strict):
 {
-  "week_number": ${weekNumber},
-  "start_date": "${startDate}",
-  "days": [
-    // EXACTEMENT 7 objets day, un pour chaque jour de la semaine
-    // Chaque objet day doit contenir: date, breakfast, lunch, dinner, snack (optionnel), daily_summary, total_calories
-    // CRITIQUE: Chaque repas (breakfast, lunch, dinner, snack) DOIT avoir un champ "title" contenant le nom du plat
-    // Tous les champs numériques (prep_time_min, cook_time_min, calories_est, total_calories) doivent être des nombres purs
-  ],
-  "weekly_summary": "Analyse globale de la semaine nutritionnelle",
-  "nutritional_highlights": ["Point fort 1", "Point fort 2", "Point fort 3"],
-  "shopping_optimization": "Conseils pour optimiser les achats et réduire le gaspillage",
-  "avg_calories_per_day": 1600,
-  "ai_explanation": {
-    "personalizedReasoning": "Explication personnalisée",
-    "nutritionalStrategy": "Stratégie nutritionnelle adoptée",
-    "adaptationHighlights": ["Adaptation 1", "Adaptation 2", "Adaptation 3"],
-    "weeklyGoals": ["Objectif 1", "Objectif 2", "Objectif 3"],
-    "complianceNotes": ["Note de conformité 1", "Note de conformité 2"]
-  }
+  "date": "${date}",
+  "breakfast": {
+    "title": "Nom du plat",
+    "description": "Description",
+    "ingredients": ["ingrédient 1", "ingrédient 2"],
+    "prep_time_min": 10,
+    "cook_time_min": 15,
+    "calories_est": 400
+  },
+  "lunch": { /* même format */ },
+  "dinner": { /* même format */ },
+  "daily_summary": "Résumé de la journée",
+  "total_calories": 1600
 }
 
 RÉPONDS UNIQUEMENT AVEC LE JSON COMPLET. NE FOURNIS AUCUN TEXTE EXPLICATIF AVANT OU APRÈS LE JSON.`;
@@ -289,7 +278,9 @@ RÉPONDS UNIQUEMENT AVEC LE JSON COMPLET. NE FOURNIS AUCUN TEXTE EXPLICATIF AVAN
     }
 
     const data = await response.json();
-    console.log('MEAL_PLAN_GENERATOR GPT-5-mini response received:', {
+    console.log('MEAL_PLAN_GENERATOR GPT-5-mini response received for day:', {
+      dayNumber,
+      date,
       hasChoices: !!data.choices,
       choicesLength: data.choices?.length,
       usage: data.usage,
@@ -301,27 +292,32 @@ RÉPONDS UNIQUEMENT AVEC LE JSON COMPLET. NE FOURNIS AUCUN TEXTE EXPLICATIF AVAN
       throw new Error('No content received from OpenAI');
     }
 
-    console.log('MEAL_PLAN_GENERATOR Raw GPT-5-mini content:', {
+    console.log('MEAL_PLAN_GENERATOR Raw GPT-5-mini content for day:', {
+      dayNumber,
+      date,
       length: content.length,
-      preview: content.substring(0, 500) + (content.length > 500 ? '...' : ''),
+      preview: content.substring(0, 300) + (content.length > 300 ? '...' : ''),
       model: 'gpt-5-mini'
     });
 
-    let mealPlan: MealPlan;
+    let day: MealPlanDay;
     try {
       const jsonString = extractJsonFromResponse(content);
 
-      console.log('MEAL_PLAN_GENERATOR About to parse JSON string:', {
+      console.log('MEAL_PLAN_GENERATOR About to parse JSON for day:', {
+        dayNumber,
         length: jsonString.length,
-        preview: jsonString.substring(0, 300)
+        preview: jsonString.substring(0, 200)
       });
 
-      mealPlan = JSON.parse(jsonString);
-      console.log('MEAL_PLAN_GENERATOR Successfully parsed meal plan:', {
-        weekNumber: mealPlan.week_number,
-        daysCount: mealPlan.days?.length,
-        avgCalories: mealPlan.avg_calories_per_day,
-        hasAiExplanation: !!mealPlan.ai_explanation,
+      day = JSON.parse(jsonString);
+      console.log('MEAL_PLAN_GENERATOR Successfully parsed day:', {
+        dayNumber,
+        date: day.date,
+        hasBreakfast: !!day.breakfast,
+        hasLunch: !!day.lunch,
+        hasDinner: !!day.dinner,
+        totalCalories: day.total_calories,
         model: 'gpt-5-mini'
       });
     } catch (parseError) {
@@ -358,9 +354,93 @@ RÉPONDS UNIQUEMENT AVEC LE JSON COMPLET. NE FOURNIS AUCUN TEXTE EXPLICATIF AVAN
       costUsd: ((data.usage?.prompt_tokens || 0) * 0.25 / 1000000) + ((data.usage?.completion_tokens || 0) * 2.00 / 1000000)
     };
 
-    return { mealPlan, tokenUsage };
+    return { day, tokenUsage };
   } catch (error) {
-    console.error('MEAL_PLAN_GENERATOR Error in generateMealPlanWithAI:', error);
+    console.error('MEAL_PLAN_GENERATOR Error in generateSingleDayWithAI:', error);
+    throw error;
+  }
+}
+
+async function generateWeeklySummary(
+  userProfile: any,
+  days: MealPlanDay[],
+  weekNumber: number,
+  startDate: string
+): Promise<{ summary: any; tokenUsage: { input: number; output: number; costUsd: number } }> {
+  const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+  if (!openaiApiKey) {
+    throw new Error('OpenAI API key not found');
+  }
+
+  const daysText = safeSerialize(days);
+  const profileText = safeSerialize(userProfile);
+
+  const prompt = `Analyse cette semaine de repas et génère un résumé nutritionnel.
+
+PROFIL UTILISATEUR:
+${profileText}
+
+REPAS DE LA SEMAINE:
+${daysText}
+
+Génère un résumé avec:
+- weekly_summary: analyse globale
+- nutritional_highlights: 3-5 points forts
+- shopping_optimization: conseils d'achat
+- avg_calories_per_day: moyenne calorique
+- ai_explanation: explication détaillée personnalisée
+
+Format JSON:
+{
+  "weekly_summary": "...",
+  "nutritional_highlights": ["..."],
+  "shopping_optimization": "...",
+  "avg_calories_per_day": 1600,
+  "ai_explanation": {
+    "personalizedReasoning": "...",
+    "nutritionalStrategy": "...",
+    "adaptationHighlights": ["..."],
+    "weeklyGoals": ["..."],
+    "complianceNotes": ["..."]
+  }
+}`;
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openaiApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-5-mini',
+        messages: [{ role: 'user', content: prompt }],
+        max_completion_tokens: 2000
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`OpenAI API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const content = data.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error('No content received from OpenAI');
+    }
+
+    const jsonString = extractJsonFromResponse(content);
+    const summary = JSON.parse(jsonString);
+
+    const tokenUsage = {
+      input: data.usage?.prompt_tokens || 0,
+      output: data.usage?.completion_tokens || 0,
+      costUsd: ((data.usage?.prompt_tokens || 0) * 0.25 / 1000000) + ((data.usage?.completion_tokens || 0) * 2.00 / 1000000)
+    };
+
+    return { summary, tokenUsage };
+  } catch (error) {
+    console.error('MEAL_PLAN_GENERATOR Error generating weekly summary:', error);
     throw error;
   }
 }
@@ -465,110 +545,192 @@ Deno.serve(async (req) => {
 
     console.log('MEAL_PLAN_GENERATOR Inventory optimization complete');
 
-    const { mealPlan, tokenUsage } = await generateMealPlanWithAI(
-      userProfile,
-      inventory,
-      requestData.week_number,
-      requestData.start_date,
-      requestData.user_id,
-      supabase,
-      requestData.batch_cooking_enabled || false
-    );
-
-    // Consume tokens after successful generation
-    const requestId = crypto.randomUUID();
-    await consumeTokensAtomic(supabase, {
-      userId: requestData.user_id,
-      edgeFunctionName: 'meal-plan-generator',
-      operationType: 'meal_plan_generation',
-      openaiModel: 'gpt-5-mini',
-      openaiInputTokens: tokenUsage.input,
-      openaiOutputTokens: tokenUsage.output,
-      openaiCostUsd: tokenUsage.costUsd,
-      metadata: {
-        week_number: requestData.week_number,
-        start_date: requestData.start_date,
-        inventory_count: inventory.length,
-        has_preferences: requestData.has_preferences,
-        days_generated: mealPlan.days?.length || 0
-      }
-    });
-
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
-        // Stream days progressively with delays for better UX
-        for (let index = 0; index < mealPlan.days.length; index++) {
-          const day = mealPlan.days[index];
-          console.log(`MEAL_PLAN_GENERATOR Day ${index + 1} generated`, { date: day.date });
+        let totalTokenUsage = { input: 0, output: 0, costUsd: 0 };
+        const days: MealPlanDay[] = [];
 
-          const chunk = `data: ${JSON.stringify({ type: 'day', data: day })}\n\n`;
-          controller.enqueue(encoder.encode(chunk));
+        try {
+          // Send initial progress event
+          const progressChunk = `data: ${JSON.stringify({
+            type: 'progress',
+            data: {
+              phase: 'initializing',
+              message: 'Analyse de votre profil et inventaire...',
+              progress: 5
+            }
+          })}\n\n`;
+          controller.enqueue(encoder.encode(progressChunk));
 
-          // Add a small delay between days for progressive streaming (except for last day)
-          if (index < mealPlan.days.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 150));
+          // Generate 7 days sequentially with real-time streaming
+          for (let dayNum = 1; dayNum <= 7; dayNum++) {
+            const dayDate = new Date(requestData.start_date);
+            dayDate.setDate(dayDate.getDate() + (dayNum - 1));
+            const dateStr = dayDate.toISOString().split('T')[0];
+
+            // Send progress before generating each day
+            const preGenChunk = `data: ${JSON.stringify({
+              type: 'progress',
+              data: {
+                phase: 'generating',
+                message: `Génération du jour ${dayNum}...`,
+                progress: 5 + (dayNum - 1) * 10,
+                currentDay: dayNum,
+                totalDays: 7
+              }
+            })}\n\n`;
+            controller.enqueue(encoder.encode(preGenChunk));
+
+            console.log(`MEAL_PLAN_GENERATOR Starting generation for day ${dayNum}`, { date: dateStr });
+
+            // Generate single day with AI
+            const { day, tokenUsage } = await generateSingleDayWithAI(
+              userProfile,
+              inventory,
+              dayNum,
+              dateStr,
+              requestData.user_id,
+              supabase,
+              requestData.batch_cooking_enabled || false,
+              days
+            );
+
+            days.push(day);
+            totalTokenUsage.input += tokenUsage.input;
+            totalTokenUsage.output += tokenUsage.output;
+            totalTokenUsage.costUsd += tokenUsage.costUsd;
+
+            console.log(`MEAL_PLAN_GENERATOR Day ${dayNum} generated`, { date: day.date });
+
+            // Stream the day immediately after generation
+            const dayChunk = `data: ${JSON.stringify({ type: 'day', data: day })}\n\n`;
+            controller.enqueue(encoder.encode(dayChunk));
+
+            // Send heartbeat to keep connection alive
+            const heartbeatChunk = `data: ${JSON.stringify({
+              type: 'heartbeat',
+              data: { timestamp: new Date().toISOString(), daysGenerated: dayNum }
+            })}\n\n`;
+            controller.enqueue(encoder.encode(heartbeatChunk));
           }
+
+          // Generate weekly summary
+          const summaryProgressChunk = `data: ${JSON.stringify({
+            type: 'progress',
+            data: {
+              phase: 'finalizing',
+              message: 'Génération du résumé hebdomadaire...',
+              progress: 85
+            }
+          })}\n\n`;
+          controller.enqueue(encoder.encode(summaryProgressChunk));
+
+          const { summary, tokenUsage: summaryTokenUsage } = await generateWeeklySummary(
+            userProfile,
+            days,
+            requestData.week_number,
+            requestData.start_date
+          );
+
+          totalTokenUsage.input += summaryTokenUsage.input;
+          totalTokenUsage.output += summaryTokenUsage.output;
+          totalTokenUsage.costUsd += summaryTokenUsage.costUsd;
+
+          console.log('MEAL_PLAN_GENERATOR Plan generation completed', {
+            userId: requestData.user_id,
+            weekNumber: requestData.week_number,
+            avgCaloriesPerDay: summary.avg_calories_per_day,
+            hasAiExplanation: !!summary.ai_explanation,
+            timestamp: new Date().toISOString()
+          });
+
+          // Send completion chunk with summary
+          const completionChunk = `data: ${JSON.stringify({
+            type: 'complete',
+            data: {
+              weekly_summary: summary.weekly_summary,
+              nutritional_highlights: summary.nutritional_highlights,
+              shopping_optimization: summary.shopping_optimization,
+              avg_calories_per_day: summary.avg_calories_per_day,
+              ai_explanation: summary.ai_explanation
+            }
+          })}\n\n`;
+          controller.enqueue(encoder.encode(completionChunk));
+
+          // Consume tokens after successful generation
+          await consumeTokensAtomic(supabase, {
+            userId: requestData.user_id,
+            edgeFunctionName: 'meal-plan-generator',
+            operationType: 'meal_plan_generation',
+            openaiModel: 'gpt-5-mini',
+            openaiInputTokens: totalTokenUsage.input,
+            openaiOutputTokens: totalTokenUsage.output,
+            openaiCostUsd: totalTokenUsage.costUsd,
+            metadata: {
+              week_number: requestData.week_number,
+              start_date: requestData.start_date,
+              inventory_count: inventory.length,
+              has_preferences: requestData.has_preferences,
+              days_generated: days.length
+            }
+          });
+
+          // Save to database
+          const startDate = new Date(requestData.start_date);
+          const endDate = new Date(startDate);
+          endDate.setDate(endDate.getDate() + 6);
+
+          const mealPlanData = {
+            user_id: requestData.user_id,
+            session_id: isValidUUID(requestData.session_id) ? requestData.session_id : null,
+            inventory_session_id: isValidUUID(requestData.inventory_session_id) ? requestData.inventory_session_id : null,
+            week_number: requestData.week_number,
+            start_date: requestData.start_date,
+            end_date: endDate.toISOString().split('T')[0],
+            plan_data: {
+              week_number: requestData.week_number,
+              start_date: requestData.start_date,
+              days,
+              ...summary
+            },
+            batch_cooking_enabled: requestData.batch_cooking_enabled || false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          };
+
+          const saveResponse = await fetch(`${supabaseUrl}/rest/v1/meal_plans`, {
+            method: 'POST',
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(mealPlanData)
+          });
+
+          if (saveResponse.ok) {
+            console.log('MEAL_PLAN_GENERATOR Meal plan saved successfully');
+          } else {
+            console.error('MEAL_PLAN_GENERATOR Failed to save meal plan:', await saveResponse.text());
+          }
+
+          console.log('MEAL_PLAN_GENERATOR Stream completed successfully');
+          controller.close();
+        } catch (error) {
+          console.error('MEAL_PLAN_GENERATOR Error during streaming:', error);
+          const errorChunk = `data: ${JSON.stringify({
+            type: 'error',
+            data: {
+              message: error instanceof Error ? error.message : 'Unknown error',
+              daysGenerated: days.length
+            }
+          })}\n\n`;
+          controller.enqueue(encoder.encode(errorChunk));
+          controller.close();
         }
-
-        console.log('MEAL_PLAN_GENERATOR Plan generation completed', {
-          userId: requestData.user_id,
-          weekNumber: requestData.week_number,
-          avgCaloriesPerDay: mealPlan.avg_calories_per_day,
-          hasAiExplanation: !!mealPlan.ai_explanation,
-          timestamp: new Date().toISOString()
-        });
-
-        // Send completion chunk
-        const completionChunk = `data: ${JSON.stringify({
-          type: 'complete',
-          data: {
-            weekly_summary: mealPlan.weekly_summary,
-            nutritional_highlights: mealPlan.nutritional_highlights,
-            shopping_optimization: mealPlan.shopping_optimization,
-            avg_calories_per_day: mealPlan.avg_calories_per_day,
-            ai_explanation: mealPlan.ai_explanation
-          }
-        })}\n\n`;
-        controller.enqueue(encoder.encode(completionChunk));
-
-        console.log('MEAL_PLAN_GENERATOR Stream completed successfully');
-        controller.close();
       }
     });
-
-    const startDate = new Date(requestData.start_date);
-    const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + 6);
-
-    const mealPlanData = {
-      user_id: requestData.user_id,
-      session_id: isValidUUID(requestData.session_id) ? requestData.session_id : null,
-      inventory_session_id: isValidUUID(requestData.inventory_session_id) ? requestData.inventory_session_id : null,
-      week_number: requestData.week_number,
-      start_date: requestData.start_date,
-      end_date: endDate.toISOString().split('T')[0],
-      plan_data: mealPlan,
-      batch_cooking_enabled: requestData.batch_cooking_enabled || false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-
-    const saveResponse = await fetch(`${supabaseUrl}/rest/v1/meal_plans`, {
-      method: 'POST',
-      headers: {
-        'apikey': supabaseKey,
-        'Authorization': `Bearer ${supabaseKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(mealPlanData)
-    });
-
-    if (saveResponse.ok) {
-      console.log('MEAL_PLAN_GENERATOR Meal plan saved successfully');
-    } else {
-      console.error('MEAL_PLAN_GENERATOR Failed to save meal plan:', await saveResponse.text());
-    }
 
     return new Response(stream, {
       status: 200,
