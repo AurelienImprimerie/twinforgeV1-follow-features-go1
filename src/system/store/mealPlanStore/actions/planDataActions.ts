@@ -154,11 +154,81 @@ export const createPlanDataActions = (
         // Extract plan_data (JSONB column containing the actual plan)
         const planData = plan.plan_data || {};
 
+        // Transform days: convert meals array to meals object {breakfast, lunch, dinner, snack}
+        const transformedDays = (planData.days || []).map((day: any) => {
+          const mealsObject: any = {};
+
+          // If meals is already an object, use it directly
+          if (day.meals && !Array.isArray(day.meals)) {
+            return day;
+          }
+
+          // If meals is an array, convert to object keyed by type
+          if (Array.isArray(day.meals)) {
+            day.meals.forEach((meal: any) => {
+              if (meal && meal.type) {
+                mealsObject[meal.type] = {
+                  mealName: meal.name,
+                  descriptionSummary: meal.description || '',
+                  mainIngredients: meal.ingredients || [],
+                  estimatedPrepTime: meal.prepTime || 0,
+                  estimatedCookTime: meal.cookTime || 0,
+                  estimatedCalories: meal.calories || 0,
+                  dietaryTags: meal.detailedRecipe?.dietaryTags || [],
+                  status: meal.status || 'ready',
+                  isDetailedRecipeGenerated: meal.recipeGenerated || false,
+                  detailedRecipe: meal.detailedRecipe ? {
+                    id: meal.detailedRecipe.id,
+                    title: meal.detailedRecipe.title,
+                    description: meal.detailedRecipe.title,
+                    ingredients: meal.detailedRecipe.ingredients || [],
+                    instructions: meal.detailedRecipe.instructions || [],
+                    prepTimeMin: meal.detailedRecipe.prepTimeMin || 0,
+                    cookTimeMin: meal.detailedRecipe.cookTimeMin || 0,
+                    servings: meal.detailedRecipe.servings || 1,
+                    nutritionalInfo: meal.detailedRecipe.nutritionalInfo || {
+                      kcal: meal.calories || 0,
+                      protein: 0,
+                      carbs: 0,
+                      fat: 0,
+                      fiber: 0
+                    },
+                    dietaryTags: meal.detailedRecipe.dietaryTags || [],
+                    difficulty: meal.detailedRecipe.difficulty || 'moyen',
+                    tips: meal.detailedRecipe.tips || [],
+                    variations: meal.detailedRecipe.variations || [],
+                    reasonsForSelection: [],
+                    mealComponents: []
+                  } : undefined,
+                  imageUrl: meal.imageUrl || meal.detailedRecipe?.imageUrl,
+                  recipeId: meal.detailedRecipe?.id
+                };
+              }
+            });
+          }
+
+          return {
+            ...day,
+            meals: mealsObject
+          };
+        });
+
+        logger.info('MEAL_PLAN_STORE', 'Transforming meal plan', {
+          planId: plan.id,
+          weekNumber: plan.week_number,
+          hasPlanData: !!plan.plan_data,
+          originalDaysCount: planData.days?.length || 0,
+          transformedDaysCount: transformedDays.length,
+          hasNutritionalSummary: !!plan.nutritional_summary,
+          hasAiExplanation: !!plan.ai_explanation,
+          timestamp: new Date().toISOString()
+        });
+
         return {
           id: plan.id,
           weekNumber: plan.week_number || 1,
           startDate: plan.start_date || plan.created_at,
-          days: planData.days || [],
+          days: transformedDays,
           createdAt: plan.created_at,
           updatedAt: plan.updated_at,
           nutritionalSummary: plan.nutritional_summary || planData.nutritionalSummary,
