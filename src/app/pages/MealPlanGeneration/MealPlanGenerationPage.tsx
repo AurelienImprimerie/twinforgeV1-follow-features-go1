@@ -189,14 +189,14 @@ const MealPlanGenerationPage: React.FC = () => {
       showToast({
         type: 'success',
         title: 'Plan complet sauvegardé !',
-        message: 'Votre plan avec toutes les recettes est dans votre bibliothèque',
-        duration: 4000,
-        action: {
-          label: 'Voir dans Plans',
-          onClick: () => navigate('/fridge#plan')
-        }
+        message: 'Redirection vers votre bibliothèque de plans...',
+        duration: 3000
       });
-      // DO NOT navigate automatically - let user stay on validation screen
+
+      // Automatic redirect to Plan tab after successful save
+      setTimeout(() => {
+        navigate('/fridge?tab=plan');
+      }, 1500);
     } catch (error) {
       showToast({
         type: 'error',

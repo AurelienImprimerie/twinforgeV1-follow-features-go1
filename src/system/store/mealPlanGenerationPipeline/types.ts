@@ -107,6 +107,8 @@ export interface MealPlanGenerationPipelineState {
   totalDaysToGenerate: number;
   enrichedMealsCount: number; // Meals enriched by recipe-detail-generator
   totalMealsToEnrich: number; // Total meals to enrich
+  imagesGeneratedCount: number; // Images successfully generated
+  totalImagesToGenerate: number; // Total images to generate
 
   // Data state
   mealPlanCandidates: MealPlan[];

@@ -18,10 +18,12 @@ interface ImageGenerationParams {
   dayIndex: number;
   mealId: string;
   signal?: AbortSignal;
+  updateMealImageUrl: (recipeId: string, imageUrl: string) => void;
+  incrementImageCount: () => void;
 }
 
 async function triggerImageGeneration(params: ImageGenerationParams): Promise<void> {
-  const { recipeId, recipeDetails, imageSignature, userId, accessToken, planId, dayIndex, mealId, signal } = params;
+  const { recipeId, recipeDetails, imageSignature, userId, accessToken, planId, dayIndex, mealId, signal, updateMealImageUrl, incrementImageCount } = params;
 
   logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Triggering background image generation', {
     recipeId,
@@ -76,22 +78,22 @@ async function triggerImageGeneration(params: ImageGenerationParams): Promise<vo
         timestamp: new Date().toISOString()
       });
 
-      // Get the store's updateMealImageUrl function
-      const currentState = get();
-      if (currentState.updateMealImageUrl) {
-        currentState.updateMealImageUrl(recipeId, result.image_url);
-        logger.info('MEAL_PLAN_GENERATION_PIPELINE', '✅ updateMealImageUrl called successfully', {
-          recipeId,
-          imageUrl: result.image_url,
-          timestamp: new Date().toISOString()
-        });
-      } else {
-        logger.error('MEAL_PLAN_GENERATION_PIPELINE', '❌ updateMealImageUrl not available in state!', {
-          recipeId,
-          availableMethods: Object.keys(currentState).filter(k => typeof currentState[k as keyof typeof currentState] === 'function'),
-          timestamp: new Date().toISOString()
-        });
-      }
+      // Update the meal image URL directly
+      updateMealImageUrl(recipeId, result.image_url);
+
+      logger.info('MEAL_PLAN_GENERATION_PIPELINE', '✅ updateMealImageUrl called successfully', {
+        recipeId,
+        imageUrl: result.image_url,
+        timestamp: new Date().toISOString()
+      });
+
+      // Increment images generated count
+      incrementImageCount();
+
+      logger.info('MEAL_PLAN_GENERATION_PIPELINE', '📊 Image count incremented', {
+        recipeId,
+        timestamp: new Date().toISOString()
+      });
     } else {
       logger.error('MEAL_PLAN_GENERATION_PIPELINE', 'Background image generation failed', {
         recipeId,
@@ -290,6 +292,8 @@ export const createGenerationActions = (
       totalDaysToGenerate: config.weekCount * 7,
       enrichedMealsCount: 0,
       totalMealsToEnrich: config.weekCount * 7 * 3, // 7 days * 3 meals per day (breakfast, lunch, dinner)
+      imagesGeneratedCount: 0,
+      totalImagesToGenerate: config.weekCount * 7 * 3, // Same as meals - one image per meal
       lastStateUpdate: Date.now()
     });
 
@@ -726,12 +730,22 @@ export const createGenerationActions = (
                               planId: plan.id,
                               dayIndex: currentDayIndex,
                               mealId: meal.id,
-                              signal: abortController.signal
+                              signal: abortController.signal,
+                              updateMealImageUrl: get().updateMealImageUrl,
+                              incrementImageCount: () => {
+                                set((state) => ({
+                                  imagesGeneratedCount: state.imagesGeneratedCount + 1
+                                }));
+                              }
                             }).catch((imgError) => {
                               logger.error('MEAL_PLAN_GENERATION_PIPELINE', 'Image generation failed (non-blocking)', {
                                 mealId: meal.id,
                                 error: imgError instanceof Error ? imgError.message : 'Unknown'
                               });
+                              // Still increment count even on failure so we don't wait forever
+                              set((state) => ({
+                                imagesGeneratedCount: state.imagesGeneratedCount + 1
+                              }));
                             });
                           }
                         }
@@ -808,6 +822,8 @@ export const createGenerationActions = (
         totalDaysReceived,
         enrichedMealsCount: get().enrichedMealsCount,
         totalMealsToEnrich: get().totalMealsToEnrich,
+        imagesGeneratedCount: get().imagesGeneratedCount,
+        totalImagesToGenerate: get().totalImagesToGenerate,
         sessionId: currentSessionId,
         timestamp: new Date().toISOString()
       });
@@ -820,14 +836,16 @@ export const createGenerationActions = (
       });
 
       const startWaitTime = Date.now();
-      const maxWaitTime = 120000; // 2 minutes max wait
+      const maxRecipeWaitTime = 120000; // 2 minutes max wait for recipes
+      const maxImageWaitTime = 60000; // 1 minute additional wait for images after recipes are done
       const checkInterval = 500; // Check every 500ms
 
+      // PHASE 1: Wait for recipes (mandatory - higher priority)
       while (get().enrichedMealsCount < get().totalMealsToEnrich) {
         const elapsed = Date.now() - startWaitTime;
 
-        if (elapsed > maxWaitTime) {
-          logger.warn('MEAL_PLAN_GENERATION_PIPELINE', 'Enrichment timeout, proceeding to validation', {
+        if (elapsed > maxRecipeWaitTime) {
+          logger.warn('MEAL_PLAN_GENERATION_PIPELINE', 'Recipe enrichment timeout, proceeding anyway', {
             enrichedMealsCount: get().enrichedMealsCount,
             totalMealsToEnrich: get().totalMealsToEnrich,
             elapsedMs: elapsed
@@ -835,8 +853,8 @@ export const createGenerationActions = (
           break;
         }
 
-        // Update progress
-        const progressPercent = 60 + (get().enrichedMealsCount / get().totalMealsToEnrich) * 30; // 60% to 90%
+        // Update progress - recipes are 60% to 85%
+        const progressPercent = 60 + (get().enrichedMealsCount / get().totalMealsToEnrich) * 25;
         set({
           simulatedOverallProgress: Math.round(progressPercent),
           loadingMessage: `Enrichissement ${get().enrichedMealsCount}/${get().totalMealsToEnrich} recettes...`
@@ -845,9 +863,51 @@ export const createGenerationActions = (
         await new Promise(resolve => setTimeout(resolve, checkInterval));
       }
 
+      logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Recipe enrichments complete, waiting for images', {
+        enrichedMealsCount: get().enrichedMealsCount,
+        totalMealsToEnrich: get().totalMealsToEnrich,
+        imagesGeneratedCount: get().imagesGeneratedCount,
+        totalImagesToGenerate: get().totalImagesToGenerate,
+        sessionId: currentSessionId,
+        timestamp: new Date().toISOString()
+      });
+
+      // PHASE 2: Wait for images (optional - lower priority, shorter timeout)
+      // Continue waiting but with a shorter timeout since images are less critical
+      const imageWaitStartTime = Date.now();
+      set({
+        loadingMessage: 'Génération des images en cours...',
+        simulatedOverallProgress: 85
+      });
+
+      while (get().imagesGeneratedCount < get().totalImagesToGenerate) {
+        const elapsed = Date.now() - imageWaitStartTime;
+
+        if (elapsed > maxImageWaitTime) {
+          logger.warn('MEAL_PLAN_GENERATION_PIPELINE', 'Image generation timeout, proceeding to validation', {
+            imagesGeneratedCount: get().imagesGeneratedCount,
+            totalImagesToGenerate: get().totalImagesToGenerate,
+            elapsedMs: elapsed,
+            note: 'Images will continue generating in background via Realtime'
+          });
+          break;
+        }
+
+        // Update progress - images are 85% to 95%
+        const progressPercent = 85 + (get().imagesGeneratedCount / get().totalImagesToGenerate) * 10;
+        set({
+          simulatedOverallProgress: Math.round(progressPercent),
+          loadingMessage: `Génération ${get().imagesGeneratedCount}/${get().totalImagesToGenerate} images...`
+        });
+
+        await new Promise(resolve => setTimeout(resolve, checkInterval));
+      }
+
       logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'All enrichments complete, transitioning to validation', {
         enrichedMealsCount: get().enrichedMealsCount,
         totalMealsToEnrich: get().totalMealsToEnrich,
+        imagesGeneratedCount: get().imagesGeneratedCount,
+        totalImagesToGenerate: get().totalImagesToGenerate,
         sessionId: currentSessionId,
         timestamp: new Date().toISOString()
       });

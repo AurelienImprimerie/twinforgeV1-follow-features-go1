@@ -101,46 +101,48 @@ const RecipeDetailsValidationStage: React.FC<RecipeDetailsValidationStageProps> 
               WebkitBackdropFilter: 'blur(24px) saturate(150%)'
             }}
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center"
-                  style={{
-                    background: `
-                      radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 60%),
-                      linear-gradient(135deg, color-mix(in srgb, #10B981 35%, transparent), color-mix(in srgb, #10B981 25%, transparent))
-                    `,
-                    border: '2px solid color-mix(in srgb, #10B981 50%, transparent)',
-                    boxShadow: '0 0 30px color-mix(in srgb, #10B981 40%, transparent)'
-                  }}
-                >
-                  <SpatialIcon Icon={ICONS.Check} size={32} className="text-white" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-white mb-1">
-                    Plan Alimentaire Complet !
-                  </h2>
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <p className="text-white/70">
-                      {weekCount} semaine{weekCount > 1 ? 's' : ''} · {recipesWithDetails} recettes détaillées
-                    </p>
-                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-400/20 border border-green-400/30">
-                      <div className="w-2 h-2 bg-green-400 rounded-full" />
-                      <span className="text-green-400 text-xs font-medium">Complet</span>
-                    </div>
-                    {recipesWithImages > 0 && (
-                      <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-400/20 border border-blue-400/30">
-                        <SpatialIcon Icon={ICONS.Image} size={12} className="text-blue-400" />
-                        <span className="text-blue-400 text-xs font-medium">{recipesWithImages} images</span>
-                      </div>
-                    )}
+            {/* Header Section */}
+            <div className="flex items-center gap-4 mb-6">
+              <div
+                className="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{
+                  background: `
+                    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 60%),
+                    linear-gradient(135deg, color-mix(in srgb, #10B981 35%, transparent), color-mix(in srgb, #10B981 25%, transparent))
+                  `,
+                  border: '2px solid color-mix(in srgb, #10B981 50%, transparent)',
+                  boxShadow: '0 0 30px color-mix(in srgb, #10B981 40%, transparent)'
+                }}
+              >
+                <SpatialIcon Icon={ICONS.Check} size={32} className="text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="text-2xl font-bold text-white mb-1">
+                  Plan Alimentaire Complet !
+                </h2>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <p className="text-white/70">
+                    {weekCount} semaine{weekCount > 1 ? 's' : ''} · {recipesWithDetails} recettes détaillées
+                  </p>
+                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-400/20 border border-green-400/30">
+                    <div className="w-2 h-2 bg-green-400 rounded-full" />
+                    <span className="text-green-400 text-xs font-medium">Complet</span>
                   </div>
+                  {recipesWithImages > 0 && (
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-400/20 border border-blue-400/30">
+                      <SpatialIcon Icon={ICONS.Image} size={12} className="text-blue-400" />
+                      <span className="text-blue-400 text-xs font-medium">{recipesWithImages} images</span>
+                    </div>
+                  )}
                 </div>
               </div>
+            </div>
 
-              {/* CTA Card - Premium Save Button */}
+            {/* Actions Section - Stacked for better mobile UX */}
+            <div className="space-y-3">
+              {/* Primary CTA - Premium Save Button */}
               <MotionDiv
-                className="relative"
+                className="relative w-full"
                 {...(!isPerformanceMode && {
                   whileHover: { scale: 1.02 },
                   transition: { duration: 0.2 }
@@ -149,7 +151,7 @@ const RecipeDetailsValidationStage: React.FC<RecipeDetailsValidationStageProps> 
                 <button
                   onClick={onSaveCompletePlan}
                   disabled={isSaving}
-                  className={`relative overflow-hidden px-10 py-4 rounded-2xl transition-all duration-300 group w-full ${
+                  className={`relative overflow-hidden w-full px-8 py-4 rounded-2xl transition-all duration-300 group ${
                     isSaving ? 'opacity-70 cursor-not-allowed' : ''
                   }`}
                   style={{
@@ -188,13 +190,13 @@ const RecipeDetailsValidationStage: React.FC<RecipeDetailsValidationStageProps> 
                     {isSaving ? (
                       <>
                         <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
-                        <span className="text-white text-xl font-bold">Sauvegarde en cours...</span>
+                        <span className="text-white text-lg md:text-xl font-bold">Sauvegarde en cours...</span>
                       </>
                     ) : (
                       <>
-                        <SpatialIcon Icon={ICONS.Save} size={28} color="white" variant="pure" />
-                        <span className="text-white text-xl font-bold">Sauvegarder dans ma Bibliothèque</span>
-                        <SpatialIcon Icon={ICONS.Sparkles} size={24} color="white" variant="pure" />
+                        <SpatialIcon Icon={ICONS.Save} size={24} color="white" variant="pure" />
+                        <span className="text-white text-lg md:text-xl font-bold">Sauvegarder dans ma Bibliothèque</span>
+                        <SpatialIcon Icon={ICONS.Sparkles} size={20} color="white" variant="pure" />
                       </>
                     )}
                   </div>
@@ -202,7 +204,7 @@ const RecipeDetailsValidationStage: React.FC<RecipeDetailsValidationStageProps> 
               </MotionDiv>
 
               {/* Secondary Actions */}
-              <div className="flex items-center justify-center gap-3 mt-4">
+              <div className="flex items-center justify-center gap-3">
                 <button
                   onClick={onDiscard}
                   disabled={isSaving}
