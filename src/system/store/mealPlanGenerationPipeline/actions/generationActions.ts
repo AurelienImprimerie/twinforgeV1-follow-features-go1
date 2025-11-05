@@ -81,13 +81,105 @@ async function triggerImageGeneration(params: ImageGenerationParams): Promise<vo
   }
 }
 
+// Helper function to enrich meal with detailed recipe data
+interface EnrichMealParams {
+  meal: {
+    id: string;
+    name: string;
+    type: string;
+    ingredients?: string[];
+    calories?: number;
+  };
+  userId: string;
+  accessToken: string;
+  userPreferences: any;
+}
+
+async function enrichMealWithRecipeDetails(params: EnrichMealParams): Promise<any | null> {
+  const { meal, userId, accessToken, userPreferences } = params;
+
+  const startTime = Date.now();
+  logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Starting recipe enrichment', {
+    mealId: meal.id,
+    mealName: meal.name,
+    mealType: meal.type,
+    timestamp: new Date().toISOString()
+  });
+
+  try {
+    const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/recipe-detail-generator`;
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        meal_title: meal.name,
+        main_ingredients: meal.ingredients || [],
+        user_preferences: userPreferences,
+        meal_type: meal.type,
+        target_calories: meal.calories
+      })
+    });
+
+    if (!response.ok) {
+      if (response.status === 402) {
+        let errorData = null;
+        try {
+          errorData = await response.json();
+        } catch {}
+
+        handleTokenError({
+          status: 402,
+          data: errorData,
+          message: errorData?.error || 'Insufficient tokens'
+        }, 'recipe-enrichment');
+
+        return null;
+      }
+
+      logger.error('MEAL_PLAN_GENERATION_PIPELINE', 'Recipe enrichment API error', {
+        mealId: meal.id,
+        status: response.status,
+        statusText: response.statusText
+      });
+      return null;
+    }
+
+    const result = await response.json();
+    const detailedRecipe = result.recipe;
+
+    const elapsedTime = Date.now() - startTime;
+    logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Recipe enrichment successful', {
+      mealId: meal.id,
+      mealName: meal.name,
+      recipeId: detailedRecipe.id,
+      cached: result.cached,
+      elapsedMs: elapsedTime,
+      timestamp: new Date().toISOString()
+    });
+
+    return detailedRecipe;
+  } catch (error) {
+    logger.error('MEAL_PLAN_GENERATION_PIPELINE', 'Recipe enrichment error', {
+      mealId: meal.id,
+      mealName: meal.name,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+    return null;
+  }
+}
+
 export interface GenerationActions {
   generateMealPlans: () => Promise<void>;
-  generateDetailedRecipes: () => Promise<void>;
   saveMealPlans: (withRecipes: boolean) => Promise<void>;
   discardMealPlans: () => void;
   updateMealPlanStatus: (planId: string, status: 'loading' | 'ready') => void;
   updateMealStatus: (planId: string, mealId: string, status: 'loading' | 'ready', recipe?: any) => void;
+  updateMealWithDetailedRecipe: (planId: string, mealId: string, detailedRecipe: any) => void;
   updateMealImageUrl: (recipeId: string, imageUrl: string) => void;
   loadProgressFromDatabase: () => Promise<boolean>;
   clearSavedProgress: () => Promise<void>;
@@ -150,6 +242,8 @@ export const createGenerationActions = (
       simulatedOverallProgress: 10,
       receivedDaysCount: 0,
       totalDaysToGenerate: config.weekCount * 7,
+      enrichedMealsCount: 0,
+      totalMealsToEnrich: config.weekCount * 7 * 3, // 7 days * 3 meals per day (breakfast, lunch, dinner)
       lastStateUpdate: Date.now()
     });
 
@@ -361,6 +455,136 @@ export const createGenerationActions = (
                     receivedDaysCount: get().receivedDaysCount,
                     planDaysLength: get().mealPlanCandidates[i]?.days?.length || 0
                   });
+
+                  // PARALLEL ENRICHMENT: Trigger recipe-detail-generator and image-generator for all meals of this day
+                  const currentDay = data.data;
+                  const currentPlan = get().mealPlanCandidates[i];
+                  const currentDayIndex = receivedDays.length - 1;
+                  const mealsToEnrich = currentPlan.days[currentDayIndex]?.meals || [];
+
+                  // Get user preferences for recipe enrichment
+                  (async () => {
+                    try {
+                      const { data: profileData } = await supabase
+                        .from('user_profile')
+                        .select('*')
+                        .eq('user_id', userId)
+                        .single();
+
+                      const userPreferences = {
+                        identity: profileData?.identity,
+                        nutrition: profileData?.nutrition,
+                        kitchen_equipment: profileData?.kitchen_equipment,
+                        food_preferences: profileData?.food_preferences,
+                        sensory_preferences: profileData?.sensory_preferences
+                      };
+
+                      // Enrich ALL meals of this day in parallel
+                      const enrichmentPromises = mealsToEnrich.map(async (meal) => {
+                        const detailedRecipe = await enrichMealWithRecipeDetails({
+                          meal: {
+                            id: meal.id,
+                            name: meal.name,
+                            type: meal.type,
+                            ingredients: meal.ingredients,
+                            calories: meal.calories
+                          },
+                          userId,
+                          accessToken: session?.access_token || '',
+                          userPreferences
+                        });
+
+                        if (detailedRecipe) {
+                          // Update state with detailed recipe
+                          set((state) => ({
+                            mealPlanCandidates: state.mealPlanCandidates.map((p) =>
+                              p.id === plan.id
+                                ? {
+                                    ...p,
+                                    days: p.days.map((d, dIdx) =>
+                                      dIdx === currentDayIndex
+                                        ? {
+                                            ...d,
+                                            meals: d.meals.map((m) =>
+                                              m.id === meal.id
+                                                ? {
+                                                    ...m,
+                                                    recipeGenerated: true,
+                                                    detailedRecipe: {
+                                                      id: detailedRecipe.id,
+                                                      ingredients: detailedRecipe.ingredients,
+                                                      instructions: detailedRecipe.instructions,
+                                                      tips: detailedRecipe.tips,
+                                                      variations: detailedRecipe.variations,
+                                                      difficulty: detailedRecipe.difficulty,
+                                                      servings: detailedRecipe.servings,
+                                                      nutritionalInfo: detailedRecipe.nutritionalInfo,
+                                                      dietaryTags: detailedRecipe.dietaryTags,
+                                                      imageSignature: detailedRecipe.imageSignature,
+                                                      status: 'ready' as const
+                                                    }
+                                                  }
+                                                : m
+                                            )
+                                          }
+                                        : d
+                                    )
+                                  }
+                                : p
+                            ),
+                            enrichedMealsCount: state.enrichedMealsCount + 1,
+                            lastStateUpdate: Date.now()
+                          }));
+
+                          logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Meal enriched successfully', {
+                            mealId: meal.id,
+                            mealName: meal.name,
+                            recipeId: detailedRecipe.id,
+                            enrichedCount: get().enrichedMealsCount,
+                            totalToEnrich: get().totalMealsToEnrich
+                          });
+
+                          // Trigger image generation in parallel (non-blocking)
+                          if (detailedRecipe.imageSignature) {
+                            triggerImageGeneration({
+                              recipeId: detailedRecipe.id,
+                              recipeDetails: {
+                                title: meal.name,
+                                ingredients: detailedRecipe.ingredients,
+                                description: meal.description
+                              },
+                              imageSignature: detailedRecipe.imageSignature,
+                              userId,
+                              accessToken: session?.access_token || '',
+                              planId: plan.id,
+                              dayIndex: currentDayIndex,
+                              mealId: meal.id
+                            }).catch((imgError) => {
+                              logger.error('MEAL_PLAN_GENERATION_PIPELINE', 'Image generation failed (non-blocking)', {
+                                mealId: meal.id,
+                                error: imgError instanceof Error ? imgError.message : 'Unknown'
+                              });
+                            });
+                          }
+                        }
+                      });
+
+                      // Execute all enrichments in parallel
+                      await Promise.allSettled(enrichmentPromises);
+
+                      logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Day enrichment completed', {
+                        dayIndex: currentDayIndex,
+                        mealsEnriched: mealsToEnrich.length,
+                        totalEnriched: get().enrichedMealsCount,
+                        totalToEnrich: get().totalMealsToEnrich
+                      });
+                    } catch (error) {
+                      logger.error('MEAL_PLAN_GENERATION_PIPELINE', 'Day enrichment error', {
+                        dayIndex: currentDayIndex,
+                        error: error instanceof Error ? error.message : 'Unknown'
+                      });
+                    }
+                  })();
                 } else if (data.type === 'complete') {
                   weeklyData = data.data;
 
@@ -411,9 +635,51 @@ export const createGenerationActions = (
       const finalPlans = get().mealPlanCandidates;
       const totalDaysReceived = finalPlans.reduce((sum, p) => sum + (p.days?.length || 0), 0);
 
-      logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Transitioning to validation step', {
+      logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Meal plan generation complete, waiting for enrichments', {
         planCount: config.weekCount,
         totalDaysReceived,
+        enrichedMealsCount: get().enrichedMealsCount,
+        totalMealsToEnrich: get().totalMealsToEnrich,
+        sessionId: currentSessionId,
+        timestamp: new Date().toISOString()
+      });
+
+      // Wait for all enrichments to complete (with timeout)
+      set({
+        loadingState: 'enriching',
+        loadingMessage: 'Enrichissement des recettes en cours...',
+        simulatedOverallProgress: 60
+      });
+
+      const startWaitTime = Date.now();
+      const maxWaitTime = 120000; // 2 minutes max wait
+      const checkInterval = 500; // Check every 500ms
+
+      while (get().enrichedMealsCount < get().totalMealsToEnrich) {
+        const elapsed = Date.now() - startWaitTime;
+
+        if (elapsed > maxWaitTime) {
+          logger.warn('MEAL_PLAN_GENERATION_PIPELINE', 'Enrichment timeout, proceeding to validation', {
+            enrichedMealsCount: get().enrichedMealsCount,
+            totalMealsToEnrich: get().totalMealsToEnrich,
+            elapsedMs: elapsed
+          });
+          break;
+        }
+
+        // Update progress
+        const progressPercent = 60 + (get().enrichedMealsCount / get().totalMealsToEnrich) * 30; // 60% to 90%
+        set({
+          simulatedOverallProgress: Math.round(progressPercent),
+          loadingMessage: `Enrichissement ${get().enrichedMealsCount}/${get().totalMealsToEnrich} recettes...`
+        });
+
+        await new Promise(resolve => setTimeout(resolve, checkInterval));
+      }
+
+      logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'All enrichments complete, transitioning to validation', {
+        enrichedMealsCount: get().enrichedMealsCount,
+        totalMealsToEnrich: get().totalMealsToEnrich,
         sessionId: currentSessionId,
         timestamp: new Date().toISOString()
       });
@@ -429,8 +695,8 @@ export const createGenerationActions = (
       set({
         loadingState: 'idle',
         currentStep: 'validation',
-        simulatedOverallProgress: 60,
-        loadingMessage: 'Plan généré avec succès !',
+        simulatedOverallProgress: 100,
+        loadingMessage: 'Plan complet généré avec succès !',
         lastStateUpdate: Date.now()
       });
 
@@ -456,293 +722,29 @@ export const createGenerationActions = (
     }
   },
 
-  generateDetailedRecipes: async () => {
-    const state = get();
-    const { mealPlanCandidates, currentSessionId } = state;
-
-    const { session } = useUserStore.getState();
-    const userId = session?.user?.id;
-
-    if (!userId) {
-      throw new Error('Utilisateur non authentifié');
-    }
-
-    logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Starting detailed recipe generation', {
-      planCount: mealPlanCandidates.length,
-      sessionId: currentSessionId,
-      timestamp: new Date().toISOString()
-    });
-
-    // CRITICAL: Transition to recipe_details_generating step
+  updateMealWithDetailedRecipe: (planId: string, mealId: string, detailedRecipe: any) => {
     set(state => ({
-      currentStep: 'recipe_details_generating',
-      loadingState: 'generating_recipes',
-      loadingMessage: 'Préparation de la génération des recettes...',
-      simulatedOverallProgress: 65,
-      processedRecipesCount: 0,
-      mealPlanCandidates: state.mealPlanCandidates.map(plan => ({
-        ...plan,
-        days: plan.days.map(day => ({
-          ...day,
-          meals: day.meals.map(meal => ({
-            ...meal,
-            status: 'loading' as const
-          }))
-        }))
-      })),
+      mealPlanCandidates: state.mealPlanCandidates.map((p) =>
+        p.id === planId
+          ? {
+              ...p,
+              days: p.days.map((d) => ({
+                ...d,
+                meals: d.meals.map((m) =>
+                  m.id === mealId
+                    ? {
+                        ...m,
+                        recipeGenerated: true,
+                        detailedRecipe
+                      }
+                    : m
+                )
+              }))
+            }
+          : p
+      ),
       lastStateUpdate: Date.now()
     }));
-
-    try {
-      // Count total meals first
-      let totalMeals = 0;
-      let processedMeals = 0;
-
-      for (const plan of mealPlanCandidates) {
-        for (const day of plan.days) {
-          totalMeals += day.meals?.length || 0;
-        }
-      }
-
-      // Get user profile for preferences
-      const { data: profileData } = await supabase
-        .from('user_profile')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
-
-      const userPreferences = {
-        identity: profileData?.identity,
-        nutrition: profileData?.nutrition,
-        kitchen_equipment: profileData?.kitchen_equipment,
-        food_preferences: profileData?.food_preferences,
-        sensory_preferences: profileData?.sensory_preferences
-      };
-
-      logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Transitioning to recipe streaming phase', {
-        totalMeals,
-        sessionId: currentSessionId,
-        timestamp: new Date().toISOString()
-      });
-
-      set({
-        loadingState: 'streaming_recipes',
-        currentStep: 'recipe_details_generating',
-        simulatedOverallProgress: 70,
-        totalRecipesToGenerate: totalMeals,
-        lastStateUpdate: Date.now()
-      });
-
-      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/recipe-detail-generator`;
-
-      // Generate recipes for each meal with streaming
-      for (const plan of mealPlanCandidates) {
-        for (const day of plan.days) {
-          for (const meal of day.meals || []) {
-            if (!meal) continue;
-
-            logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Generating detailed recipe', {
-              planId: plan.id,
-              dayIndex: day.dayIndex,
-              mealName: meal.name,
-              mealType: meal.type,
-              progress: `${processedMeals + 1}/${totalMeals}`,
-              sessionId: currentSessionId,
-              timestamp: new Date().toISOString()
-            });
-
-            try {
-              const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                  'Authorization': `Bearer ${session?.access_token}`,
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  user_id: userId,
-                  meal_title: meal.name,
-                  main_ingredients: meal.ingredients || [],
-                  user_preferences: userPreferences,
-                  meal_type: meal.type,
-                  target_calories: meal.calories
-                })
-              });
-
-              if (response.status === 402) {
-                // Handle token error
-                let errorData = null;
-                try {
-                  errorData = await response.json();
-                } catch {}
-
-                handleTokenError({
-                  status: 402,
-                  data: errorData,
-                  message: errorData?.error || 'Insufficient tokens'
-                }, 'recipe-details-generation');
-
-                // Stop generation and mark remaining meals as failed
-                processedMeals = totalMeals;
-                throw new Error('Insufficient tokens');
-              } else if (response.ok) {
-                const result = await response.json();
-                const detailedRecipe = result.recipe;
-
-                // Update meal with detailed recipe immediately (streaming effect) + force UI update
-                processedMeals++;
-                const progress = 70 + (processedMeals / totalMeals) * 20; // 70% to 90%
-
-                set(state => ({
-                  mealPlanCandidates: state.mealPlanCandidates.map(p =>
-                    p.id === plan.id
-                      ? {
-                          ...p,
-                          days: p.days.map(d =>
-                            d.dayIndex === day.dayIndex
-                              ? {
-                                  ...d,
-                                  meals: (d.meals || []).map(m =>
-                                    m.id === meal.id
-                                      ? {
-                                          ...m,
-                                          status: 'ready' as const,
-                                          recipeGenerated: true,
-                                          detailedRecipe: {
-                                            id: detailedRecipe.id,
-                                            title: detailedRecipe.title,
-                                            description: detailedRecipe.description,
-                                            ingredients: detailedRecipe.ingredients,
-                                            instructions: detailedRecipe.instructions,
-                                            prepTime: detailedRecipe.prepTimeMin,
-                                            cookTime: detailedRecipe.cookTimeMin,
-                                            servings: detailedRecipe.servings,
-                                            nutritionalInfo: detailedRecipe.nutritionalInfo,
-                                            dietaryTags: detailedRecipe.dietaryTags,
-                                            difficulty: detailedRecipe.difficulty,
-                                            tips: detailedRecipe.tips,
-                                            variations: detailedRecipe.variations,
-                                            imageSignature: detailedRecipe.imageSignature,
-                                            imageUrl: undefined, // Will be populated by background process
-                                            status: 'ready' as const
-                                          }
-                                        }
-                                      : m
-                                  )
-                                }
-                              : d
-                          )
-                        }
-                      : p
-                  ),
-                  simulatedOverallProgress: Math.round(progress),
-                  processedRecipesCount: processedMeals,
-                  loadingMessage: `Génération des recettes... ${processedMeals}/${totalMeals}`,
-                  lastStateUpdate: Date.now()
-                }));
-
-                logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Recipe generated and displayed', {
-                  mealName: meal.name,
-                  recipeTitle: detailedRecipe.title,
-                  progress: `${processedMeals}/${totalMeals}`,
-                  percentComplete: Math.round((processedMeals / totalMeals) * 100),
-                  cached: result.cached,
-                  sessionId: currentSessionId,
-                  timestamp: new Date().toISOString()
-                });
-
-                // Save progress to database during generation (every 3 recipes)
-                if (currentSessionId && processedMeals % 3 === 0) {
-                  await mealPlanProgressService.saveRecipesProgress(
-                    currentSessionId,
-                    get().mealPlanCandidates,
-                    true
-                  );
-                  logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Progress saved during recipe generation', {
-                    processedMeals,
-                    totalMeals,
-                    sessionId: currentSessionId
-                  });
-                }
-
-                // Trigger image generation in background (non-blocking)
-                if (detailedRecipe.imageSignature) {
-                  triggerImageGeneration({
-                    recipeId: detailedRecipe.id,
-                    recipeDetails: detailedRecipe,
-                    imageSignature: detailedRecipe.imageSignature,
-                    userId,
-                    accessToken: session?.access_token || '',
-                    planId: plan.id,
-                    dayIndex: day.dayIndex,
-                    mealId: meal.id
-                  }).catch(imgError => {
-                    logger.error('MEAL_PLAN_GENERATION_PIPELINE', 'Background image generation failed', {
-                      mealName: meal.name,
-                      error: imgError instanceof Error ? imgError.message : 'Unknown'
-                    });
-                  });
-                }
-              } else {
-                logger.error('MEAL_PLAN_GENERATION_PIPELINE', 'Recipe generation failed for meal', {
-                  mealName: meal.name,
-                  status: response.status
-                });
-
-                // Mark as failed but continue
-                processedMeals++;
-              }
-            } catch (recipeError) {
-              logger.error('MEAL_PLAN_GENERATION_PIPELINE', 'Recipe generation error', {
-                mealName: meal.name,
-                error: recipeError instanceof Error ? recipeError.message : 'Unknown'
-              });
-
-              // Mark as failed but continue
-              processedMeals++;
-            }
-          }
-        }
-      }
-
-      // Save final progress with validation step
-      if (currentSessionId) {
-        await mealPlanProgressService.saveRecipesProgress(
-          currentSessionId,
-          get().mealPlanCandidates,
-          false
-        );
-      }
-
-      // Transition vers l'étape de validation finale
-      set({
-        loadingState: 'idle',
-        currentStep: 'recipe_details_validation',
-        simulatedOverallProgress: 95,
-        loadingMessage: 'Toutes les recettes ont été générées avec succès !',
-        lastStateUpdate: Date.now()
-      });
-
-      logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'All detailed recipes generated', {
-        totalMeals,
-        processedMeals,
-        sessionId: currentSessionId,
-        timestamp: new Date().toISOString()
-      });
-
-    } catch (error) {
-      logger.error('MEAL_PLAN_GENERATION_PIPELINE', 'Recipe generation failed', {
-        error: error instanceof Error ? error.message : 'Unknown error',
-        sessionId: currentSessionId,
-        timestamp: new Date().toISOString()
-      });
-
-      set({
-        loadingState: 'idle',
-        currentStep: 'recipe_details_generating'
-      });
-
-      throw error;
-    }
   },
 
   saveMealPlans: async (withRecipes: boolean) => {
@@ -873,6 +875,7 @@ export const createGenerationActions = (
       timestamp: new Date().toISOString()
     });
   },
+
 
   updateMealPlanStatus: (planId: string, status: 'loading' | 'ready') => {
     set(state => ({
