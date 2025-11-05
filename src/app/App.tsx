@@ -19,6 +19,7 @@ import { Header } from './shell/Header/Header';
 import Sidebar from './shell/Sidebar';
 import NewMobileBottomBar from './shell/NewMobileBottomBar';
 import GlobalExitModal from '../ui/components/GlobalExitModal';
+import GlobalLowTokensModal from '../ui/components/modals/GlobalLowTokensModal';
 import CentralActionsMenu from './shell/CentralActionsMenu';
 import FloatingChatButton from '../ui/components/chat/FloatingChatButton';
 import GlobalChatDrawer from '../ui/components/chat/GlobalChatDrawer';
@@ -250,6 +251,7 @@ function AppContent() {
 
       <NewMobileBottomBar />
       <GlobalExitModal />
+      <GlobalLowTokensModal />
 
       {/* Welcome Tokens Notification - Shows to new users after account creation */}
       <WelcomeTokensNotification />

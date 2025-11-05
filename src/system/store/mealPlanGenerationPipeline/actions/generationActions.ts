@@ -5,6 +5,7 @@ import { useUserStore } from '../../userStore';
 import logger from '../../../../lib/utils/logger';
 import { nanoid } from 'nanoid';
 import { mealPlanProgressService } from '../../../services/mealPlanProgressService';
+import { handleTokenError } from '../../../../lib/utils/tokenErrorHandler';
 
 // Helper function to trigger background image generation
 interface ImageGenerationParams {
@@ -218,6 +219,20 @@ export const createGenerationActions = (
         });
 
         if (!response.ok) {
+          // Check if it's a token error (402)
+          if (response.status === 402) {
+            let errorData = null;
+            try {
+              errorData = await response.json();
+            } catch {}
+
+            handleTokenError({
+              status: 402,
+              data: errorData,
+              message: errorData?.error || 'Insufficient tokens'
+            }, 'meal-plan-generation');
+          }
+
           throw new Error(`Erreur de génération: ${response.statusText}`);
         }
 
@@ -553,7 +568,23 @@ export const createGenerationActions = (
                 })
               });
 
-              if (response.ok) {
+              if (response.status === 402) {
+                // Handle token error
+                let errorData = null;
+                try {
+                  errorData = await response.json();
+                } catch {}
+
+                handleTokenError({
+                  status: 402,
+                  data: errorData,
+                  message: errorData?.error || 'Insufficient tokens'
+                }, 'recipe-details-generation');
+
+                // Stop generation and mark remaining meals as failed
+                processedMeals = totalMeals;
+                throw new Error('Insufficient tokens');
+              } else if (response.ok) {
                 const result = await response.json();
                 const detailedRecipe = result.recipe;
 
