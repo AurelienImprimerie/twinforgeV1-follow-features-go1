@@ -160,6 +160,115 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey, X-CSRF-Token",
 };
 
+/**
+ * Detect image format from base64 data
+ */
+function detectImageFormat(base64Data: string): string | null {
+  // Remove data URL prefix if present
+  const cleanBase64 = base64Data.replace(/^data:image\/[a-z]+;base64,/, '');
+
+  // Get first few bytes to detect format
+  try {
+    const binaryString = atob(cleanBase64.substring(0, 32));
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    // Check magic numbers for image formats
+    // JPEG: FF D8 FF
+    if (bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF) {
+      return 'jpeg';
+    }
+
+    // PNG: 89 50 4E 47
+    if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47) {
+      return 'png';
+    }
+
+    // GIF: 47 49 46 38
+    if (bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x38) {
+      return 'gif';
+    }
+
+    // WebP: 52 49 46 46 ... 57 45 42 50
+    if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
+        bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50) {
+      return 'webp';
+    }
+
+    // HEIC/HEIF: Check for 'ftyp' box and heic/mif1 brands
+    const headerStr = String.fromCharCode.apply(null, Array.from(bytes.slice(0, 24)));
+    if (headerStr.includes('ftyp') && (headerStr.includes('heic') || headerStr.includes('mif1') || headerStr.includes('heif'))) {
+      return 'heic';
+    }
+
+    // AVIF: Check for 'ftyp' box and avif brand
+    if (headerStr.includes('ftyp') && headerStr.includes('avif')) {
+      return 'avif';
+    }
+
+    return null;
+  } catch (error) {
+    console.error('MEAL_ANALYZER', 'Error detecting image format', { error: error instanceof Error ? error.message : 'Unknown' });
+    return null;
+  }
+}
+
+/**
+ * Validate and ensure image is in OpenAI-supported format
+ */
+function validateAndPrepareImageData(imageData: string): { isValid: boolean; data: string; format: string; error?: string } {
+  const detectedFormat = detectImageFormat(imageData);
+
+  console.log('IMAGE_FORMAT_DETECTION', 'Detected image format', {
+    format: detectedFormat,
+    dataLength: imageData.length,
+    timestamp: new Date().toISOString()
+  });
+
+  // OpenAI supports: JPEG, PNG, GIF, WebP
+  const supportedFormats = ['jpeg', 'png', 'gif', 'webp'];
+
+  if (!detectedFormat) {
+    return {
+      isValid: false,
+      data: '',
+      format: 'unknown',
+      error: 'Could not detect image format from data'
+    };
+  }
+
+  if (!supportedFormats.includes(detectedFormat)) {
+    return {
+      isValid: false,
+      data: '',
+      format: detectedFormat,
+      error: `Unsupported image format: ${detectedFormat}. OpenAI Vision API only supports JPEG, PNG, GIF, and WebP.`
+    };
+  }
+
+  // Clean the base64 data - remove any data URL prefix
+  const cleanData = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
+
+  // Validate base64
+  try {
+    atob(cleanData.substring(0, 100)); // Test decode first 100 chars
+    return {
+      isValid: true,
+      data: cleanData,
+      format: detectedFormat
+    };
+  } catch (error) {
+    return {
+      isValid: false,
+      data: '',
+      format: detectedFormat,
+      error: 'Invalid base64 encoding'
+    };
+  }
+}
+
 function calculateGPT5TokenCost(inputTokens: number, outputTokens: number, model: string): TokenUsage {
   const OPENAI_PRICING = {
     'gpt-5': { input: 1.25, output: 10.00 },
@@ -292,23 +401,43 @@ async function analyzeMealWithOpenAIVision(
     throw new Error('OpenAI API key not configured');
   }
 
+  // Validate and prepare image data
+  const imageValidation = validateAndPrepareImageData(imageData);
+
+  if (!imageValidation.isValid) {
+    console.error('OPENAI_VISION', 'Image validation failed', {
+      error: imageValidation.error,
+      format: imageValidation.format,
+      timestamp: new Date().toISOString()
+    });
+
+    throw new Error(`Image validation failed: ${imageValidation.error}`);
+  }
+
+  console.log('OPENAI_VISION', 'Image validated successfully', {
+    format: imageValidation.format,
+    dataLength: imageValidation.data.length,
+    timestamp: new Date().toISOString()
+  });
+
   const systemPrompt = buildPersonalizedAnalysisPrompt(userContext, scannedProducts);
-  
+
   const modelsToTry = ['gpt-4o', 'gpt-4o-mini'];
   const maxRetries = modelsToTry.length;
   let lastError: Error | null = null;
-  
+
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     const currentModel = modelsToTry[attempt];
-    
+
     try {
       console.log('OPENAI_VISION_RETRY', `Attempting OpenAI Vision with ${currentModel}`, {
         attemptNumber: attempt + 1,
         maxRetries,
         model: currentModel,
+        imageFormat: imageValidation.format,
         timestamp: new Date().toISOString()
       });
-      
+
       const requestBody = {
         model: currentModel,
         messages: [
@@ -319,7 +448,7 @@ async function analyzeMealWithOpenAIVision(
               {
                 type: 'image_url',
                 image_url: {
-                  url: `data:image/jpeg;base64,${imageData}`,
+                  url: `data:image/${imageValidation.format};base64,${imageValidation.data}`,
                   detail: 'high'
                 }
               }
@@ -646,9 +775,34 @@ Deno.serve(async (req: Request) => {
 
     if (!imageDataForAnalysis) {
       return new Response(
-        JSON.stringify({ 
-          success: false, 
+        JSON.stringify({
+          success: false,
           error: 'No image data provided',
+          ai_powered: false
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    // Validate image format before proceeding
+    const preValidation = validateAndPrepareImageData(imageDataForAnalysis);
+    if (!preValidation.isValid) {
+      console.error('MEAL_ANALYZER', 'Image format validation failed before analysis', {
+        analysisId,
+        userId: requestBody.user_id,
+        error: preValidation.error,
+        format: preValidation.format,
+        timestamp: new Date().toISOString()
+      });
+
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: preValidation.error || 'Invalid image format',
+          details: `Detected format: ${preValidation.format}. Supported formats: JPEG, PNG, GIF, WebP.`,
           ai_powered: false
         }),
         {
@@ -662,6 +816,7 @@ Deno.serve(async (req: Request) => {
       analysisId,
       userId: requestBody.user_id,
       imageDataLength: imageDataForAnalysis.length,
+      imageFormat: preValidation.format,
       hasScannedProducts: !!(requestBody.scanned_products && requestBody.scanned_products.length > 0),
       scannedProductsCount: requestBody.scanned_products?.length || 0,
       timestamp: new Date().toISOString()
@@ -724,22 +879,44 @@ Deno.serve(async (req: Request) => {
       ai_powered: !visionResult.fallbackUsed,
     };
 
-    const requestId = crypto.randomUUID();
-    const actualTokensUsed = visionResult.tokenUsage.total;
-    const tokenResult = await consumeTokensAtomic(
-      supabase,
-      requestBody.user_id,
-      actualTokensUsed,
-      requestId,
-      'meal_analysis',
-      { analysis_id: analysisId, model: visionResult.aiModel }
-    );
-
-    if (!tokenResult.success) {
-      console.error('❌ [MEAL_ANALYZER] Token consumption failed', {
-        userId: requestBody.user_id,
-        error: tokenResult.error,
+    // Only consume tokens if we actually used the AI (not fallback)
+    if (!visionResult.fallbackUsed && visionResult.tokenUsage.total > 0) {
+      const requestId = crypto.randomUUID();
+      const tokenResult = await consumeTokensAtomic(
+        supabase,
+        {
+          userId: requestBody.user_id,
+          edgeFunctionName: 'meal-analyzer',
+          operationType: 'meal_analysis',
+          openaiModel: visionResult.aiModel,
+          openaiInputTokens: visionResult.tokenUsage.input,
+          openaiOutputTokens: visionResult.tokenUsage.output,
+          openaiCostUsd: visionResult.tokenUsage.cost_estimate_usd,
+          metadata: { analysis_id: analysisId, model: visionResult.aiModel }
+        },
         requestId
+      );
+
+      if (!tokenResult.success) {
+        console.error('❌ [MEAL_ANALYZER] Token consumption failed', {
+          userId: requestBody.user_id,
+          error: tokenResult.error,
+          requestId
+        });
+      } else {
+        console.log('✅ [MEAL_ANALYZER] Tokens consumed successfully', {
+          userId: requestBody.user_id,
+          tokensConsumed: tokenResult.consumed,
+          remainingBalance: tokenResult.remainingBalance,
+          requestId
+        });
+      }
+    } else {
+      console.log('⏭️ [MEAL_ANALYZER] Skipping token consumption (fallback used)', {
+        userId: requestBody.user_id,
+        analysisId,
+        fallbackUsed: visionResult.fallbackUsed,
+        tokensUsed: visionResult.tokenUsage.total
       });
     }
 
