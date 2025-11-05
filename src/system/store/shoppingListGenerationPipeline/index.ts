@@ -228,11 +228,13 @@ export const useShoppingListGenerationPipeline = create<ShoppingListGenerationPi
       });
 
       // Call the shopping-list-generator Edge Function
+      // Note: AI generation can take 2-3 minutes
       logger.info('SHOPPING_LIST_PIPELINE', '[API_CALL] Invoking shopping-list-generator edge function', {
         user_id: user.id,
         meal_plan_id: config.selectedMealPlanId,
         generation_mode: config.generationMode,
-        region_coefficient: coefficient
+        region_coefficient: coefficient,
+        note: 'AI generation may take 2-3 minutes'
       });
 
       const { data, error } = await supabase.functions.invoke('shopping-list-generator', {
@@ -247,7 +249,8 @@ export const useShoppingListGenerationPipeline = create<ShoppingListGenerationPi
       logger.info('SHOPPING_LIST_PIPELINE', '[API_RESPONSE] Received response from edge function', {
         hasData: !!data,
         hasError: !!error,
-        dataKeys: data ? Object.keys(data) : []
+        dataKeys: data ? Object.keys(data) : [],
+        errorDetails: error ? JSON.stringify(error) : null
       });
 
       if (error) {

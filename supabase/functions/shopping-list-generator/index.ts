@@ -1,4 +1,3 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
 import { checkTokenBalance, consumeTokensAtomic, createInsufficientTokensResponse } from '../_shared/tokenMiddleware.ts'
@@ -49,9 +48,13 @@ interface ShoppingListResponse {
   }
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return new Response(null, {
+      status: 200,
+      headers: corsHeaders
+    })
   }
 
   try {
@@ -319,23 +322,37 @@ serve(async (req) => {
 
       // Update job with error status
       if (jobId) {
-        await supabase
-          .from('ai_analysis_jobs')
-          .update({
-            status: 'failed',
-            error_message: error.message,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', jobId)
+        try {
+          await supabase
+            .from('ai_analysis_jobs')
+            .update({
+              status: 'failed',
+              error_message: error.message,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', jobId)
+        } catch (dbError) {
+          console.error('Failed to update job status:', dbError)
+        }
       }
 
-      throw error
+      // Return error response with CORS headers instead of throwing
+      return new Response(JSON.stringify({
+        error: error.message,
+        details: 'Error during shopping list generation'
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      })
     }
 
   } catch (error) {
     logger.error('Shopping list generation failed', error);
     console.error('Shopping list generation error:', error)
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({
+      error: error.message || 'Unknown error',
+      details: 'Error in request processing'
+    }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
