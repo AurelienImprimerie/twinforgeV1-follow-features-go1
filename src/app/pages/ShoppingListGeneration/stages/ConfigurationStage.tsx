@@ -33,14 +33,27 @@ const ConfigurationStage: React.FC<ConfigurationStageProps> = ({
   const selectedPlan = availableMealPlans.find(plan => plan.id === selectedMealPlanId);
   const hasValidPlan = selectedPlan && selectedPlan.plan_data;
 
-  const mealPlanOptions = availableMealPlans.map(plan => ({
-    value: plan.id,
-    label: `Plan du ${new Date(plan.created_at).toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    })}`
-  }));
+  const mealPlanOptions = availableMealPlans.map(plan => {
+    // Parse the date properly from different possible formats
+    let dateStr = 'Date inconnue';
+    try {
+      const date = new Date(plan.created_at || plan.createdAt);
+      if (!isNaN(date.getTime())) {
+        dateStr = date.toLocaleDateString('fr-FR', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        });
+      }
+    } catch (e) {
+      console.warn('Invalid date for meal plan:', plan);
+    }
+
+    return {
+      value: plan.id,
+      label: `Plan du ${dateStr}`
+    };
+  });
 
   return (
     <div className="space-y-6">
@@ -219,22 +232,24 @@ const ConfigurationStage: React.FC<ConfigurationStageProps> = ({
               className={`w-full text-white font-semibold py-4 px-8 rounded-xl transition-all duration-200 flex items-center justify-center space-x-3 ${
                 !hasValidPlan || isGenerating ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'
               }`}
-              style={
-                hasValidPlan && !isGenerating
-                  ? {
-                      background: 'linear-gradient(135deg, rgba(251, 146, 60, 0.9) 0%, rgba(249, 115, 22, 0.85) 100%)',
-                      backdropFilter: 'blur(20px) saturate(160%)',
-                      border: '2px solid color-mix(in srgb, #fb923c 60%, transparent)',
-                      boxShadow: `
-                        0 12px 40px color-mix(in srgb, #fb923c 40%, transparent),
-                        0 0 60px color-mix(in srgb, #fb923c 30%, transparent),
-                        inset 0 3px 0 rgba(255, 255, 255, 0.4),
-                        inset 0 -3px 0 rgba(0, 0, 0, 0.2)
-                      `,
-                      WebkitBackdropFilter: 'blur(20px) saturate(160%)'
-                    }
-                  : undefined
-              }
+              style={{
+                background: hasValidPlan && !isGenerating
+                  ? 'linear-gradient(135deg, rgba(251, 146, 60, 0.9) 0%, rgba(249, 115, 22, 0.85) 100%)'
+                  : 'linear-gradient(135deg, rgba(100, 100, 100, 0.5) 0%, rgba(80, 80, 80, 0.5) 100%)',
+                backdropFilter: 'blur(20px) saturate(160%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(160%)',
+                border: hasValidPlan && !isGenerating
+                  ? '2px solid rgba(251, 146, 60, 0.6)'
+                  : '2px solid rgba(100, 100, 100, 0.3)',
+                boxShadow: hasValidPlan && !isGenerating
+                  ? `
+                    0 12px 40px rgba(251, 146, 60, 0.4),
+                    0 0 60px rgba(251, 146, 60, 0.3),
+                    inset 0 3px 0 rgba(255, 255, 255, 0.4),
+                    inset 0 -3px 0 rgba(0, 0, 0, 0.2)
+                  `
+                  : '0 4px 12px rgba(0, 0, 0, 0.3)'
+              }}
             >
               {isGenerating ? (
                 <>

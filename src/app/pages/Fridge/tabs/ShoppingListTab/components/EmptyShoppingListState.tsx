@@ -11,50 +11,32 @@ import logger from '../../../../../../lib/utils/logger';
 
 interface EmptyShoppingListStateProps {
   hasAvailableMealPlans: boolean;
-  onGenerateFromPlan: () => void;
   onScanFridge: () => void;
 }
 
 /**
  * Empty state component for shopping list tab with orange theme
  */
-const EmptyShoppingListState: React.FC<EmptyShoppingListStateProps> = ({ 
-  onGenerate,
+const EmptyShoppingListState: React.FC<EmptyShoppingListStateProps> = ({
   hasAvailableMealPlans,
-  onGenerateFromPlan,
   onScanFridge
 }) => {
   const navigate = useNavigate();
   const [nudgeDismissed, setNudgeDismissed] = useState(false);
-  
+
   const { profile } = useUserStore();
 
   // Calculate profile completion
   const profileCompletion = calculateRecipeWorkshopCompletion(profile);
 
-  // Dynamic button configuration based on available meal plans
-  const buttonConfig = hasAvailableMealPlans ? {
-    text: "Forger une liste depuis un plan de repas",
-    icon: ICONS.ShoppingCart,
-    action: onGenerateFromPlan ? () => {
-      logger.info('User initiated shopping list generation from meal plan');
-      onGenerateFromPlan();
-    } : () => {}
-  } : {
+  // Dynamic button configuration - always show scan fridge as main action
+  const buttonConfig = {
     text: "Scanner mon frigo pour forger une liste",
     icon: ICONS.Scan,
-    action: onScanFridge ? () => {
+    action: () => {
       logger.info('User initiated fridge scan for shopping list');
       onScanFridge();
-    } : () => {}
-  };
-
-  const handleNavigateToProfile = () => {
-    navigateWithScroll(navigate, '/profile', {
-      tab: 'nutrition',
-      smooth: true,
-      delay: 150
-    });
+    }
   };
 
   // Dynamic content based on meal plans availability

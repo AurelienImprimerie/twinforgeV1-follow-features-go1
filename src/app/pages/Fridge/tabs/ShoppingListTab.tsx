@@ -1,8 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useShoppingListStore } from '../../../../system/store/shoppingListStore';
-import { useMealPlanStore } from '../../../../system/store/mealPlanStore';
-import { useFridgeScanPipeline } from '../../../../system/store/fridgeScan';
 import { useNavigate } from 'react-router-dom';
 import GlassCard from '../../../../ui/cards/GlassCard';
 import SpatialIcon from '../../../../ui/icons/SpatialIcon';
@@ -10,88 +8,58 @@ import logger from '../../../../lib/utils/logger';
 
 // Import components
 import EmptyShoppingListState from './ShoppingListTab/components/EmptyShoppingListState';
-import ShoppingListGenerationLoader from './ShoppingListTab/ShoppingListGenerationLoader';
-import ShoppingListDisplay from './ShoppingListTab/ShoppingListDisplay';
-import ShoppingListGeneratorCard from './ShoppingListTab/ShoppingListGeneratorCard';
 import ShoppingListLibraryCTA from '../components/ShoppingListLibraryCTA';
 
 /**
- * Shopping List Tab - Generate personalized shopping lists
+ * Shopping List Tab - Library of saved shopping lists
  */
 const ShoppingListTab: React.FC = () => {
   const navigate = useNavigate();
-  const { 
-    isGenerating, 
-    shoppingList, 
+  const {
+    allShoppingLists,
+    loadAllShoppingLists,
     error,
-    reset,
-    generateShoppingList
+    reset
   } = useShoppingListStore();
-  const { allMealPlans, loadAllMealPlans } = useMealPlanStore();
-  const { startScan } = useFridgeScanPipeline();
 
   React.useEffect(() => {
-    loadAllMealPlans();
-  }, [loadAllMealPlans]);
+    loadAllShoppingLists();
+  }, [loadAllShoppingLists]);
 
   React.useEffect(() => {
     logger.debug('SHOPPING_LIST_TAB', 'Component mounted', {
-      isGenerating,
-      hasShoppingList: !!shoppingList,
-      hasError: !!error,
-      allMealPlansCount: allMealPlans.length
+      shoppingListsCount: allShoppingLists.length,
+      hasError: !!error
     });
 
     // Cleanup on unmount
     return () => {
       logger.debug('SHOPPING_LIST_TAB', 'Component unmounting');
     };
-  }, [isGenerating, shoppingList, error, allMealPlans.length]);
-
-  // Calculate if meal plans are available
-  const hasAvailableMealPlans = allMealPlans.length > 0;
-  
-  // Check if shopping list has items
-  const hasShoppingListItems = shoppingList && shoppingList.totalItems > 0;
-
-  const handleGenerateFromPlan = () => {
-    // This will show the ShoppingListGeneratorCard interface
-    logger.info('SHOPPING_LIST_TAB', 'User initiated generation from meal plan');
-  };
+  }, [allShoppingLists.length, error]);
 
   const handleScanFridge = () => {
-    startScan();
     navigate('/fridge/scan');
   };
 
   // Determine which component to render based on state
   const renderContent = () => {
-    // Priorité 1 : État de chargement
-    if (isGenerating) {
-      return <ShoppingListGenerationLoader />;
-    }
-
-    // Priorité 2 : Liste de courses existante
-    if (hasShoppingListItems) {
+    // Empty state - no shopping lists saved yet
+    if (allShoppingLists.length === 0) {
       return (
-        <div className="space-y-6">
-          <ShoppingListDisplay />
-          <ShoppingListGeneratorCard />
-        </div>
+        <EmptyShoppingListState
+          hasAvailableMealPlans={false}
+          onScanFridge={handleScanFridge}
+        />
       );
     }
 
-    // Priorité 3 : Générateur de liste de courses (si des plans sont disponibles)
-    if (hasAvailableMealPlans) {
-      return <ShoppingListGeneratorCard />;
-    }
-
-    // Priorité 4 : État vide
+    // TODO: Library view with saved shopping lists
     return (
-      <EmptyShoppingListState 
-        hasAvailableMealPlans={hasAvailableMealPlans}
-        onGenerateFromPlan={handleGenerateFromPlan}
-      />
+      <div className="text-center text-white/60 py-12">
+        <p>Bibliothèque de listes de courses - En construction</p>
+        <p className="text-sm mt-2">{allShoppingLists.length} liste(s) sauvegardée(s)</p>
+      </div>
     );
   };
 

@@ -6,6 +6,7 @@ import logger from '../../lib/utils/logger';
 
 interface ShoppingListState {
   shoppingList: ShoppingList | null;
+  allShoppingLists: ShoppingList[];
   suggestions: any[];
   advice: string[];
   budgetEstimation: any;
@@ -16,11 +17,13 @@ interface ShoppingListState {
   currentLoadingTitle: string;
   currentLoadingSubtitle: string;
   progressInterval: NodeJS.Timeout | null;
-  
+  error: string | null;
+
   // Actions
   setGenerationMode: (mode: 'user_only' | 'user_and_family') => void;
   setSelectedMealPlanId: (id: string | null) => void;
   generateShoppingList: (params: GenerateShoppingListParams) => Promise<void>;
+  loadAllShoppingLists: () => Promise<void>;
   startSimulatedProgress: () => void;
   stopSimulatedProgress: () => void;
   reset: () => void;
@@ -53,6 +56,7 @@ export const useShoppingListStore = create<ShoppingListState>()(
   persist(
     (set, get) => ({
       shoppingList: null,
+      allShoppingLists: [],
       suggestions: [],
       advice: [],
       budgetEstimation: null,
@@ -63,9 +67,52 @@ export const useShoppingListStore = create<ShoppingListState>()(
       currentLoadingTitle: '',
       currentLoadingSubtitle: '',
       progressInterval: null,
+      error: null,
 
       setGenerationMode: (mode) => set({ generationMode: mode }),
       setSelectedMealPlanId: (id) => set({ selectedMealPlanId: id }),
+
+      loadAllShoppingLists: async () => {
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            logger.warn('SHOPPING_LIST_STORE', 'Cannot load shopping lists: user not authenticated');
+            return;
+          }
+
+          const { data, error } = await supabase
+            .from('shopping_lists')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false });
+
+          if (error) {
+            logger.error('SHOPPING_LIST_STORE', 'Failed to load shopping lists', { error });
+            set({ error: error.message });
+            return;
+          }
+
+          logger.info('SHOPPING_LIST_STORE', 'Loaded shopping lists', { count: data?.length || 0 });
+
+          // Transform database records to ShoppingList objects
+          const lists: ShoppingList[] = (data || []).map(record => ({
+            id: record.id,
+            name: record.name || 'Liste de Courses',
+            generationMode: record.generation_mode || 'user_only',
+            totalItems: record.total_items || 0,
+            completedItems: record.completed_items || 0,
+            totalEstimatedCost: record.total_estimated_cost || 0,
+            categories: [], // Will be loaded with items when needed
+            createdAt: record.created_at,
+            updatedAt: record.updated_at
+          }));
+
+          set({ allShoppingLists: lists, error: null });
+        } catch (error) {
+          logger.error('SHOPPING_LIST_STORE', 'Exception loading shopping lists', { error });
+          set({ error: error instanceof Error ? error.message : 'Failed to load shopping lists' });
+        }
+      },
 
       startSimulatedProgress: () => {
         const state = get();
