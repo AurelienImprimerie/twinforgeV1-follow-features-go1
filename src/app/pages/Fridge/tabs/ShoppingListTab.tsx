@@ -9,6 +9,7 @@ import logger from '../../../../lib/utils/logger';
 // Import components
 import EmptyShoppingListState from './ShoppingListTab/components/EmptyShoppingListState';
 import ShoppingListLibraryCTA from '../components/ShoppingListLibraryCTA';
+import ShoppingListLibrary from './ShoppingListTab/ShoppingListLibrary';
 
 /**
  * Shopping List Tab - Library of saved shopping lists
@@ -54,13 +55,8 @@ const ShoppingListTab: React.FC = () => {
       );
     }
 
-    // TODO: Library view with saved shopping lists
-    return (
-      <div className="text-center text-white/60 py-12">
-        <p>Bibliothèque de listes de courses - En construction</p>
-        <p className="text-sm mt-2">{allShoppingLists.length} liste(s) sauvegardée(s)</p>
-      </div>
-    );
+    // Library view with saved shopping lists
+    return <ShoppingListLibrary />;
   };
 
   return (

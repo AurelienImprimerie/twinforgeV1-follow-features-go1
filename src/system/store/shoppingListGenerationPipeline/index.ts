@@ -323,29 +323,26 @@ export const useShoppingListGenerationPipeline = create<ShoppingListGenerationPi
           });
         }
 
-        // Calculate category total from items (in cents)
+        // Transform items (AI does not provide individual prices, only global budget)
         const categoryItems = (cat.items || []).map((item: any, itemIndex: number) => {
-          // Item price should already be in cents from AI, apply coefficient
-          const itemPriceCents = Math.round((item.estimatedPrice || 0) * coefficient);
-
           logger.debug('SHOPPING_LIST_PIPELINE', `[TRANSFORM_ITEM_${catIndex}_${itemIndex}]`, {
             name: item.name,
             quantity: item.quantity,
-            estimatedPrice_cents: itemPriceCents
+            note: 'AI does not provide individual prices'
           });
 
           return {
             id: item.id || `item-${Date.now()}-${Math.random()}`,
             name: item.name || 'Unknown Item',
             quantity: item.quantity || '1',
-            estimatedPrice: itemPriceCents, // Store in cents
+            estimatedPrice: 0, // AI does not provide individual prices, only global budget
             priority: item.priority || 'medium',
             isChecked: false
           };
         });
 
-        // Sum category total from items
-        const categoryTotalCents = categoryItems.reduce((sum, item) => sum + (item.estimatedPrice || 0), 0);
+        // Category total is 0 because AI doesn't provide item prices
+        const categoryTotalCents = 0;
 
         return {
           id: cat.id || `category-${Date.now()}-${Math.random()}`,
@@ -358,12 +355,14 @@ export const useShoppingListGenerationPipeline = create<ShoppingListGenerationPi
       });
 
       const totalItems = categories.reduce((total, cat) => total + cat.items.length, 0);
-      const totalEstimatedCost = categories.reduce((total, cat) => total + cat.estimatedTotal, 0);
+      // Total cost is 0 because AI only provides global budget, not item prices
+      const totalEstimatedCost = 0;
 
       logger.info('SHOPPING_LIST_PIPELINE', '[TRANSFORM_COMPLETE] Transformation completed', {
         total_categories: categories.length,
         total_items: totalItems,
         total_estimated_cost: totalEstimatedCost,
+        note: 'Item prices are 0 - AI provides only global budget estimate',
         categories_summary: categories.map(cat => ({
           name: cat.name,
           items_count: cat.items.length,

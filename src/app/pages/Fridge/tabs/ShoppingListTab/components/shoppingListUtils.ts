@@ -43,8 +43,8 @@ export function formatCentsToEuros(
   const formatted = new Intl.NumberFormat(locale, {
     style: showSymbol ? 'currency' : 'decimal',
     currency: 'EUR',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
   }).format(euros);
 
   return formatted;
