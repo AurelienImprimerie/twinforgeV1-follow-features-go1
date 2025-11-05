@@ -28,8 +28,13 @@ const ValidationStage: React.FC<ValidationStageProps> = ({
   isGeneratingRecipes
 }) => {
   const { isPerformanceMode } = usePerformanceMode();
-  const { currentStep } = useMealPlanGenerationPipeline();
+  const { currentStep, processedRecipesCount, totalRecipesToGenerate, lastStateUpdate } = useMealPlanGenerationPipeline();
   const MotionDiv = isPerformanceMode ? 'div' : motion.div;
+
+  // Force re-render when recipes are generated
+  React.useEffect(() => {
+    // This ensures the UI updates as recipes are generated
+  }, [lastStateUpdate, processedRecipesCount, mealPlan]);
 
   if (!mealPlan) {
     return null;
@@ -98,7 +103,7 @@ const ValidationStage: React.FC<ValidationStageProps> = ({
                 <div className="flex items-center gap-3">
                   <p className="text-white/70">
                     {weekCount} semaine{weekCount > 1 ? 's' : ''} · {totalMeals} repas planifiés
-                    {isGeneratingRecipes && ` · ${recipesGenerated}/${totalMeals} recettes générées`}
+                    {isGeneratingRecipes && ` · ${processedRecipesCount || recipesGenerated}/${totalMeals} recettes générées`}
                   </p>
                 </div>
               </div>

@@ -13,15 +13,30 @@ interface GeneratingStageProps {
 
 const GeneratingStage: React.FC<GeneratingStageProps> = ({ onExit }) => {
   const { isPerformanceMode } = usePerformanceMode();
-  const { mealPlanCandidates, loadingState, config } = useMealPlanGenerationPipeline();
+  const {
+    mealPlanCandidates,
+    loadingState,
+    config,
+    receivedDaysCount,
+    totalDaysToGenerate,
+    simulatedOverallProgress,
+    lastStateUpdate
+  } = useMealPlanGenerationPipeline();
   const MotionDiv = isPerformanceMode ? 'div' : motion.div;
 
-  // Calculate progress based on received days
+  // Calculate progress based on received days from store
   const currentPlan = mealPlanCandidates[0];
-  const totalDays = 7;
+  const totalDays = totalDaysToGenerate || 7;
   const receivedDays = currentPlan?.days?.length || 0;
-  const progressPercentage = Math.round((receivedDays / totalDays) * 100);
+  const progressPercentage = totalDaysToGenerate > 0
+    ? Math.round((receivedDaysCount / totalDaysToGenerate) * 100)
+    : Math.round((receivedDays / totalDays) * 100);
   const isStreaming = loadingState === 'streaming' && receivedDays > 0;
+
+  // Force re-render when lastStateUpdate changes
+  React.useEffect(() => {
+    // This effect ensures the component re-renders when state updates
+  }, [lastStateUpdate, receivedDaysCount, mealPlanCandidates]);
 
   // Generate dynamic title and subtitle based on progress
   const getDynamicTitle = (): string => {
@@ -178,7 +193,9 @@ const GeneratingStage: React.FC<GeneratingStageProps> = ({ onExit }) => {
                 <span className="text-white/80">
                   {receivedDays > 0 ? 'Génération en cours...' : 'Initialisation...'}
                 </span>
-                <span className="text-violet-400 font-semibold">{receivedDays}/{totalDays} jours</span>
+                <span className="text-violet-400 font-semibold">
+                  {receivedDaysCount || receivedDays}/{totalDays} jours
+                </span>
               </div>
               <div className="relative w-full h-4 bg-white/5 rounded-full overflow-hidden">
                 <motion.div

@@ -38,15 +38,19 @@ export interface MealPlanDay {
 
 export interface Meal {
   id: string;
-  mealType: string;
-  mealName: string;
-  mealDescription?: string;
+  type: string;
+  name: string;
+  description?: string;
   ingredients?: any[];
+  prepTime?: number;
+  cookTime?: number;
+  calories?: number;
   nutritionalInfo?: any;
   imageUrl?: string;
   imageStatus?: string;
   recipeGenerated: boolean;
   recipeId?: string;
+  detailedRecipe?: any;
   recipe?: Recipe;
   status: 'loading' | 'ready';
 }
@@ -68,6 +72,11 @@ export interface MealPlanGenerationPipelineState {
 
   // Progress state
   simulatedOverallProgress: number;
+  lastStateUpdate: number;
+  receivedDaysCount: number;
+  totalDaysToGenerate: number;
+  processedRecipesCount: number;
+  totalRecipesToGenerate: number;
 
   // Data state
   mealPlanCandidates: MealPlan[];

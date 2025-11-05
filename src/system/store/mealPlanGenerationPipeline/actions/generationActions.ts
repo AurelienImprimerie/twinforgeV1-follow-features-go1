@@ -145,7 +145,10 @@ export const createGenerationActions = (
       currentStep: 'generating',
       loadingState: 'generating',
       loadingMessage: 'Analyse de votre inventaire et préférences...',
-      simulatedOverallProgress: 25
+      simulatedOverallProgress: 10,
+      receivedDaysCount: 0,
+      totalDaysToGenerate: config.weekCount * 7,
+      lastStateUpdate: Date.now()
     });
 
     try {
@@ -180,7 +183,8 @@ export const createGenerationActions = (
         mealPlanCandidates: initialPlans,
         loadingState: 'streaming',
         loadingMessage: 'Génération des plans avec l\'IA...',
-        simulatedOverallProgress: 35
+        simulatedOverallProgress: 15,
+        lastStateUpdate: Date.now()
       });
 
       // Generate plans via edge function with streaming
@@ -249,9 +253,14 @@ export const createGenerationActions = (
                     timestamp: new Date().toISOString()
                   });
 
-                  // Update plan with received day
-                  set(state => ({
-                    mealPlanCandidates: state.mealPlanCandidates.map((p, idx) =>
+                  // CRITICAL: Update plan with received day AND force UI update with timestamp
+                  const currentState = get();
+                  const totalDays = currentState.totalDaysToGenerate;
+                  const newReceivedCount = (i * 7) + receivedDays.length;
+                  const progressPercent = 15 + (newReceivedCount / totalDays) * 35; // 15% to 50%
+
+                  set({
+                    mealPlanCandidates: currentState.mealPlanCandidates.map((p, idx) =>
                       idx === i ? {
                         ...p,
                         days: receivedDays.map((day, dayIdx) => ({
@@ -299,8 +308,11 @@ export const createGenerationActions = (
                         status: receivedDays.length === 7 ? 'ready' as const : 'loading' as const
                       } : p
                     ),
-                    simulatedOverallProgress: 35 + (receivedDays.length / 7) * 15
-                  }));
+                    simulatedOverallProgress: Math.round(progressPercent),
+                    receivedDaysCount: newReceivedCount,
+                    loadingMessage: `Génération en cours... ${newReceivedCount}/${totalDays} jours`,
+                    lastStateUpdate: Date.now()
+                  });
 
                   logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Day received via streaming', {
                     weekNumber: plan.weekNumber,
@@ -319,8 +331,9 @@ export const createGenerationActions = (
                   });
 
                   // Update plan with weekly summary
-                  set(state => ({
-                    mealPlanCandidates: state.mealPlanCandidates.map((p, idx) =>
+                  const currentState = get();
+                  set({
+                    mealPlanCandidates: currentState.mealPlanCandidates.map((p, idx) =>
                       idx === i ? {
                         ...p,
                         status: 'ready' as const,
@@ -330,8 +343,9 @@ export const createGenerationActions = (
                         avgCaloriesPerDay: weeklyData.avg_calories_per_day,
                         aiExplanation: weeklyData.ai_explanation?.personalizedReasoning
                       } : p
-                    )
-                  }));
+                    ),
+                    lastStateUpdate: Date.now()
+                  });
 
                   logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Week completed', {
                     weekNumber: plan.weekNumber,
@@ -370,7 +384,9 @@ export const createGenerationActions = (
       set({
         loadingState: 'idle',
         currentStep: 'validation',
-        simulatedOverallProgress: 50
+        simulatedOverallProgress: 50,
+        loadingMessage: 'Plan généré avec succès !',
+        lastStateUpdate: Date.now()
       });
 
       logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'All meal plans generated successfully', {
@@ -412,12 +428,25 @@ export const createGenerationActions = (
       timestamp: new Date().toISOString()
     });
 
-    set({
+    // First, mark all meals as loading to show progress
+    set(state => ({
       currentStep: 'validation',
       loadingState: 'generating_recipes',
       loadingMessage: 'Génération des recettes détaillées...',
-      simulatedOverallProgress: 50
-    });
+      simulatedOverallProgress: 50,
+      processedRecipesCount: 0,
+      mealPlanCandidates: state.mealPlanCandidates.map(plan => ({
+        ...plan,
+        days: plan.days.map(day => ({
+          ...day,
+          meals: day.meals.map(meal => ({
+            ...meal,
+            status: 'loading' as const
+          }))
+        }))
+      })),
+      lastStateUpdate: Date.now()
+    }));
 
     try {
       // Count total meals first
@@ -454,7 +483,9 @@ export const createGenerationActions = (
       set({
         loadingState: 'streaming_recipes',
         currentStep: 'validation',
-        simulatedOverallProgress: 60
+        simulatedOverallProgress: 55,
+        totalRecipesToGenerate: totalMeals,
+        lastStateUpdate: Date.now()
       });
 
       const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/recipe-detail-generator`;
@@ -496,7 +527,10 @@ export const createGenerationActions = (
                 const result = await response.json();
                 const detailedRecipe = result.recipe;
 
-                // Update meal with detailed recipe immediately (streaming effect)
+                // Update meal with detailed recipe immediately (streaming effect) + force UI update
+                processedMeals++;
+                const progress = 55 + (processedMeals / totalMeals) * 20; // 55% to 75%
+
                 set(state => ({
                   mealPlanCandidates: state.mealPlanCandidates.map(p =>
                     p.id === plan.id
@@ -538,16 +572,12 @@ export const createGenerationActions = (
                           )
                         }
                       : p
-                  )
-                }));
-
-                processedMeals++;
-                const progress = 60 + (processedMeals / totalMeals) * 15;
-
-                set({
+                  ),
                   simulatedOverallProgress: Math.round(progress),
-                  loadingMessage: `Génération des recettes... ${processedMeals}/${totalMeals}`
-                });
+                  processedRecipesCount: processedMeals,
+                  loadingMessage: `Génération des recettes... ${processedMeals}/${totalMeals}`,
+                  lastStateUpdate: Date.now()
+                }));
 
                 logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Recipe generated and displayed', {
                   mealName: meal.name,
