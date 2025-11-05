@@ -212,6 +212,13 @@ serve(async (req) => {
         model: 'gpt-5-mini'
       });
 
+      logger.info('[OPENAI_CALL] About to call OpenAI API', {
+        model: 'gpt-5-mini',
+        prompt_length: prompt.length,
+        meal_plan_days: mealPlan.plan_data?.days?.length || 0,
+        generation_mode: generation_mode
+      });
+
       // Call OpenAI API with GPT-5-mini
       const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -224,7 +231,25 @@ serve(async (req) => {
           messages: [
             {
               role: 'system',
-              content: 'Tu es un expert en nutrition et en planification de repas. Tu aides les utilisateurs à créer des listes de courses personnalisées et optimisées. Tu dois TOUJOURS générer des listes complètes et détaillées avec un minimum de 30-50 articles uniques, même si le plan de repas semble simple. Chaque catégorie doit contenir 8-12 articles minimum.'
+              content: `Tu es un expert en nutrition et en planification de repas. Tu aides les utilisateurs à créer des listes de courses personnalisées et optimisées.
+
+RÈGLES ABSOLUES QUE TU DOIS RESPECTER:
+1. Tu dois TOUJOURS générer une liste COMPLÈTE et DÉTAILLÉE avec un MINIMUM de 30-50 articles uniques
+2. CHAQUE catégorie doit contenir AU MINIMUM 5-10 articles
+3. Tu dois ANALYSER EN DÉTAIL chaque repas du plan alimentaire et LISTER TOUS les ingrédients
+4. Tu dois INCLURE les ingrédients de base (huile, sel, poivre, épices, condiments, etc.)
+5. Tu dois TOUJOURS retourner du JSON valide et COMPLET
+6. JAMAIS de liste minimaliste ou incomplète - c'est INACCEPTABLE
+
+STRUCTURE MINIMALE REQUISE:
+- Fruits & Légumes: minimum 8-12 articles
+- Viandes & Poissons: minimum 4-6 articles
+- Produits laitiers: minimum 3-5 articles
+- Épicerie: minimum 6-10 articles
+- Boulangerie: minimum 2-3 articles
+- Condiments & Épices: minimum 4-6 articles
+
+Si le plan de repas contient 7 jours de repas (petit-déjeuner, déjeuner, dîner), tu DOIS générer une liste proportionnellement complète.`
             },
             {
               role: 'user',
@@ -254,6 +279,13 @@ serve(async (req) => {
 
       const openAIResult = await openAIResponse.json()
 
+      logger.info('[OPENAI_RESPONSE] Received response from OpenAI', {
+        status: openAIResponse.status,
+        hasChoices: !!openAIResult.choices,
+        choicesCount: openAIResult.choices?.length || 0,
+        hasUsage: !!openAIResult.usage
+      });
+
       // Calculate token usage and cost
       const tokenUsage = {
         input: openAIResult.usage?.prompt_tokens || 0,
@@ -268,6 +300,13 @@ serve(async (req) => {
         model: 'gpt-5-mini'
       });
 
+      logger.debug('[OPENAI_TOKENS] Token usage', {
+        input_tokens: tokenUsage.input,
+        output_tokens: tokenUsage.output,
+        total_tokens: tokenUsage.input + tokenUsage.output,
+        cost_usd: tokenUsage.costUsd
+      });
+
       logger.debug('GPT-5-mini API response received', {
         usage: openAIResult.usage,
         model: 'gpt-5-mini',
@@ -278,18 +317,27 @@ serve(async (req) => {
       const aiContent = openAIResult.choices[0]?.message?.content
 
       if (!aiContent) {
-        logger.error('No content received from OpenAI', {
+        logger.error('[OPENAI_ERROR] No content received from OpenAI', {
           openAIResult: JSON.stringify(openAIResult)
         });
         throw new Error('No content received from OpenAI')
       }
 
+      logger.info('[OPENAI_CONTENT] Received AI content', {
+        contentLength: aiContent.length,
+        contentPreview: aiContent.substring(0, 300) + '...'
+      });
+
       console.log('SHOPPING_LIST_GENERATOR OpenAI response received, parsing...', {
         contentLength: aiContent.length
-      })
+      });
+
+      console.log('[OPENAI_RAW_CONTENT] First 1000 chars:', aiContent.substring(0, 1000));
 
       // Parse AI response
-      const parsedResponse = parseAIResponse(aiContent, userProfile.country || 'France')
+      logger.info('[PARSING_START] Starting to parse AI response');
+      const parsedResponse = parseAIResponse(aiContent, userProfile.country || 'France');
+      logger.info('[PARSING_COMPLETE] AI response parsed');
 
       logger.info('AI response parsed successfully', {
         shopping_list_categories: parsedResponse.shopping_list?.length || 0,
@@ -485,18 +533,30 @@ function calculateAge(birthdate: string): number {
 }
 
 function parseAIResponse(aiContent: string, country: string): ShoppingListResponse {
-  logger.debug('Raw AI response content', { 
+  logger.debug('[PARSE_START] Starting to parse AI response', {
     content_length: aiContent.length,
-    content_preview: aiContent.substring(0, 500) + '...'
+    content_preview: aiContent.substring(0, 500) + '...',
+    content_last_500: aiContent.substring(Math.max(0, aiContent.length - 500))
   });
+
+  console.log('[PARSE_RAW_CONTENT] Full AI response:', aiContent);
 
   try {
     // Clean the response to extract JSON
     const jsonMatch = aiContent.match(/\{[\s\S]*\}/)
     if (!jsonMatch) {
-      logger.error('No JSON found in AI response', { aiContent });
+      logger.error('[PARSE_ERROR] No JSON found in AI response', {
+        aiContent,
+        aiContentLength: aiContent.length
+      });
+      console.error('[PARSE_ERROR] Full content that failed:', aiContent);
       throw new Error('No JSON found in AI response')
     }
+
+    logger.debug('[PARSE_JSON_MATCH] JSON pattern found', {
+      matchLength: jsonMatch[0].length,
+      matchPreview: jsonMatch[0].substring(0, 500) + '...'
+    });
 
     // Sanitize JSON string - fix common issues with control characters and malformed strings
     let jsonString = jsonMatch[0];
@@ -511,22 +571,57 @@ function parseAIResponse(aiContent: string, country: string): ShoppingListRespon
     jsonString = jsonString.replace(/[\u0000-\u001F]+/g, ' ');
 
     const parsedResponse = JSON.parse(jsonString)
-    
+
+    logger.info('[PARSE_SUCCESS] JSON parsed successfully', {
+      hasShoppingList: !!parsedResponse.shopping_list,
+      shoppingListType: Array.isArray(parsedResponse.shopping_list) ? 'array' : typeof parsedResponse.shopping_list,
+      shoppingListLength: Array.isArray(parsedResponse.shopping_list) ? parsedResponse.shopping_list.length : 'N/A',
+      hasSuggestions: !!parsedResponse.suggestions,
+      hasAdvice: !!parsedResponse.advice,
+      hasBudget: !!parsedResponse.budget_estimation
+    });
+
+    console.log('[PARSE_FULL_RESPONSE] Complete parsed response:', JSON.stringify(parsedResponse, null, 2));
+
     // Validate shopping_list structure
     if (!Array.isArray(parsedResponse.shopping_list)) {
-      logger.error('shopping_list is not an array', { shopping_list: parsedResponse.shopping_list });
+      logger.error('[PARSE_ERROR] shopping_list is not an array', {
+        shopping_list: parsedResponse.shopping_list,
+        type: typeof parsedResponse.shopping_list
+      });
       parsedResponse.shopping_list = [];
+    }
+
+    if (parsedResponse.shopping_list.length === 0) {
+      logger.error('[PARSE_ERROR] shopping_list is empty array!');
     }
     
     // Validate each category has items array
     parsedResponse.shopping_list.forEach((category: any, index: number) => {
       if (!category.category) {
-        logger.warn(`Category ${index} missing name`, { category });
+        logger.warn(`[PARSE_WARNING] Category ${index} missing name`, { category });
         category.category = `Catégorie ${index + 1}`;
       }
       if (!Array.isArray(category.items)) {
-        logger.warn(`Category ${category.category} items is not an array`, { items: category.items });
+        logger.warn(`[PARSE_WARNING] Category ${category.category} items is not an array`, {
+          items: category.items,
+          type: typeof category.items
+        });
         category.items = [];
+      }
+
+      // Log each category's content
+      logger.debug(`[PARSE_CATEGORY] Category ${index + 1}: ${category.category}`, {
+        itemsCount: category.items?.length || 0,
+        items: category.items?.map((item: any) => ({
+          name: item.name,
+          quantity: item.quantity,
+          notes: item.notes
+        })) || []
+      });
+
+      if (category.items.length === 0) {
+        logger.warn(`[PARSE_WARNING] Category ${category.category} has NO items!`);
       }
     });
     
@@ -554,39 +649,66 @@ function parseAIResponse(aiContent: string, country: string): ShoppingListRespon
       }
     };
 
-    logger.info('Final parsed response ready', {
+    const totalItems = result.shopping_list.reduce((total, cat) => total + (cat.items?.length || 0), 0);
+
+    logger.info('[PARSE_FINAL] Final parsed response ready', {
       total_categories: result.shopping_list.length,
-      total_items: result.shopping_list.reduce((total, cat) => total + (cat.items?.length || 0), 0),
+      total_items: totalItems,
       suggestions: result.suggestions.length,
-      advice: result.advice.length
+      advice: result.advice.length,
+      budget: result.budget_estimation.estimated_cost
     });
+
+    console.log('[PARSE_FINAL_SUMMARY] Shopping list summary:', {
+      categories: result.shopping_list.map(cat => ({
+        name: cat.category,
+        itemCount: cat.items?.length || 0
+      })),
+      totalItems: totalItems
+    });
+
+    if (totalItems === 0) {
+      logger.error('[PARSE_CRITICAL] ZERO items in final result! This is a CRITICAL ERROR!');
+      console.error('[PARSE_CRITICAL] Complete result object:', JSON.stringify(result, null, 2));
+    } else if (totalItems < 10) {
+      logger.warn(`[PARSE_WARNING] Only ${totalItems} items generated - expected 30-50+`);
+    }
 
     return result;
   } catch (error) {
-    logger.error('Error parsing AI response', { error: error.message, aiContent });
-    console.error('Error parsing AI response:', error)
-    
-    // Return fallback structure
+    logger.error('[PARSE_ERROR] Error parsing AI response', {
+      error: error.message,
+      errorStack: error.stack,
+      aiContentLength: aiContent?.length || 0
+    });
+    console.error('[PARSE_ERROR] Error parsing AI response:', error);
+    console.error('[PARSE_ERROR] AI content that failed:', aiContent);
+
+    // Return fallback structure with clear error indication
     return {
       shopping_list: [
         {
-          category: 'Articles généraux',
+          category: 'Erreur de Génération',
           items: [
             {
-              name: 'Liste générée avec succès',
+              name: 'La liste n\'a pas pu être générée correctement',
               quantity: '1',
-              notes: 'Erreur de parsing, veuillez réessayer'
+              notes: `Erreur: ${error.message}. Veuillez réessayer.`
             }
           ]
         }
       ],
       suggestions: [],
-      advice: ['Une erreur est survenue lors de la génération. Veuillez réessayer.'],
+      advice: [
+        'Une erreur est survenue lors de la génération.',
+        'Veuillez réessayer ou contacter le support si le problème persiste.',
+        `Détails technique: ${error.message}`
+      ],
       budget_estimation: {
         estimated_cost: 'Non disponible',
         confidence_level: 'Faible',
         currency: 'EUR',
-        notes: ['Erreur de parsing des données']
+        notes: ['Erreur de parsing des données', `Erreur: ${error.message}`]
       }
     }
   }

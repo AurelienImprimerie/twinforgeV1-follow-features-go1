@@ -24,7 +24,30 @@ const ValidationStage: React.FC<ValidationStageProps> = ({
   const { isPerformanceMode } = usePerformanceMode();
   const MotionDiv = isPerformanceMode ? 'div' : motion.div;
 
+  // Debug logging
+  React.useEffect(() => {
+    console.log('[VALIDATION_STAGE] Received shopping list:', {
+      hasShoppingList: !!shoppingList,
+      totalItems: shoppingList?.totalItems,
+      categoriesCount: shoppingList?.categories?.length,
+      categories: shoppingList?.categories?.map(cat => ({
+        name: cat.name,
+        itemsCount: cat.items?.length
+      })),
+      full_list: JSON.stringify(shoppingList, null, 2)
+    });
+
+    if (shoppingList && shoppingList.totalItems === 0) {
+      console.error('[VALIDATION_STAGE_ERROR] Shopping list has ZERO items!');
+    }
+
+    if (shoppingList && shoppingList.categories.length === 0) {
+      console.error('[VALIDATION_STAGE_ERROR] Shopping list has ZERO categories!');
+    }
+  }, [shoppingList]);
+
   if (!shoppingList) {
+    console.warn('[VALIDATION_STAGE] No shopping list provided');
     return <div className="text-white">Aucune liste disponible</div>;
   }
 

@@ -228,6 +228,13 @@ export const useShoppingListGenerationPipeline = create<ShoppingListGenerationPi
       });
 
       // Call the shopping-list-generator Edge Function
+      logger.info('SHOPPING_LIST_PIPELINE', '[API_CALL] Invoking shopping-list-generator edge function', {
+        user_id: user.id,
+        meal_plan_id: config.selectedMealPlanId,
+        generation_mode: config.generationMode,
+        region_coefficient: coefficient
+      });
+
       const { data, error } = await supabase.functions.invoke('shopping-list-generator', {
         body: {
           user_id: user.id,
@@ -237,35 +244,125 @@ export const useShoppingListGenerationPipeline = create<ShoppingListGenerationPi
         }
       });
 
+      logger.info('SHOPPING_LIST_PIPELINE', '[API_RESPONSE] Received response from edge function', {
+        hasData: !!data,
+        hasError: !!error,
+        dataKeys: data ? Object.keys(data) : []
+      });
+
       if (error) {
-        logger.error('SHOPPING_LIST_PIPELINE', 'Edge function error', { error });
+        logger.error('SHOPPING_LIST_PIPELINE', '[API_ERROR] Edge function error', {
+          error,
+          errorMessage: error.message,
+          errorDetails: JSON.stringify(error)
+        });
         throw error;
       }
 
-      if (!data || !data.shopping_list) {
-        logger.error('SHOPPING_LIST_PIPELINE', 'Invalid response', { data });
-        throw new Error('Invalid response from shopping list generator');
+      if (!data) {
+        logger.error('SHOPPING_LIST_PIPELINE', '[API_ERROR] No data received from edge function');
+        throw new Error('No data received from shopping list generator');
+      }
+
+      logger.debug('SHOPPING_LIST_PIPELINE', '[API_DATA] Raw response data', {
+        shopping_list_type: Array.isArray(data.shopping_list) ? 'array' : typeof data.shopping_list,
+        shopping_list_length: Array.isArray(data.shopping_list) ? data.shopping_list.length : 'N/A',
+        has_suggestions: !!data.suggestions,
+        has_advice: !!data.advice,
+        has_budget: !!data.budget_estimation,
+        raw_data: JSON.stringify(data, null, 2)
+      });
+
+      if (!data.shopping_list) {
+        logger.error('SHOPPING_LIST_PIPELINE', '[API_ERROR] No shopping_list in response', {
+          data,
+          dataKeys: Object.keys(data)
+        });
+        throw new Error('Invalid response from shopping list generator: missing shopping_list');
+      }
+
+      if (!Array.isArray(data.shopping_list)) {
+        logger.error('SHOPPING_LIST_PIPELINE', '[API_ERROR] shopping_list is not an array', {
+          type: typeof data.shopping_list,
+          value: data.shopping_list
+        });
+        throw new Error('Invalid response: shopping_list must be an array');
+      }
+
+      if (data.shopping_list.length === 0) {
+        logger.error('SHOPPING_LIST_PIPELINE', '[API_ERROR] shopping_list is EMPTY array!');
+        throw new Error('Shopping list is empty. Please try again.');
       }
 
       // Transform response with region pricing
-      const categories = (data.shopping_list || []).map((cat: any) => ({
-        id: cat.id || `category-${Date.now()}-${Math.random()}`,
-        name: cat.category || cat.name || 'Unknown Category',
-        icon: cat.icon || 'Package',
-        color: cat.color || '#fb923c',
-        estimatedTotal: (cat.estimatedTotal || 0) * coefficient,
-        items: (cat.items || []).map((item: any) => ({
-          id: item.id || `item-${Date.now()}-${Math.random()}`,
-          name: item.name || 'Unknown Item',
-          quantity: item.quantity || '1',
-          estimatedPrice: (item.estimatedPrice || 0) * coefficient,
-          priority: item.priority || 'medium',
-          isChecked: false
-        }))
-      }));
+      logger.info('SHOPPING_LIST_PIPELINE', '[TRANSFORM_START] Starting transformation', {
+        categories_count: data.shopping_list.length,
+        coefficient
+      });
+
+      const categories = (data.shopping_list || []).map((cat: any, catIndex: number) => {
+        logger.debug('SHOPPING_LIST_PIPELINE', `[TRANSFORM_CAT_${catIndex}] Processing category`, {
+          category_name: cat.category || cat.name,
+          items_count: cat.items?.length || 0,
+          has_estimatedTotal: !!cat.estimatedTotal
+        });
+
+        if (!cat.items || !Array.isArray(cat.items)) {
+          logger.warn('SHOPPING_LIST_PIPELINE', `[TRANSFORM_WARNING] Category has no items array`, {
+            category: cat.category || cat.name,
+            items: cat.items
+          });
+        }
+
+        if (cat.items?.length === 0) {
+          logger.warn('SHOPPING_LIST_PIPELINE', `[TRANSFORM_WARNING] Category has ZERO items`, {
+            category: cat.category || cat.name
+          });
+        }
+
+        return {
+          id: cat.id || `category-${Date.now()}-${Math.random()}`,
+          name: cat.category || cat.name || 'Unknown Category',
+          icon: cat.icon || 'Package',
+          color: cat.color || '#fb923c',
+          estimatedTotal: (cat.estimatedTotal || 0) * coefficient,
+          items: (cat.items || []).map((item: any, itemIndex: number) => {
+            logger.debug('SHOPPING_LIST_PIPELINE', `[TRANSFORM_ITEM_${catIndex}_${itemIndex}]`, {
+              name: item.name,
+              quantity: item.quantity,
+              estimatedPrice: item.estimatedPrice
+            });
+
+            return {
+              id: item.id || `item-${Date.now()}-${Math.random()}`,
+              name: item.name || 'Unknown Item',
+              quantity: item.quantity || '1',
+              estimatedPrice: (item.estimatedPrice || 0) * coefficient,
+              priority: item.priority || 'medium',
+              isChecked: false
+            };
+          })
+        };
+      });
 
       const totalItems = categories.reduce((total, cat) => total + cat.items.length, 0);
       const totalEstimatedCost = categories.reduce((total, cat) => total + cat.estimatedTotal, 0);
+
+      logger.info('SHOPPING_LIST_PIPELINE', '[TRANSFORM_COMPLETE] Transformation completed', {
+        total_categories: categories.length,
+        total_items: totalItems,
+        total_estimated_cost: totalEstimatedCost,
+        categories_summary: categories.map(cat => ({
+          name: cat.name,
+          items_count: cat.items.length,
+          estimated_total: cat.estimatedTotal
+        }))
+      });
+
+      if (totalItems === 0) {
+        logger.error('SHOPPING_LIST_PIPELINE', '[TRANSFORM_ERROR] ZERO total items after transformation!');
+        throw new Error('No items in shopping list after transformation');
+      }
 
       const budgetEstimation: BudgetEstimation = {
         minTotal: (data.budget_estimation?.minTotal || 0) * coefficient,
@@ -289,8 +386,21 @@ export const useShoppingListGenerationPipeline = create<ShoppingListGenerationPi
         createdAt: new Date().toISOString()
       };
 
+      logger.info('SHOPPING_LIST_PIPELINE', '[CANDIDATE_CREATED] Shopping list candidate created', {
+        id: shoppingListCandidate.id,
+        name: shoppingListCandidate.name,
+        totalItems: shoppingListCandidate.totalItems,
+        totalEstimatedCost: shoppingListCandidate.totalEstimatedCost,
+        categoriesCount: shoppingListCandidate.categories.length,
+        suggestionsCount: shoppingListCandidate.suggestions?.length || 0,
+        adviceCount: shoppingListCandidate.advice?.length || 0,
+        full_candidate: JSON.stringify(shoppingListCandidate, null, 2)
+      });
+
       // Stop progress and move to validation
       get().stopSimulatedProgress();
+
+      logger.info('SHOPPING_LIST_PIPELINE', '[STATE_UPDATE] Setting shopping list candidate in state');
 
       set({
         shoppingListCandidate,
@@ -299,12 +409,13 @@ export const useShoppingListGenerationPipeline = create<ShoppingListGenerationPi
         loadingMessage: 'Liste générée avec succès !'
       });
 
-      logger.info('SHOPPING_LIST_PIPELINE', 'Generation completed', {
+      logger.info('SHOPPING_LIST_PIPELINE', '[GENERATION_COMPLETE] Generation completed successfully', {
         sessionId: currentSessionId,
         totalItems,
         totalEstimatedCost,
         region,
-        coefficient
+        coefficient,
+        current_step: 'validation'
       });
 
     } catch (error) {
