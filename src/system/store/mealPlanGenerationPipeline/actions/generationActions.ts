@@ -254,70 +254,74 @@ export const createGenerationActions = (
                   });
 
                   // CRITICAL: Update plan with received day AND force UI update with timestamp
-                  const currentState = get();
-                  const totalDays = currentState.totalDaysToGenerate;
-                  const newReceivedCount = (i * 7) + receivedDays.length;
-                  const progressPercent = 15 + (newReceivedCount / totalDays) * 35; // 15% to 50%
+                  // Use set() with a callback to ensure we get the latest state
+                  set((currentState) => {
+                    const totalDays = currentState.totalDaysToGenerate;
+                    const newReceivedCount = (i * 7) + receivedDays.length;
+                    const progressPercent = 15 + (newReceivedCount / totalDays) * 35; // 15% to 50%
 
-                  set({
-                    mealPlanCandidates: currentState.mealPlanCandidates.map((p, idx) =>
-                      idx === i ? {
-                        ...p,
-                        days: receivedDays.map((day, dayIdx) => ({
-                          date: day.date,
-                          dayIndex: dayIdx,
-                          meals: [
-                            {
-                              id: nanoid(),
-                              type: 'breakfast',
-                              name: day.breakfast?.title || 'Petit-déjeuner',
-                              description: day.breakfast?.description,
-                              ingredients: day.breakfast?.ingredients,
-                              prepTime: day.breakfast?.prep_time_min,
-                              cookTime: day.breakfast?.cook_time_min,
-                              calories: day.breakfast?.calories_est,
-                              status: 'ready' as const,
-                              recipeGenerated: false
-                            },
-                            {
-                              id: nanoid(),
-                              type: 'lunch',
-                              name: day.lunch?.title || 'Déjeuner',
-                              description: day.lunch?.description,
-                              ingredients: day.lunch?.ingredients,
-                              prepTime: day.lunch?.prep_time_min,
-                              cookTime: day.lunch?.cook_time_min,
-                              calories: day.lunch?.calories_est,
-                              status: 'ready' as const,
-                              recipeGenerated: false
-                            },
-                            {
-                              id: nanoid(),
-                              type: 'dinner',
-                              name: day.dinner?.title || 'Dîner',
-                              description: day.dinner?.description,
-                              ingredients: day.dinner?.ingredients,
-                              prepTime: day.dinner?.prep_time_min,
-                              cookTime: day.dinner?.cook_time_min,
-                              calories: day.dinner?.calories_est,
-                              status: 'ready' as const,
-                              recipeGenerated: false
-                            }
-                          ]
-                        })),
-                        status: receivedDays.length === 7 ? 'ready' as const : 'loading' as const
-                      } : p
-                    ),
-                    simulatedOverallProgress: Math.round(progressPercent),
-                    receivedDaysCount: newReceivedCount,
-                    loadingMessage: `Génération en cours... ${newReceivedCount}/${totalDays} jours`,
-                    lastStateUpdate: Date.now()
+                    return {
+                      mealPlanCandidates: currentState.mealPlanCandidates.map((p, idx) =>
+                        idx === i ? {
+                          ...p,
+                          days: receivedDays.map((day, dayIdx) => ({
+                            date: day.date,
+                            dayIndex: dayIdx,
+                            meals: [
+                              {
+                                id: nanoid(),
+                                type: 'breakfast',
+                                name: day.breakfast?.title || 'Petit-déjeuner',
+                                description: day.breakfast?.description,
+                                ingredients: day.breakfast?.ingredients,
+                                prepTime: day.breakfast?.prep_time_min,
+                                cookTime: day.breakfast?.cook_time_min,
+                                calories: day.breakfast?.calories_est,
+                                status: 'ready' as const,
+                                recipeGenerated: false
+                              },
+                              {
+                                id: nanoid(),
+                                type: 'lunch',
+                                name: day.lunch?.title || 'Déjeuner',
+                                description: day.lunch?.description,
+                                ingredients: day.lunch?.ingredients,
+                                prepTime: day.lunch?.prep_time_min,
+                                cookTime: day.lunch?.cook_time_min,
+                                calories: day.lunch?.calories_est,
+                                status: 'ready' as const,
+                                recipeGenerated: false
+                              },
+                              {
+                                id: nanoid(),
+                                type: 'dinner',
+                                name: day.dinner?.title || 'Dîner',
+                                description: day.dinner?.description,
+                                ingredients: day.dinner?.ingredients,
+                                prepTime: day.dinner?.prep_time_min,
+                                cookTime: day.dinner?.cook_time_min,
+                                calories: day.dinner?.calories_est,
+                                status: 'ready' as const,
+                                recipeGenerated: false
+                              }
+                            ]
+                          })),
+                          status: receivedDays.length === 7 ? 'ready' as const : 'loading' as const
+                        } : p
+                      ),
+                      simulatedOverallProgress: Math.round(progressPercent),
+                      receivedDaysCount: newReceivedCount,
+                      loadingMessage: `Génération en cours... ${newReceivedCount}/${totalDays} jours`,
+                      lastStateUpdate: Date.now()
+                    };
                   });
 
                   logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Day received via streaming', {
                     weekNumber: plan.weekNumber,
                     dayIndex: receivedDays.length,
-                    date: data.data.date
+                    date: data.data.date,
+                    receivedDaysCount: get().receivedDaysCount,
+                    planDaysLength: get().mealPlanCandidates[i]?.days?.length || 0
                   });
                 } else if (data.type === 'complete') {
                   weeklyData = data.data;
@@ -331,8 +335,7 @@ export const createGenerationActions = (
                   });
 
                   // Update plan with weekly summary
-                  const currentState = get();
-                  set({
+                  set((currentState) => ({
                     mealPlanCandidates: currentState.mealPlanCandidates.map((p, idx) =>
                       idx === i ? {
                         ...p,
@@ -345,7 +348,7 @@ export const createGenerationActions = (
                       } : p
                     ),
                     lastStateUpdate: Date.now()
-                  });
+                  }));
 
                   logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Week completed', {
                     weekNumber: plan.weekNumber,
@@ -366,9 +369,13 @@ export const createGenerationActions = (
         }
       }
 
+      // Get the updated plans from the store
+      const finalPlans = get().mealPlanCandidates;
+      const totalDaysReceived = finalPlans.reduce((sum, p) => sum + (p.days?.length || 0), 0);
+
       logger.info('MEAL_PLAN_GENERATION_PIPELINE', 'Transitioning to validation step', {
         planCount: config.weekCount,
-        totalDaysReceived: initialPlans.reduce((sum, p) => sum + (p.days?.length || 0), 0),
+        totalDaysReceived,
         sessionId: currentSessionId,
         timestamp: new Date().toISOString()
       });
