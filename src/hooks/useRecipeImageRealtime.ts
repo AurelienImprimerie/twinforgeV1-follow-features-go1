@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef } from 'react';
 import { supabase } from '../system/supabase/client';
 import { useMealPlanGenerationPipeline } from '../system/store/mealPlanGenerationPipeline';
 import logger from '../lib/utils/logger';
@@ -6,38 +6,22 @@ import logger from '../lib/utils/logger';
 /**
  * Hook to listen for real-time updates to recipe images
  * This will automatically update the meal plan state when images are generated
- * OPTIMIZED: Prevents unnecessary reconnections when images are added
+ * OPTIMIZED: Maintains a single stable connection for all recipes
  */
 export const useRecipeImageRealtime = (isActive: boolean, recipeIds: string[]) => {
   const { updateMealImageUrl } = useMealPlanGenerationPipeline();
   const channelRef = useRef<any>(null);
   const isSubscribedRef = useRef(false);
-
-  // Stable reference to recipe IDs - only changes when the SET of IDs changes
-  const stableRecipeIds = useMemo(() => {
-    return [...new Set(recipeIds)].sort().join(',');
-  }, [recipeIds.join(',')]);
+  const setupCompleteRef = useRef(false);
 
   useEffect(() => {
-    // Don't resubscribe if already subscribed with the same IDs
+    // Only setup once when becoming active
     if (!isActive || recipeIds.length === 0) {
-      if (channelRef.current && isSubscribedRef.current) {
-        logger.info('RECIPE_IMAGE_REALTIME', 'Cleaning up Realtime listener (inactive)', {
-          timestamp: new Date().toISOString()
-        });
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
-        isSubscribedRef.current = false;
-      }
       return;
     }
 
-    // If already subscribed, don't resubscribe
-    if (isSubscribedRef.current && channelRef.current) {
-      logger.debug('RECIPE_IMAGE_REALTIME', 'Already subscribed, skipping reconnection', {
-        recipeCount: recipeIds.length,
-        timestamp: new Date().toISOString()
-      });
+    // If already set up, don't do anything - the channel listens to ALL recipes table updates
+    if (setupCompleteRef.current && channelRef.current) {
       return;
     }
 
@@ -46,7 +30,8 @@ export const useRecipeImageRealtime = (isActive: boolean, recipeIds: string[]) =
       timestamp: new Date().toISOString()
     });
 
-    // Subscribe to changes on the recipes table
+    // Subscribe to ALL changes on the recipes table (no filter)
+    // This way we don't need to reconnect when new recipes are added
     const channel = supabase
       .channel('recipe-images-updates')
       .on(
@@ -54,8 +39,8 @@ export const useRecipeImageRealtime = (isActive: boolean, recipeIds: string[]) =
         {
           event: 'UPDATE',
           schema: 'public',
-          table: 'recipes',
-          filter: `id=in.(${recipeIds.join(',')})` // Only listen to our specific recipes
+          table: 'recipes'
+          // NO FILTER - listen to all recipe updates
         },
         (payload) => {
           const updatedRecipe = payload.new as any;
@@ -88,8 +73,9 @@ export const useRecipeImageRealtime = (isActive: boolean, recipeIds: string[]) =
 
     channelRef.current = channel;
     isSubscribedRef.current = true;
+    setupCompleteRef.current = true;
 
-    // Cleanup subscription ONLY on unmount or when isActive becomes false
+    // Cleanup subscription ONLY on unmount
     return () => {
       if (channelRef.current) {
         logger.info('RECIPE_IMAGE_REALTIME', 'Cleaning up Realtime listener (unmount)', {
@@ -98,7 +84,8 @@ export const useRecipeImageRealtime = (isActive: boolean, recipeIds: string[]) =
         supabase.removeChannel(channelRef.current);
         channelRef.current = null;
         isSubscribedRef.current = false;
+        setupCompleteRef.current = false;
       }
     };
-  }, [isActive, stableRecipeIds]); // Only reconnect when active state or the SET of IDs changes
+  }, [isActive]); // Only depend on isActive, NOT on recipeIds
 };
