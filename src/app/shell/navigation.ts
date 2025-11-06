@@ -160,157 +160,157 @@ export function navFor(): NavSection[] {
       ],
     },
 
-    // CATÉGORIE: Activité - IN STANDBY
-    // {
-    //   title: 'Activité',
-    //   type: 'forge-category',
-    //   items: [
-    //     {
-    //       to: '/activity',
-    //       icon: 'Activity',
-    //       label: 'Forge Énergétique',
-    //       subtitle: 'Tracker d\'Activités',
-    //       isForge: true,
-    //       circuitColor: '#3B82F6', // Bleu
-    //       tabs: ['Tracker', 'Insights', 'Progression', 'Historique'],
-    //       subItems: [
-    //         {
-    //           to: '/activity#daily',
-    //           icon: 'Activity',
-    //           label: 'Tracker d\'Activités',
-    //           isPrimarySubMenu: true
-    //         },
-    //         {
-    //           to: '/activity#insights',
-    //           icon: 'BarChart3',
-    //           label: 'Insights',
-    //           color: '#10B981' // Vert
-    //         },
-    //         {
-    //           to: '/activity#progression',
-    //           icon: 'TrendingUp',
-    //           label: 'Progression',
-    //           color: '#10B981' // Vert
-    //         },
-    //         {
-    //           to: '/activity#history',
-    //           icon: 'History',
-    //           label: 'Historique'
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       to: '/training',
-    //       icon: 'Dumbbell',
-    //       label: 'Forge Corporelle',
-    //       subtitle: 'Coaching live',
-    //       isForge: true,
-    //       circuitColor: '#18E3FF', // Cyan électrique
-    //       tabs: ['Coaching', 'Conseils', 'Progression', 'Records', 'Historique'],
-    //       subItems: [
-    //         {
-    //           to: '/training#aujourd hui',
-    //           icon: 'Home',
-    //           label: 'Coaching Live',
-    //           isPrimarySubMenu: true
-    //         },
-    //         {
-    //           to: '/training#conseils',
-    //           icon: 'Lightbulb',
-    //           label: 'Conseils'
-    //         },
-    //         {
-    //           to: '/training#progression',
-    //           icon: 'TrendingUp',
-    //           label: 'Progression'
-    //         },
-    //         {
-    //           to: '/training#records',
-    //           icon: 'Trophy',
-    //           label: 'Records'
-    //         },
-    //         {
-    //           to: '/training#historique',
-    //           icon: 'History',
-    //           label: 'Historique'
-    //         }
-    //       ]
-    //     },
-    //   ],
-    // },
+    // CATÉGORIE: Activité
+    {
+      title: 'Activité',
+      type: 'forge-category',
+      items: [
+        {
+          to: '/activity',
+          icon: 'Activity',
+          label: 'Forge Énergétique',
+          subtitle: 'Tracker d\'Activités',
+          isForge: true,
+          circuitColor: '#3B82F6', // Bleu
+          tabs: ['Tracker', 'Insights', 'Progression', 'Historique'],
+          subItems: [
+            {
+              to: '/activity#daily',
+              icon: 'Activity',
+              label: 'Tracker d\'Activités',
+              isPrimarySubMenu: true
+            },
+            {
+              to: '/activity#insights',
+              icon: 'BarChart3',
+              label: 'Insights',
+              color: '#10B981' // Vert
+            },
+            {
+              to: '/activity#progression',
+              icon: 'TrendingUp',
+              label: 'Progression',
+              color: '#10B981' // Vert
+            },
+            {
+              to: '/activity#history',
+              icon: 'History',
+              label: 'Historique'
+            }
+          ]
+        },
+        {
+          to: '/training',
+          icon: 'Dumbbell',
+          label: 'Forge Corporelle',
+          subtitle: 'Coaching live',
+          isForge: true,
+          circuitColor: '#18E3FF', // Cyan électrique
+          tabs: ['Coaching', 'Conseils', 'Progression', 'Records', 'Historique'],
+          subItems: [
+            {
+              to: '/training#aujourd hui',
+              icon: 'Home',
+              label: 'Coaching Live',
+              isPrimarySubMenu: true
+            },
+            {
+              to: '/training#conseils',
+              icon: 'Lightbulb',
+              label: 'Conseils'
+            },
+            {
+              to: '/training#progression',
+              icon: 'TrendingUp',
+              label: 'Progression'
+            },
+            {
+              to: '/training#records',
+              icon: 'Trophy',
+              label: 'Records'
+            },
+            {
+              to: '/training#historique',
+              icon: 'History',
+              label: 'Historique'
+            }
+          ]
+        },
+      ],
+    },
 
-    // CATÉGORIE: Santé - IN STANDBY
-    // {
-    //   title: 'Santé',
-    //   type: 'forge-category',
-    //   items: [
-    //     {
-    //       to: '/fasting',
-    //       icon: 'Timer',
-    //       label: 'Forge du Temps',
-    //       subtitle: 'Jeûne Intermittent',
-    //       isForge: true,
-    //       circuitColor: '#F59E0B', // Orange
-    //       tabs: ['Tracker', 'Insights', 'Progression', 'Historique'],
-    //       subItems: [
-    //         {
-    //           to: '/fasting#daily',
-    //           icon: 'Timer',
-    //           label: 'Tracker de Jeûne',
-    //           isPrimarySubMenu: true
-    //         },
-    //         {
-    //           to: '/fasting#insights',
-    //           icon: 'TrendingUp',
-    //           label: 'Insights',
-    //           color: '#10B981' // Vert (harmonisé avec l'onglet)
-    //         },
-    //         {
-    //           to: '/fasting#progression',
-    //           icon: 'BarChart3',
-    //           label: 'Progression'
-    //         },
-    //         {
-    //           to: '/fasting#history',
-    //           icon: 'History',
-    //           label: 'Historique'
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       to: '/vital',
-    //       icon: 'HeartPulse',
-    //       label: 'Forge Vitale',
-    //       subtitle: 'Médecine Préventive',
-    //       isForge: true,
-    //       circuitColor: '#EF4444', // Rouge santé
-    //       tabs: ['Dossier', 'Analyses', 'Suivi', 'Prévention'],
-    //       subItems: [
-    //         {
-    //           to: '/vital#dossier',
-    //           icon: 'FileText',
-    //           label: 'Dossier',
-    //           isPrimarySubMenu: true
-    //         },
-    //         {
-    //           to: '/vital#analyses',
-    //           icon: 'Activity',
-    //           label: 'Analyses'
-    //         },
-    //         {
-    //           to: '/vital#suivi',
-    //           icon: 'TrendingUp',
-    //           label: 'Suivi'
-    //         },
-    //         {
-    //           to: '/vital#prevention',
-    //           icon: 'Shield',
-    //           label: 'Prévention'
-    //         }
-    //       ]
-    //     },
-    //   ],
-    // },
+    // CATÉGORIE: Santé
+    {
+      title: 'Santé',
+      type: 'forge-category',
+      items: [
+        {
+          to: '/fasting',
+          icon: 'Timer',
+          label: 'Forge du Temps',
+          subtitle: 'Jeûne Intermittent',
+          isForge: true,
+          circuitColor: '#F59E0B', // Orange
+          tabs: ['Tracker', 'Insights', 'Progression', 'Historique'],
+          subItems: [
+            {
+              to: '/fasting#daily',
+              icon: 'Timer',
+              label: 'Tracker de Jeûne',
+              isPrimarySubMenu: true
+            },
+            {
+              to: '/fasting#insights',
+              icon: 'TrendingUp',
+              label: 'Insights',
+              color: '#10B981' // Vert (harmonisé avec l'onglet)
+            },
+            {
+              to: '/fasting#progression',
+              icon: 'BarChart3',
+              label: 'Progression'
+            },
+            {
+              to: '/fasting#history',
+              icon: 'History',
+              label: 'Historique'
+            }
+          ]
+        },
+        {
+          to: '/vital',
+          icon: 'HeartPulse',
+          label: 'Forge Vitale',
+          subtitle: 'Médecine Préventive',
+          isForge: true,
+          circuitColor: '#EF4444', // Rouge santé
+          tabs: ['Dossier', 'Analyses', 'Suivi', 'Prévention'],
+          subItems: [
+            {
+              to: '/vital#dossier',
+              icon: 'FileText',
+              label: 'Dossier',
+              isPrimarySubMenu: true
+            },
+            {
+              to: '/vital#analyses',
+              icon: 'Activity',
+              label: 'Analyses'
+            },
+            {
+              to: '/vital#suivi',
+              icon: 'TrendingUp',
+              label: 'Suivi'
+            },
+            {
+              to: '/vital#prevention',
+              icon: 'Shield',
+              label: 'Prévention'
+            }
+          ]
+        },
+      ],
+    },
   ];
 
   return sections;

@@ -12,7 +12,7 @@ import { usePerformanceMode } from '../../system/context/PerformanceModeContext'
 
 /**
  * Configuration des boutons de la nouvelle barre inférieure
- * 6 boutons : Repas - Frigo - Activité - Jeûne - Coaching - Twin
+ * 8 boutons : Repas - Frigo - Activité - Training - Jeûne - Vital - Profil - Paramètres
  * Le bouton éclair (Outils du Forgeron) est maintenant dans le header
  */
 const BOTTOM_BAR_BUTTONS = [
@@ -38,6 +38,13 @@ const BOTTOM_BAR_BUTTONS = [
     color: '#3B82F6', // Bleu activité
   },
   {
+    id: 'training',
+    label: 'Training',
+    icon: 'Dumbbell' as const,
+    route: '/training',
+    color: '#18E3FF', // Cyan training
+  },
+  {
     id: 'fasting',
     label: 'Jeûne',
     icon: 'Timer' as const,
@@ -45,18 +52,25 @@ const BOTTOM_BAR_BUTTONS = [
     color: '#F59E0B', // Orange jeûne
   },
   {
-    id: 'training',
-    label: 'Coaching',
-    icon: 'Dumbbell' as const,
-    route: '/training',
-    color: '#06B6D4', // Cyan
+    id: 'vital',
+    label: 'Vital',
+    icon: 'HeartPulse' as const,
+    route: '/vital',
+    color: '#EF4444', // Rouge santé
   },
   {
-    id: 'twin',
-    label: 'Twin',
+    id: 'profile',
+    label: 'Profil',
     icon: 'User' as const,
-    route: '/avatar',
-    color: '#8B5CF6', // Violet
+    route: '/profile',
+    color: '#FDC830', // Jaune profil
+  },
+  {
+    id: 'settings',
+    label: 'Réglages',
+    icon: 'Settings' as const,
+    route: '/settings',
+    color: '#94A3B8', // Gris paramètres
   },
 ];
 
@@ -112,7 +126,7 @@ function BarButton({
 
 /**
  * New Mobile Bottom Bar - Barre de navigation inférieure redesignée
- * 6 boutons : Repas - Frigo - Activité - Jeûne - Coaching - Twin
+ * 8 boutons : Repas - Frigo - Activité - Training - Jeûne - Vital - Profil - Paramètres
  * Le bouton éclair (Outils du Forgeron) a été déplacé dans le header
  */
 const NewMobileBottomBar: React.FC = () => {

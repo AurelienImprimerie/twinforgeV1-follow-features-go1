@@ -45,10 +45,10 @@ export const QUICK_ACTION_SECTIONS: QuickActionSection[] = [
     ]
   },
 
-  // ==================== CATÉGORIE: ALIMENTATION ====================
+  // ==================== CATÉGORIE: NUTRITION ====================
   {
-    key: 'alimentation',
-    title: 'Alimentation',
+    key: 'nutrition',
+    title: 'Nutrition',
     actions: [
       {
         id: 'scan-meal',
@@ -60,6 +60,24 @@ export const QUICK_ACTION_SECTIONS: QuickActionSection[] = [
         available: true,
         description: 'Analyser un repas avec précision'
       },
+      {
+        id: 'scan-fridge',
+        label: 'Scanner de Frigo',
+        subtitle: 'Inventaire intelligent',
+        icon: 'Scan',
+        route: '/fridge/scan',
+        color: '#06B6D4',
+        available: true,
+        description: 'Scanner votre frigo pour créer un inventaire'
+      }
+    ]
+  },
+
+  // ==================== CATÉGORIE: CUISINE ====================
+  {
+    key: 'cuisine',
+    title: 'Cuisine',
+    actions: [
       {
         id: 'generate-recipe',
         label: 'Générateur de Recettes',
@@ -89,16 +107,6 @@ export const QUICK_ACTION_SECTIONS: QuickActionSection[] = [
         color: '#F59E0B',
         available: true,
         description: 'Créer une liste de courses optimisée'
-      },
-      {
-        id: 'scan-fridge',
-        label: 'Scanner de Frigo',
-        subtitle: 'Inventaire intelligent',
-        icon: 'Scan',
-        route: '/fridge/scan',
-        color: '#06B6D4',
-        available: true,
-        description: 'Scanner votre frigo pour créer un inventaire'
       }
     ]
   },
@@ -108,16 +116,6 @@ export const QUICK_ACTION_SECTIONS: QuickActionSection[] = [
     key: 'activite',
     title: 'Activité',
     actions: [
-      {
-        id: 'coach-training',
-        label: 'Coach Training',
-        subtitle: 'Live Training',
-        icon: 'Dumbbell',
-        route: '/training',
-        color: '#18E3FF', // Cyan - harmonisé avec Forge Corporelle
-        available: true,
-        description: 'Accéder à la pipeline de training avec coaching en direct'
-      },
       {
         id: 'track-activity',
         label: "Tracker d'Activité",
@@ -159,10 +157,10 @@ export const QUICK_ACTION_SECTIONS: QuickActionSection[] = [
     ]
   },
 
-  // ==================== BOUTON PRINCIPAL: AVATAR TWIN ====================
+  // ==================== BOUTONS PRINCIPAUX ====================
   {
-    key: 'avatar-twin',
-    title: 'TwinForge Avatar',
+    key: 'main-actions',
+    title: 'Actions Principales',
     actions: [
       {
         id: 'avatar-scan',
@@ -173,6 +171,16 @@ export const QUICK_ACTION_SECTIONS: QuickActionSection[] = [
         color: '#A855F7', // Violet - harmonisé avec Mon Twin
         available: true,
         description: 'Scanner et créer votre avatar 3D personnalisé'
+      },
+      {
+        id: 'coach-training',
+        label: 'Coach Training',
+        subtitle: 'Entraînement en direct',
+        icon: 'Dumbbell',
+        route: '/training',
+        color: '#18E3FF', // Cyan - harmonisé avec Forge Corporelle
+        available: true,
+        description: 'Accéder au coaching training en direct'
       }
     ]
   }

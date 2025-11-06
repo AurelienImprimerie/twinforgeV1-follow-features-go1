@@ -45,11 +45,12 @@ const CentralActionsMenu: React.FC<CentralActionsMenuProps> = ({ isOpen }) => {
   const { close: closeOverlay } = useOverlayStore();
 
   // Récupération des sections par clé
-  const alimentationSection = getSection(QUICK_ACTION_SECTIONS, 'alimentation');
+  const nutritionSection = getSection(QUICK_ACTION_SECTIONS, 'nutrition');
+  const cuisineSection = getSection(QUICK_ACTION_SECTIONS, 'cuisine');
   const activiteSection = getSection(QUICK_ACTION_SECTIONS, 'activite');
   const santeSection = getSection(QUICK_ACTION_SECTIONS, 'sante');
   const homeSection = getSection(QUICK_ACTION_SECTIONS, 'navigation');
-  const avatarTwinSection = getSection(QUICK_ACTION_SECTIONS, 'avatar-twin');
+  const mainActionsSection = getSection(QUICK_ACTION_SECTIONS, 'main-actions');
 
   const homeAction =
     homeSection.actions.find(
@@ -360,16 +361,32 @@ const CentralActionsMenu: React.FC<CentralActionsMenuProps> = ({ isOpen }) => {
               )}
             </div>
 
-            {/* ========== CATÉGORIE: ALIMENTATION ========== */}
-            {alimentationSection.actions.length > 0 && (
+            {/* ========== CATÉGORIE: NUTRITION ========== */}
+            {nutritionSection.actions.length > 0 && (
               <div className="mb-3">
                 <div className="px-1.5 mb-1.5">
                   <h3 className="text-white/70 text-[11px] uppercase tracking-wider font-bold">
-                    Alimentation
+                    Nutrition
                   </h3>
                 </div>
                 <div className="grid grid-cols-2 gap-1.5">
-                  {alimentationSection.actions.map((a, i) => (
+                  {nutritionSection.actions.map((a, i) => (
+                    <SecondaryPill key={a.id} action={a} index={i} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ========== CATÉGORIE: CUISINE ========== */}
+            {cuisineSection.actions.length > 0 && (
+              <div className="mb-3">
+                <div className="px-1.5 mb-1.5">
+                  <h3 className="text-white/70 text-[11px] uppercase tracking-wider font-bold">
+                    Cuisine
+                  </h3>
+                </div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {cuisineSection.actions.map((a, i) => (
                     <SecondaryPill key={a.id} action={a} index={i} />
                   ))}
                 </div>
@@ -408,16 +425,16 @@ const CentralActionsMenu: React.FC<CentralActionsMenuProps> = ({ isOpen }) => {
               </div>
             )}
 
-            {/* ========== BOUTON PRINCIPAL: MON AVATAR EN 3D ========== */}
-            {avatarTwinSection.actions.length > 0 && (
-              <div className="mt-4 pt-3 border-t border-white/10">
-                {avatarTwinSection.actions.map((action, index) => {
+            {/* ========== BOUTONS PRINCIPAUX: AVATAR ET TRAINING ========== */}
+            {mainActionsSection.actions.length > 0 && (
+              <div className="mt-4 pt-3 border-t border-white/10 space-y-2">
+                {mainActionsSection.actions.map((action, index) => {
                   const [r, g, b] = hexToRgbArray(action.color || '#D946EF');
                   return (
                     <motion.button
                       key={action.id}
                       onClick={(e) => handleActionClick(action, true, e)}
-                      className="rounded-2xl px-4 py-3 flex items-center gap-3 w-full relative avatar-twin-button"
+                      className="rounded-2xl px-4 py-3 flex items-center gap-3 w-full relative main-action-button"
                       style={{
                         background: `
                           radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.12) 0%, transparent 60%),
