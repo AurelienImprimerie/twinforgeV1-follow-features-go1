@@ -661,6 +661,71 @@ CREATE INDEX idx_brain_cache_timestamp ON brain_context_cache(timestamp);
 **RLS**:
 - Users can only access their own cache entries
 
+### ai_analysis_jobs
+
+Table centrale pour le tracking de l'utilisation de l'IA et des coûts.
+
+```sql
+CREATE TABLE ai_analysis_jobs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
+  analysis_type text NOT NULL, -- 'fridge_vision', 'recipe_generation', 'meal_analysis', etc.
+  status text CHECK (status IN ('pending', 'processing', 'completed', 'failed')),
+  model_used text, -- 'gpt-5-mini', 'gpt-4o', etc.
+  tokens_used jsonb, -- {input: number, output: number, total: number, cost_estimate_usd: number}
+  input_data jsonb,
+  result_data jsonb,
+  error_message text,
+  started_at timestamptz,
+  completed_at timestamptz,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
+CREATE INDEX idx_ai_jobs_user ON ai_analysis_jobs(user_id);
+CREATE INDEX idx_ai_jobs_status ON ai_analysis_jobs(status);
+CREATE INDEX idx_ai_jobs_type ON ai_analysis_jobs(analysis_type);
+CREATE INDEX idx_ai_jobs_completed ON ai_analysis_jobs(completed_at DESC) WHERE status = 'completed';
+```
+
+**Structure du champ `tokens_used` (JSONB)**:
+```typescript
+{
+  input: number,        // Tokens d'entrée (prompt + contexte)
+  output: number,       // Tokens de sortie (réponse générée)
+  total: number,        // Total des tokens (input + output)
+  cost_estimate_usd: number  // Coût estimé en USD
+}
+```
+
+**Edge Functions avec tracking AI intégré**:
+- `fridge-scan-vision` - Détection d'ingrédients dans photos de frigo
+- `recipe-generator` - Génération de recettes personnalisées
+- `recipe-detail-generator` - Enrichissement des détails de recettes
+- `shopping-list-generator` - Génération de listes de courses
+- `meal-analyzer` - Analyse nutritionnelle de photos de repas
+- `fasting-insights-generator` - Génération d'insights sur le jeûne
+
+**Calcul des coûts**:
+Les coûts sont calculés automatiquement dans chaque edge function selon les tarifs OpenAI:
+- GPT-5-mini: $0.15 / 1M input tokens, $0.60 / 1M output tokens
+- GPT-4o: $5.00 / 1M input tokens, $15.00 / 1M output tokens
+
+**Métriques disponibles**:
+- Total jobs par utilisateur
+- Total tokens consommés (input + output)
+- Coût total en USD
+- Coût moyen par job
+- Distribution par modèle (gpt-5-mini, gpt-4o, etc.)
+- Distribution par type d'analyse
+- Taux de succès (completed vs failed)
+
+**Visualisation**:
+Page de debug `/dev/head` affiche toutes les statistiques d'utilisation AI en temps réel.
+
+**RLS**:
+- Users can only access their own AI analysis jobs
+
 ### conversation_history
 
 Historique de toutes les conversations (texte + voix).
@@ -998,6 +1063,28 @@ interface PerformanceMetrics {
   cacheHitRate: number;             // 0-1
   totalLatency: number;             // ms
 }
+
+interface AIUsageMetrics {
+  totalJobs: number;                // Nombre total de jobs AI
+  totalTokens: number;              // Total tokens consommés
+  totalCost: number;                // Coût total en USD
+  averageCostPerJob: number;        // Coût moyen par job
+  modelDistribution: {              // Distribution par modèle
+    [model: string]: {
+      count: number;
+      tokens: number;
+      cost: number;
+    }
+  };
+  analysisTypeDistribution: {       // Distribution par type
+    [type: string]: {
+      count: number;
+      tokens: number;
+      cost: number;
+    }
+  };
+  successRate: number;              // Taux de succès (0-1)
+}
 ```
 
 ### Health Checks
@@ -1038,4 +1125,151 @@ Toutes les tables ont RLS activée:
 
 ---
 
-**Cette architecture est production-ready et extensible pour de futurs forges (nutrition, fasting, body-scan).**
+## Tracking AI & Billing
+
+### Vue d'ensemble
+
+Le système HEAD intègre un tracking complet de l'utilisation de l'IA pour faciliter la facturation aux utilisateurs. Chaque appel à l'API OpenAI est enregistré avec des métadonnées complètes incluant le modèle utilisé, les tokens consommés, et le coût estimé.
+
+### Architecture du tracking
+
+```
+Edge Function (OpenAI API call)
+    ↓
+Appel OpenAI GPT-5-mini/GPT-4o
+    ↓
+Réception de la réponse avec usage tokens
+    ↓
+Calcul du coût (selon tarifs OpenAI)
+    ↓
+Stockage dans ai_analysis_jobs
+    ↓
+{
+  model_used: 'gpt-5-mini',
+  tokens_used: {
+    input: 1500,
+    output: 800,
+    total: 2300,
+    cost_estimate_usd: 0.00071
+  }
+}
+```
+
+### Tarification OpenAI
+
+**GPT-5-mini**:
+- Input: $0.15 / 1M tokens ($0.00000015 par token)
+- Output: $0.60 / 1M tokens ($0.00000060 par token)
+- Ratio coût: 1:4 (output est 4x plus cher que input)
+
+**GPT-4o**:
+- Input: $5.00 / 1M tokens ($0.000005 par token)
+- Output: $15.00 / 1M tokens ($0.000015 par token)
+- Ratio coût: 1:3 (output est 3x plus cher que input)
+
+### Types d'analyses trackées
+
+| Type | Description | Modèle par défaut | Coût moyen |
+|------|-------------|-------------------|------------|
+| `fridge_vision` | Détection ingrédients dans photos | gpt-5-mini | ~$0.001 |
+| `recipe_generation` | Génération de recettes personnalisées | gpt-5-mini | ~$0.0015 |
+| `recipe_detail_generation` | Enrichissement détails recettes | gpt-5-mini | ~$0.0008 |
+| `shopping_list_generation` | Génération listes de courses | gpt-5-mini | ~$0.0012 |
+| `meal_analysis` | Analyse nutritionnelle photos | gpt-5-mini | ~$0.0009 |
+| `fasting_insights` | Génération insights jeûne | gpt-5-mini | ~$0.0007 |
+
+### Page de debug `/dev/head`
+
+La page de debug affiche en temps réel:
+
+**Statistiques globales**:
+- Total jobs AI exécutés
+- Total tokens consommés (input + output)
+- Coût total en USD
+- Coût moyen par job
+
+**Distribution par modèle**:
+- Nombre de jobs par modèle (gpt-5-mini, gpt-4o)
+- Tokens consommés par modèle
+- Coût par modèle
+
+**Distribution par type d'analyse**:
+- Nombre de jobs par type (fridge_vision, recipe_generation, etc.)
+- Tokens consommés par type
+- Coût par type
+
+**Historique détaillé**:
+- 50 derniers jobs avec:
+  - Type d'analyse
+  - Modèle utilisé
+  - Tokens (input/output/total)
+  - Coût estimé
+  - Timestamp
+  - Statut (completed/failed)
+
+**Export JSON**:
+- Export complet pour audit externe
+- Format adapté pour facturation
+- Intégration avec systèmes de billing
+
+### Requêtes SQL utiles
+
+**Coût total par utilisateur (30 derniers jours)**:
+```sql
+SELECT
+  user_id,
+  COUNT(*) as total_jobs,
+  SUM((tokens_used->>'total')::int) as total_tokens,
+  SUM((tokens_used->>'cost_estimate_usd')::numeric) as total_cost_usd
+FROM ai_analysis_jobs
+WHERE completed_at >= NOW() - INTERVAL '30 days'
+  AND status = 'completed'
+GROUP BY user_id
+ORDER BY total_cost_usd DESC;
+```
+
+**Distribution par type d'analyse**:
+```sql
+SELECT
+  analysis_type,
+  COUNT(*) as job_count,
+  AVG((tokens_used->>'total')::int) as avg_tokens,
+  AVG((tokens_used->>'cost_estimate_usd')::numeric) as avg_cost_usd
+FROM ai_analysis_jobs
+WHERE status = 'completed'
+GROUP BY analysis_type
+ORDER BY job_count DESC;
+```
+
+**Utilisateurs top consommateurs**:
+```sql
+SELECT
+  user_id,
+  COUNT(*) as jobs_count,
+  SUM((tokens_used->>'cost_estimate_usd')::numeric) as monthly_cost_usd
+FROM ai_analysis_jobs
+WHERE completed_at >= NOW() - INTERVAL '30 days'
+GROUP BY user_id
+ORDER BY monthly_cost_usd DESC
+LIMIT 20;
+```
+
+### Intégration avec le système de tokens
+
+Le système HEAD peut être intégré avec un système de tokens utilisateur:
+- Chaque utilisateur a un solde de tokens
+- Chaque appel AI déduit des tokens du solde
+- Rechargement mensuel ou à l'achat
+- Blocage si solde insuffisant
+
+### Audit et conformité
+
+- Tous les appels AI sont loggés avec timestamps
+- Traçabilité complète pour audit financier
+- Export JSON pour systèmes de facturation externes
+- RLS garantit la confidentialité des données par utilisateur
+- Historique conservé pour conformité légale
+
+---
+
+**Cette architecture est production-ready avec tracking AI complet pour la facturation utilisateurs.**

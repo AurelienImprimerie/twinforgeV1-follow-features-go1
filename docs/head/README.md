@@ -162,7 +162,33 @@ Le système réagit automatiquement aux événements:
 - Métriques de performance en temps réel
 - Health checks automatiques
 
-### 6. Personnalisation Santé Reproductive
+### 6. Tracking AI & Coûts
+
+Le système HEAD intègre un tracking complet de l'utilisation de l'IA:
+
+**Table `ai_analysis_jobs`** - Tracking centralisé:
+- ✅ Tous les appels AI sont enregistrés avec métadonnées complètes
+- ✅ Champs `model_used` (ex: gpt-5-mini) et `tokens_used` (input/output/total/cost)
+- ✅ Tracking par type d'analyse (fridge_vision, recipe_generation, meal_analysis, etc.)
+- ✅ Historique complet avec statut (completed/failed/processing)
+- ✅ Calcul automatique des coûts en USD basé sur les tarifs OpenAI
+
+**Edge Functions avec tracking**:
+- `fridge-scan-vision` - Détection d'ingrédients dans photos de frigo
+- `recipe-generator` - Génération de recettes personnalisées
+- `recipe-detail-generator` - Enrichissement des recettes
+- `shopping-list-generator` - Génération de listes de courses
+- `meal-analyzer` - Analyse nutritionnelle de photos de repas
+- `fasting-insights-generator` - Insights sur le jeûne intermittent
+
+**Page de debug `/dev/head`**:
+- Vue d'ensemble des jobs AI (total, tokens, coûts)
+- Distribution par modèle et type d'analyse
+- Historique détaillé des 50 derniers jobs
+- Coût moyen par job et statistiques agrégées
+- Export JSON pour audit et facturation
+
+### 7. Personnalisation Santé Reproductive
 
 Le système HEAD prend en compte la santé reproductive féminine pour des adaptations ultra-personnalisées:
 
@@ -238,11 +264,26 @@ Le HEAD émet et écoute des événements:
 ## 📈 Métriques
 
 Le système HEAD suit plusieurs métriques:
+
+**Performance**:
 - Latence de collecte de données
 - Latence de construction du contexte
 - Taux de cache hit
 - Latence totale (end-to-end)
 - Nombre de messages proactifs envoyés
+
+**Utilisation AI & Coûts**:
+- Total tokens consommés (input + output)
+- Coût total en USD
+- Coût moyen par job
+- Distribution par modèle (gpt-5-mini, gpt-4o, etc.)
+- Distribution par type d'analyse
+- Taux de succès des jobs AI (completed vs failed)
+
+**Accès aux métriques**:
+- Page `/dev/head` pour visualisation en temps réel
+- Export JSON pour analyse externe
+- Table `ai_analysis_jobs` pour requêtes SQL personnalisées
 
 ## 🔒 Sécurité
 
@@ -267,4 +308,4 @@ Pour toute question sur le système HEAD:
 ---
 
 **Dernière mise à jour**: Novembre 2025
-**Version**: 1.0.0 (Production Ready)
+**Version**: 1.1.0 (Production Ready + AI Tracking)
