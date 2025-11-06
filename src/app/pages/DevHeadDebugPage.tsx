@@ -20,7 +20,9 @@ import {
   Eye,
   EyeOff,
   Zap,
-  Package
+  Package,
+  DollarSign,
+  Cpu
 } from 'lucide-react';
 import GlassCard from '../../ui/cards/GlassCard';
 import { brainCore } from '../../system/head/core/BrainCore';
@@ -52,6 +54,7 @@ export default function DevHeadDebugPage() {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['status']));
   const [rawSupabaseData, setRawSupabaseData] = useState<any>({});
   const [showRawData, setShowRawData] = useState(false);
+  const [aiAnalysisStats, setAiAnalysisStats] = useState<any>(null);
 
   const loadHeadStatus = async () => {
     setLoading(true);
@@ -269,6 +272,49 @@ export default function DevHeadDebugPage() {
       setRawSupabaseData((prev: any) => ({ ...prev, fastingSessions }));
     } catch (error) {
       logger.error('DEV_HEAD_DEBUG', 'Failed to load fasting sessions', { error });
+    }
+
+    // AI Analysis Jobs (Token Tracking)
+    try {
+      const aiStart = Date.now();
+      const { data: aiJobs, error } = await supabase
+        .from('ai_analysis_jobs')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      // Calculate stats
+      let totalTokens = 0;
+      let totalCost = 0;
+      const modelUsage: Record<string, number> = {};
+      const typeUsage: Record<string, number> = {};
+
+      aiJobs?.forEach((job) => {
+        if (job.tokens_used) {
+          totalTokens += job.tokens_used.total || 0;
+          totalCost += job.tokens_used.cost_estimate_usd || 0;
+        }
+        if (job.model_used) {
+          modelUsage[job.model_used] = (modelUsage[job.model_used] || 0) + 1;
+        }
+        if (job.analysis_type) {
+          typeUsage[job.analysis_type] = (typeUsage[job.analysis_type] || 0) + 1;
+        }
+      });
+
+      setAiAnalysisStats({
+        totalJobs: aiJobs?.length || 0,
+        totalTokens,
+        totalCost,
+        modelUsage,
+        typeUsage,
+        recentJobs: aiJobs?.slice(0, 10) || [],
+      });
+
+      setRawSupabaseData((prev: any) => ({ ...prev, aiAnalysisJobs: aiJobs }));
+    } catch (error) {
+      logger.error('DEV_HEAD_DEBUG', 'Failed to load AI analysis jobs', { error });
     }
 
     setCollectors(collectorsData);
@@ -591,6 +637,157 @@ export default function DevHeadDebugPage() {
                   </summary>
                   <pre className="p-4 rounded-lg bg-black/50 text-xs text-neutral-300 overflow-auto max-h-[500px]">
                     {JSON.stringify(context, null, 2)}
+                  </pre>
+                </details>
+              )}
+            </div>
+          )}
+        </GlassCard>
+      )}
+
+      {/* AI Token Usage & Cost Tracking */}
+      {aiAnalysisStats && (
+        <GlassCard variant="premium">
+          <div
+            className="flex items-center justify-between cursor-pointer"
+            onClick={() => toggleSection('ai-analysis')}
+          >
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Cpu className="w-5 h-5 text-cyan-400" />
+              AI Token Usage & Cost Tracking
+            </h2>
+            <DollarSign className="w-5 h-5 text-green-400" />
+          </div>
+
+          {expandedSections.has('ai-analysis') && (
+            <div className="mt-4 space-y-4">
+              {/* Summary Stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30">
+                  <p className="text-xs text-cyan-300 mb-1">Total AI Jobs</p>
+                  <p className="text-2xl font-bold text-white">{aiAnalysisStats.totalJobs}</p>
+                </div>
+                <div className="p-3 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30">
+                  <p className="text-xs text-purple-300 mb-1">Total Tokens</p>
+                  <p className="text-2xl font-bold text-white">
+                    {aiAnalysisStats.totalTokens.toLocaleString()}
+                  </p>
+                </div>
+                <div className="p-3 rounded-lg bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30">
+                  <p className="text-xs text-green-300 mb-1">Total Cost (USD)</p>
+                  <p className="text-2xl font-bold text-white">
+                    ${aiAnalysisStats.totalCost.toFixed(4)}
+                  </p>
+                </div>
+                <div className="p-3 rounded-lg bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border border-yellow-500/30">
+                  <p className="text-xs text-yellow-300 mb-1">Avg Cost/Job</p>
+                  <p className="text-2xl font-bold text-white">
+                    ${(aiAnalysisStats.totalCost / aiAnalysisStats.totalJobs).toFixed(4)}
+                  </p>
+                </div>
+              </div>
+
+              {/* Model Usage Distribution */}
+              <div className="p-4 rounded-lg bg-black/30 border border-white/5">
+                <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                  <Cpu className="w-4 h-4 text-cyan-400" />
+                  Model Usage Distribution
+                </h3>
+                <div className="space-y-2">
+                  {Object.entries(aiAnalysisStats.modelUsage).map(([model, count]: [string, any]) => (
+                    <div key={model} className="flex items-center justify-between">
+                      <span className="text-neutral-300 text-sm">{model || 'unknown'}</span>
+                      <span className="text-white font-bold">{count} jobs</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Analysis Type Distribution */}
+              <div className="p-4 rounded-lg bg-black/30 border border-white/5">
+                <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                  <Package className="w-4 h-4 text-yellow-400" />
+                  Analysis Type Distribution
+                </h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {Object.entries(aiAnalysisStats.typeUsage).map(([type, count]: [string, any]) => (
+                    <div key={type} className="p-2 rounded bg-white/5 flex items-center justify-between">
+                      <span className="text-neutral-300 text-xs">
+                        {type.replace(/_/g, ' ')}
+                      </span>
+                      <span className="text-white font-bold text-sm">{count}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Recent AI Jobs */}
+              <div className="p-4 rounded-lg bg-black/30 border border-white/5">
+                <h3 className="text-sm font-bold text-white mb-3">Recent AI Jobs (Last 10)</h3>
+                <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                  {aiAnalysisStats.recentJobs.map((job: any) => (
+                    <div
+                      key={job.id}
+                      className="p-3 rounded-lg bg-white/5 border border-white/10 hover:border-white/20 transition-colors"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs font-bold text-cyan-400">
+                              {job.analysis_type?.replace(/_/g, ' ')}
+                            </span>
+                            {job.model_used && (
+                              <span className="text-xs px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">
+                                {job.model_used}
+                              </span>
+                            )}
+                            <span
+                              className={`text-xs px-2 py-0.5 rounded ${
+                                job.status === 'completed'
+                                  ? 'bg-green-500/20 text-green-300'
+                                  : job.status === 'failed'
+                                  ? 'bg-red-500/20 text-red-300'
+                                  : 'bg-yellow-500/20 text-yellow-300'
+                              }`}
+                            >
+                              {job.status}
+                            </span>
+                          </div>
+                          <p className="text-xs text-neutral-400">
+                            {new Date(job.created_at).toLocaleString()}
+                          </p>
+                        </div>
+                        {job.tokens_used && (
+                          <div className="text-right">
+                            <p className="text-xs text-neutral-400">Tokens</p>
+                            <p className="text-sm font-bold text-white">
+                              {job.tokens_used.total?.toLocaleString() || 0}
+                            </p>
+                            <p className="text-xs text-green-400">
+                              ${job.tokens_used.cost_estimate_usd?.toFixed(4) || '0.0000'}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                      {job.tokens_used && (
+                        <div className="flex items-center gap-4 text-xs text-neutral-400">
+                          <span>In: {job.tokens_used.input?.toLocaleString() || 0}</span>
+                          <span>Out: {job.tokens_used.output?.toLocaleString() || 0}</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Raw Data */}
+              {showRawData && aiAnalysisStats.recentJobs && (
+                <details>
+                  <summary className="text-sm text-neutral-400 cursor-pointer hover:text-white mb-2">
+                    Show Raw AI Analysis Jobs Data
+                  </summary>
+                  <pre className="p-4 rounded-lg bg-black/50 text-xs text-neutral-300 overflow-auto max-h-[500px]">
+                    {JSON.stringify(aiAnalysisStats.recentJobs, null, 2)}
                   </pre>
                 </details>
               )}
