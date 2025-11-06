@@ -23,21 +23,13 @@ import { calculateIdentityCompletion } from './utils/profileCompletion';
 const ProfileIdentityTab = React.memo(() => {
   const { form, actions, state } = useProfileIdentityForm();
   const { register, handleSubmit, errors, isValid, isDirty, watchedValues } = form;
-  const { saveRequiredSection, saveOptionalSection, onSubmit } = actions;
-  const { saving, sectionSaving, hasRequiredChanges, hasOptionalChanges } = state;
+  const { saveRequiredSection, savePersonalDetailsSection, saveFitnessGoalsSection, onSubmit } = actions;
+  const { saving, sectionSaving, hasRequiredChanges, hasPersonalDetailsChanges, hasFitnessGoalsChanges } = state;
   const { profile } = useUserStore();
 
   // Performance optimization
   const performanceConfig = useProfilePerformance();
   const motionVariants = useProfileMotionVariants(performanceConfig);
-
-  // Function to scroll to global save button
-  const handleScrollToGlobalSave = () => {
-    const element = document.getElementById('global-save-button-container');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
 
   // Calculate completion percentage - memoized
   const completionPercentage = useMemo(
@@ -373,9 +365,9 @@ const ProfileIdentityTab = React.memo(() => {
           </div>
 
           <SectionSaveButton
-            isDirty={hasOptionalChanges}
-            isSaving={false}
-            onSave={handleScrollToGlobalSave}
+            isDirty={hasPersonalDetailsChanges}
+            isSaving={sectionSaving === 'personal_details'}
+            onSave={savePersonalDetailsSection}
             sectionName="Personnels"
           />
         </GlassCard>
@@ -488,9 +480,9 @@ const ProfileIdentityTab = React.memo(() => {
           </div>
 
           <SectionSaveButton
-            isDirty={hasOptionalChanges}
-            isSaving={false}
-            onSave={handleScrollToGlobalSave}
+            isDirty={hasFitnessGoalsChanges}
+            isSaving={sectionSaving === 'fitness_goals'}
+            onSave={saveFitnessGoalsSection}
             sectionName="Fitness"
           />
         </GlassCard>

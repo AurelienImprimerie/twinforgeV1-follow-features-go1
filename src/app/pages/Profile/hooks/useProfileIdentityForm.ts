@@ -101,34 +101,22 @@ export function useProfileIdentityForm() {
     }
   };
 
-  const saveOptionalSection = async () => {
-    setSectionSaving('optional');
+  const savePersonalDetailsSection = async () => {
+    setSectionSaving('personal_details');
     try {
-      logger.jsonLog('PROFILE_IDENTITY_SAVE_OPTIONAL', 'Starting optional section save', {
-        watchedValues: {
-          birthdate: watchedValues.birthdate,
-          target_weight_kg: watchedValues.target_weight_kg,
-          activity_level: watchedValues.activity_level,
-          objective: watchedValues.objective,
-          job_category: watchedValues.job_category,
-          phone_number: watchedValues.phone_number,
-          country: watchedValues.country,
-        },
-        timestamp: new Date().toISOString()
-      });
+      // Valider uniquement les champs de détails personnels
+      const isPersonalDetailsValid = await trigger(['birthdate', 'phone_number', 'country', 'job_category']);
+      if (!isPersonalDetailsValid) return;
 
       await updateProfile({
         birthdate: watchedValues.birthdate || null,
-        target_weight_kg: watchedValues.target_weight_kg || null,
-        activity_level: watchedValues.activity_level || null,
-        objective: watchedValues.objective || null,
-        job_category: watchedValues.job_category || null,
         phoneNumber: watchedValues.phone_number || null,
         country: watchedValues.country || null,
+        job_category: watchedValues.job_category || null,
         updated_at: new Date().toISOString(),
       });
 
-      // Reset form with new values to clear dirty state
+      // Reset form avec les nouvelles valeurs pour nettoyer l'état dirty
       reset({
         displayName: watchedValues.displayName,
         sex: watchedValues.sex,
@@ -146,22 +134,69 @@ export function useProfileIdentityForm() {
       // Reset unsaved changes tracking for this tab
       useUnsavedChangesStore.getState().resetTabDirty('identity');
 
-      logger.jsonLog('PROFILE_IDENTITY_SAVE_OPTIONAL_SUCCESS', 'Optional section save completed', {
-        timestamp: new Date().toISOString()
-      });
-
       success();
       showToast({
         type: 'success',
-        title: 'Informations complémentaires sauvegardées',
-        message: 'Vos préférences ont été mises à jour',
+        title: 'Détails personnels sauvegardés',
+        message: 'Vos informations personnelles ont été mises à jour',
         duration: 3000,
       });
     } catch (error) {
       showToast({
         type: 'error',
         title: 'Erreur de sauvegarde',
-        message: 'Impossible de sauvegarder les informations complémentaires',
+        message: 'Impossible de sauvegarder les détails personnels',
+        duration: 4000,
+      });
+    } finally {
+      setSectionSaving(null);
+    }
+  };
+
+  const saveFitnessGoalsSection = async () => {
+    setSectionSaving('fitness_goals');
+    try {
+      // Valider uniquement les champs d'objectifs fitness
+      const isFitnessGoalsValid = await trigger(['target_weight_kg', 'activity_level', 'objective']);
+      if (!isFitnessGoalsValid) return;
+
+      await updateProfile({
+        target_weight_kg: watchedValues.target_weight_kg || null,
+        activity_level: watchedValues.activity_level || null,
+        objective: watchedValues.objective || null,
+        updated_at: new Date().toISOString(),
+      });
+
+      // Reset form avec les nouvelles valeurs pour nettoyer l'état dirty
+      reset({
+        displayName: watchedValues.displayName,
+        sex: watchedValues.sex,
+        height_cm: watchedValues.height_cm,
+        weight_kg: watchedValues.weight_kg,
+        birthdate: watchedValues.birthdate,
+        target_weight_kg: watchedValues.target_weight_kg,
+        activity_level: watchedValues.activity_level,
+        objective: watchedValues.objective,
+        job_category: watchedValues.job_category,
+        phone_number: watchedValues.phone_number,
+        country: watchedValues.country,
+      });
+
+      // Reset unsaved changes tracking for this tab
+      useUnsavedChangesStore.getState().resetTabDirty('identity');
+
+      success();
+      showToast({
+        type: 'success',
+        title: 'Objectifs fitness sauvegardés',
+        message: 'Vos objectifs d\'entraînement ont été mis à jour',
+        duration: 3000,
+      });
+    } catch (error) {
+      showToast({
+        type: 'error',
+        title: 'Erreur de sauvegarde',
+        message: 'Impossible de sauvegarder les objectifs fitness',
         duration: 4000,
       });
     } finally {
@@ -236,7 +271,8 @@ export function useProfileIdentityForm() {
 
   // Check for section changes
   const hasRequiredChanges = !!(dirtyFields.displayName || dirtyFields.sex || dirtyFields.height_cm || dirtyFields.weight_kg);
-  const hasOptionalChanges = !!(dirtyFields.birthdate || dirtyFields.target_weight_kg || dirtyFields.activity_level || dirtyFields.objective || dirtyFields.job_category || dirtyFields.phone_number || dirtyFields.country);
+  const hasPersonalDetailsChanges = !!(dirtyFields.birthdate || dirtyFields.phone_number || dirtyFields.country || dirtyFields.job_category);
+  const hasFitnessGoalsChanges = !!(dirtyFields.target_weight_kg || dirtyFields.activity_level || dirtyFields.objective);
 
   return {
     form: {
@@ -252,14 +288,16 @@ export function useProfileIdentityForm() {
     },
     actions: {
       saveRequiredSection,
-      saveOptionalSection,
+      savePersonalDetailsSection,
+      saveFitnessGoalsSection,
       onSubmit
     },
     state: {
       saving,
       sectionSaving,
       hasRequiredChanges,
-      hasOptionalChanges
+      hasPersonalDetailsChanges,
+      hasFitnessGoalsChanges
     }
   };
 }

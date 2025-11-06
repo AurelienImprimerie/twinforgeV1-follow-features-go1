@@ -127,7 +127,7 @@ export function navFor(): NavSection[] {
           subtitle: 'Scanner de Frigo',
           isForge: true,
           circuitColor: '#EC4899', // Rose
-          tabs: ['Scanner', 'Inventaire', 'Recettes', 'Plan', 'Courses'],
+          tabs: ['Scanner', 'Recettes', 'Plan', 'Courses'],
           subItems: [
             {
               to: '/fridge#scanner',
@@ -136,24 +136,22 @@ export function navFor(): NavSection[] {
               isPrimarySubMenu: true
             },
             {
-              to: '/fridge#inventaire',
-              icon: 'Refrigerator',
-              label: 'Inventaire'
-            },
-            {
               to: '/fridge#recipes',
               icon: 'ChefHat',
-              label: 'Recettes'
+              label: 'Recettes',
+              isPrimarySubMenu: true
             },
             {
               to: '/fridge#plan',
               icon: 'Calendar',
-              label: 'Plan'
+              label: 'Plan alimentaire',
+              isPrimarySubMenu: true
             },
             {
               to: '/fridge#courses',
               icon: 'ShoppingCart',
-              label: 'Courses'
+              label: 'Liste de course',
+              isPrimarySubMenu: true
             }
           ]
         },

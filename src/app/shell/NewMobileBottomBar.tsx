@@ -12,24 +12,19 @@ import { usePerformanceMode } from '../../system/context/PerformanceModeContext'
 
 /**
  * Configuration des boutons de la nouvelle barre inférieure
- * 5 boutons : Repas - Frigo - Activité - Training - Jeûne
+ * Boutons de base : Nutrition - Activité - Training - Frigo
+ * Boutons conditionnels (prise de masse uniquement) : Recettes - Plan
+ * Bouton conditionnel (hors prise de masse) : Jeûne
  * Le bouton éclair (Outils du Forgeron) est dans le header
  * Les boutons Vital, Profil et Paramètres sont dans la sidebar/header
  */
 const BOTTOM_BAR_BUTTONS = [
   {
     id: 'meal-scan',
-    label: 'Repas',
+    label: 'Nutrition',
     icon: 'Utensils' as const,
     route: '/meals',
     color: '#10B981', // Vert nutrition
-  },
-  {
-    id: 'fridge-scan',
-    label: 'Frigo',
-    icon: 'Refrigerator' as const,
-    route: '/fridge',
-    color: '#EC4899', // Rose
   },
   {
     id: 'activity',
@@ -46,11 +41,40 @@ const BOTTOM_BAR_BUTTONS = [
     color: '#18E3FF', // Cyan training
   },
   {
+    id: 'fridge-scan',
+    label: 'Frigo',
+    icon: 'Refrigerator' as const,
+    route: '/fridge',
+    color: '#EC4899', // Rose
+  },
+  {
     id: 'fasting',
     label: 'Jeûne',
     icon: 'Timer' as const,
     route: '/fasting',
     color: '#F59E0B', // Orange jeûne
+    hideForBulking: true, // Masqué en prise de masse
+  },
+];
+
+/**
+ * Boutons conditionnels pour la prise de masse
+ * Affichés uniquement quand objective = 'muscle_gain'
+ */
+const BULKING_BUTTONS = [
+  {
+    id: 'recipes',
+    label: 'Recettes',
+    icon: 'ChefHat' as const,
+    route: '/fridge#recipes',
+    color: '#EC4899', // Rose (harmonisé avec Forge Culinaire)
+  },
+  {
+    id: 'meal-plan',
+    label: 'Plan',
+    icon: 'Calendar' as const,
+    route: '/fridge#plan',
+    color: '#EC4899', // Rose (harmonisé avec Forge Culinaire)
   },
 ];
 
@@ -106,7 +130,10 @@ function BarButton({
 
 /**
  * New Mobile Bottom Bar - Barre de navigation inférieure redesignée
- * 5 boutons : Repas - Frigo - Activité - Training - Jeûne (masqué si prise de masse)
+ * 4-6 boutons selon l'objectif utilisateur:
+ * - Base : Nutrition - Activité - Training - Frigo
+ * - Prise de masse : + Recettes + Plan (pas de Jeûne)
+ * - Autres objectifs : + Jeûne
  * Le bouton éclair (Outils du Forgeron) a été déplacé dans le header
  */
 const NewMobileBottomBar: React.FC = () => {
@@ -116,14 +143,30 @@ const NewMobileBottomBar: React.FC = () => {
   const { isPerformanceMode } = usePerformanceMode();
   const hideFastingForBulking = useHideFastingForBulking();
 
-  // Filtrer les boutons : masquer le jeûne si l'utilisateur est en prise de masse
+  // Construire la liste de boutons selon l'objectif utilisateur
   const visibleButtons = React.useMemo(() => {
-    return BOTTOM_BAR_BUTTONS.filter((button) => {
-      if (button.id === 'fasting' && hideFastingForBulking) {
+    let buttons = BOTTOM_BAR_BUTTONS.filter((button) => {
+      // Masquer le jeûne si prise de masse
+      if (button.hideForBulking && hideFastingForBulking) {
         return false;
       }
       return true;
     });
+
+    // Ajouter les boutons de prise de masse si nécessaire
+    if (hideFastingForBulking) {
+      // Insérer Recettes et Plan après Frigo (avant la fin)
+      const fridgeIndex = buttons.findIndex(b => b.id === 'fridge-scan');
+      if (fridgeIndex !== -1) {
+        buttons = [
+          ...buttons.slice(0, fridgeIndex + 1),
+          ...BULKING_BUTTONS,
+          ...buttons.slice(fridgeIndex + 1)
+        ];
+      }
+    }
+
+    return buttons;
   }, [hideFastingForBulking]);
 
   const handleButtonClick = (button: typeof BOTTOM_BAR_BUTTONS[0]) => {
