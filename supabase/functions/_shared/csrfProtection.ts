@@ -119,15 +119,24 @@ export class CSRFProtection {
     const isDevelopment =
       requestOrigin.includes('localhost') ||
       requestOrigin.includes('127.0.0.1') ||
-      requestOrigin.includes('webcontainer-api.io') ||  // Matches all WebContainer subdomains
-      requestOrigin.includes('stackblitz.io');
+      requestOrigin.includes('webcontainer-api.io') ||  // Matches all WebContainer subdomains including local-credentialless
+      requestOrigin.includes('webcontainer.io') ||      // Alternative WebContainer domain
+      requestOrigin.includes('stackblitz.io') ||
+      requestOrigin.includes('bolt.new');               // Bolt.new environment
 
     if (isDevelopment) {
+      console.log('✅ [CSRFProtection] Development environment detected, allowing origin:', requestOrigin);
       return {
         valid: true,
         origin: requestOrigin
       };
     }
+
+    console.log('⚠️ [CSRFProtection] Origin validation check', {
+      requestOrigin,
+      allowedOrigins: this.allowedOrigins,
+      isDevelopment: false
+    });
 
     const isAllowed = this.allowedOrigins.some(allowed =>
       this.normalizeOrigin(requestOrigin) === this.normalizeOrigin(allowed)

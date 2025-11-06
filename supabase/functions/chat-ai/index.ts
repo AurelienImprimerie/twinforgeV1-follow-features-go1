@@ -161,222 +161,92 @@ Deno.serve(async (req: Request) => {
     const openAIResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-5-mini",
-        messages: messages,
-        max_completion_tokens: 800,
-        stream: stream,
+        model: "gpt-4o-mini",
+        messages,
+        stream: false,
       }),
     });
 
-    log('info', 'OpenAI response received', requestId, {
-      status: openAIResponse.status,
-      ok: openAIResponse.ok,
-      stream
-    });
-
     if (!openAIResponse.ok) {
-      const error = await openAIResponse.text();
-      log('error', 'OpenAI API error', requestId, {
-        status: openAIResponse.status,
-        error
-      });
-      throw new Error(`OpenAI API error: ${openAIResponse.status} - ${error}`);
+      const error = await openAIResponse.json();
+      log('error', 'OpenAI API error', requestId, { error });
+      throw new Error(`OpenAI API error: ${JSON.stringify(error)}`);
     }
 
-    if (stream) {
-      log('info', 'Starting SSE stream', requestId);
+    const openAIData = await openAIResponse.json();
+    const assistantMessage = openAIData.choices[0].message.content;
+    const usage = openAIData.usage;
 
-      let chunkCount = 0;
-      let accumulatedInputTokens = 0;
-      let accumulatedOutputTokens = 0;
-      const reader = openAIResponse.body?.getReader();
-      const encoder = new TextEncoder();
-      const decoder = new TextDecoder();
-
-      if (!reader) {
-        log('error', 'No response body reader', requestId);
-        throw new Error('No response body available');
-      }
-
-      const stream = new ReadableStream({
-        async start(controller) {
-          try {
-            while (true) {
-              const { done, value } = await reader.read();
-
-              if (done) {
-                log('info', 'Stream completed', requestId, { chunkCount });
-                controller.close();
-
-                // ATOMIC token consumption after stream completion
-                try {
-                  const consumptionResult = await consumeTokensAtomic(supabase, {
-                    userId: user.id,
-                    edgeFunctionName: 'chat-ai',
-                    operationType: 'chat-completion',
-                    openaiModel: 'gpt-5-mini',
-                    openaiInputTokens: accumulatedInputTokens || estimatedInputTokens,
-                    openaiOutputTokens: accumulatedOutputTokens || estimatedOutputTokens,
-                    metadata: { mode, requestId, streaming: true }
-                  });
-
-                  if (consumptionResult.success) {
-                    log('info', '✅ Tokens consumed atomically after stream', requestId, {
-                      consumed: consumptionResult.consumed,
-                      remaining: consumptionResult.remainingBalance,
-                      requestId: consumptionResult.requestId,
-                      duplicate: consumptionResult.duplicate || false
-                    });
-                  } else {
-                    log('error', '❌ Atomic token consumption failed', requestId, {
-                      error: consumptionResult.error,
-                      requestId: consumptionResult.requestId
-                    });
-                  }
-                } catch (tokenError) {
-                  log('error', '💥 Exception during atomic token consumption', requestId, {
-                    error: tokenError instanceof Error ? tokenError.message : String(tokenError)
-                  });
-                }
-
-                break;
-              }
-
-              chunkCount++;
-              const chunk = decoder.decode(value, { stream: true });
-
-              if (chunkCount <= 3) {
-                log('info', 'Stream chunk received', requestId, {
-                  chunkNumber: chunkCount,
-                  chunkLength: chunk.length,
-                  preview: chunk.substring(0, 100)
-                });
-              }
-
-              // Parse SSE chunks to extract usage data if available
-              try {
-                const lines = chunk.split('\n');
-                for (const line of lines) {
-                  if (line.startsWith('data: ')) {
-                    const data = line.slice(6);
-                    if (data === '[DONE]') continue;
-
-                    try {
-                      const parsed = JSON.parse(data);
-                      if (parsed.usage) {
-                        accumulatedInputTokens = parsed.usage.prompt_tokens || 0;
-                        accumulatedOutputTokens = parsed.usage.completion_tokens || 0;
-                      }
-                    } catch {
-                      // Not valid JSON, continue
-                    }
-                  }
-                }
-              } catch {
-                // Parsing error, continue streaming
-              }
-
-              controller.enqueue(encoder.encode(chunk));
-            }
-          } catch (error) {
-            log('error', 'Stream error', requestId, {
-              error: error instanceof Error ? error.message : String(error),
-              chunkCount
-            });
-            controller.error(error);
-          }
-        }
-      });
-
-      return new Response(stream, {
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
-          "Connection": "keep-alive",
-          "X-Request-Id": requestId,
-        },
-      });
-    }
-
-    const data = await openAIResponse.json();
-
-    log('info', 'Non-stream response parsed', requestId, {
-      hasMessage: !!data.choices[0]?.message,
-      tokensUsed: data.usage?.total_tokens
+    log('info', 'OpenAI response received', requestId, {
+      promptTokens: usage.prompt_tokens,
+      completionTokens: usage.completion_tokens,
+      totalTokens: usage.total_tokens
     });
 
-    const consumptionResult = await consumeTokensAtomic(supabase, {
-      userId: user.id,
-      edgeFunctionName: 'chat-ai',
-      operationType: 'chat-completion',
-      openaiModel: 'gpt-5-mini',
-      openaiInputTokens: data.usage?.prompt_tokens,
-      openaiOutputTokens: data.usage?.completion_tokens,
-      metadata: { mode, requestId }
-    }, requestId);
+    // Consume tokens atomically
+    const consumptionResult = await consumeTokensAtomic(
+      supabase,
+      {
+        userId: user.id,
+        edgeFunctionName: 'chat-ai',
+        operationType: 'chat-completion',
+        openaiModel: 'gpt-4o-mini',
+        openaiInputTokens: usage.prompt_tokens,
+        openaiOutputTokens: usage.completion_tokens
+      },
+      requestId
+    );
 
     if (!consumptionResult.success) {
-      log('error', '❌ Atomic token consumption failed', requestId, {
+      log('error', 'Token consumption failed', requestId, {
         error: consumptionResult.error,
-        needsUpgrade: consumptionResult.needsUpgrade
+        insufficientBalance: !consumptionResult.success
       });
 
-      // Return error response if consumption failed
-      if (consumptionResult.error === 'insufficient_tokens' || consumptionResult.needsUpgrade) {
-        return createInsufficientTokensResponse(
-          consumptionResult.remainingBalance,
-          consumptionResult.consumed,
-          consumptionResult.needsUpgrade || false,
-          corsHeaders
-        );
-      }
+      return createInsufficientTokensResponse(
+        consumptionResult.remainingBalance,
+        consumptionResult.consumed || usage.total_tokens,
+        consumptionResult.needsUpgrade || false,
+        corsHeaders
+      );
     }
 
-    log('info', '✅ Tokens consumed atomically', requestId, {
-      consumed: consumptionResult.consumed,
-      remaining: consumptionResult.remainingBalance,
-      requestId: consumptionResult.requestId,
-      duplicate: consumptionResult.duplicate || false
+    log('info', '✅ Tokens consumed successfully', requestId, {
+      tokensConsumed: usage.total_tokens,
+      remainingBalance: consumptionResult.remainingBalance
     });
 
     return new Response(
       JSON.stringify({
-        message: data.choices[0].message,
-        usage: data.usage,
-        requestId,
-        tokenBalance: consumptionResult.remainingBalance
+        message: assistantMessage,
+        usage: usage,
+        balanceRemaining: consumptionResult.remainingBalance
       }),
       {
         headers: {
           ...corsHeaders,
           "Content-Type": "application/json",
-          "X-Request-Id": requestId,
         },
       }
     );
   } catch (error) {
-    log('error', 'Fatal error', requestId, {
+    log('error', '❌ Fatal error in chat-ai', requestId, {
       error: error instanceof Error ? error.message : String(error),
       stack: error instanceof Error ? error.stack : undefined
     });
 
     return new Response(
       JSON.stringify({
-        error: error.message || "An error occurred processing your request",
-        requestId
+        error: "Internal server error",
+        message: error instanceof Error ? error.message : String(error),
       }),
       {
         status: 500,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json",
-          "X-Request-Id": requestId,
-        },
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
     );
   }
