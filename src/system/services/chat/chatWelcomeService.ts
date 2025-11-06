@@ -71,11 +71,12 @@ export class ChatWelcomeService {
         if (user) {
           const { data: profile } = await supabase
             .from('user_profile')
-            .select('first_name')
+            .select('display_name, full_name')
             .eq('user_id', user.id)
             .maybeSingle();
 
-          firstName = profile?.first_name;
+          // Utiliser display_name en priorité, sinon extraire le prénom de full_name
+          firstName = profile?.display_name || profile?.full_name?.split(' ')[0];
         }
       } catch (error) {
         logger.debug('CHAT_WELCOME_SERVICE', 'Could not fetch user name', { error });
