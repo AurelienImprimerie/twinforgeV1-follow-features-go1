@@ -168,6 +168,9 @@ export class MealPlanDataCollector {
     const planData = plan.plan_data || {};
     const nutritionalSummary = plan.nutritional_summary || {};
 
+    // Extract all recipes from plan_data
+    const recipes = this.extractRecipesFromPlanData(planData);
+
     return {
       id: plan.id,
       sessionId: plan.session_id,
@@ -187,9 +190,66 @@ export class MealPlanDataCollector {
         averageCaloriesPerDay: nutritionalSummary.averageCaloriesPerDay
       },
       planData,
+      recipes,
       inventorySessionId: plan.inventory_session_id,
       createdAt: plan.created_at,
       updatedAt: plan.updated_at
     };
+  }
+
+  /**
+   * Extract all recipes from plan_data JSONB structure
+   */
+  private extractRecipesFromPlanData(planData: any): Array<{
+    title: string;
+    recipe: string;
+    ingredients: string[];
+    calories_est: number;
+    prep_time_min: number;
+    cook_time_min: number;
+    mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+    date: string;
+  }> {
+    const recipes: Array<{
+      title: string;
+      recipe: string;
+      ingredients: string[];
+      calories_est: number;
+      prep_time_min: number;
+      cook_time_min: number;
+      mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+      date: string;
+    }> = [];
+
+    if (!planData || !planData.days || !Array.isArray(planData.days)) {
+      return recipes;
+    }
+
+    // Iterate through all days in the meal plan
+    planData.days.forEach((day: any) => {
+      if (!day || !day.date) return;
+
+      const date = day.date;
+      const mealTypes = ['breakfast', 'lunch', 'dinner', 'snack'] as const;
+
+      // Extract each meal type for the day
+      mealTypes.forEach((mealType) => {
+        const meal = day[mealType];
+        if (meal && meal.title) {
+          recipes.push({
+            title: meal.title,
+            recipe: meal.recipe || '',
+            ingredients: Array.isArray(meal.ingredients) ? meal.ingredients : [],
+            calories_est: meal.calories_est || 0,
+            prep_time_min: meal.prep_time_min || 0,
+            cook_time_min: meal.cook_time_min || 0,
+            mealType,
+            date
+          });
+        }
+      });
+    });
+
+    return recipes;
   }
 }

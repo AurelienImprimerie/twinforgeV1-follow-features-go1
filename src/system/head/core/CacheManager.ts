@@ -3,6 +3,7 @@
  * Manages cache with TTL and smart invalidation
  */
 
+import type { SupabaseClient } from '@supabase/supabase-js';
 import logger from '../../../lib/utils/logger';
 import type { CacheEntry, ForgeType, CacheInvalidationRule } from '../types';
 
@@ -19,10 +20,104 @@ const DEFAULT_TTLS: Record<ForgeType, number> = {
 export class CacheManager {
   private cache: Map<string, CacheEntry<any>>;
   private invalidationRules: CacheInvalidationRule[];
+  private supabase: SupabaseClient | null = null;
+  private subscriptions: Map<string, any> = new Map();
+  private isRealtimeEnabled = false;
 
   constructor() {
     this.cache = new Map();
     this.invalidationRules = this.initializeInvalidationRules();
+  }
+
+  /**
+   * Initialize realtime subscriptions for automatic cache invalidation
+   */
+  enableRealtimeInvalidation(supabase: SupabaseClient): void {
+    if (this.isRealtimeEnabled) {
+      logger.warn('CACHE_MANAGER', 'Realtime invalidation already enabled');
+      return;
+    }
+
+    this.supabase = supabase;
+    this.isRealtimeEnabled = true;
+
+    logger.info('CACHE_MANAGER', 'Enabling realtime cache invalidation');
+
+    // Subscribe to all relevant tables
+    const tables = new Set<string>();
+    this.invalidationRules.forEach(rule => {
+      rule.events.forEach(table => tables.add(table));
+    });
+
+    tables.forEach(table => {
+      this.subscribeToTable(table);
+    });
+
+    logger.info('CACHE_MANAGER', 'Realtime cache invalidation enabled', {
+      subscribedTables: tables.size
+    });
+  }
+
+  /**
+   * Subscribe to a specific table for cache invalidation
+   */
+  private subscribeToTable(table: string): void {
+    if (!this.supabase) return;
+
+    const channel = this.supabase
+      .channel(`cache-invalidation-${table}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: table
+        },
+        (payload) => {
+          logger.debug('CACHE_MANAGER', 'Database change detected', {
+            table,
+            event: payload.eventType
+          });
+
+          // Find which forges are affected by this table
+          const affectedForges = this.invalidationRules
+            .filter(rule => rule.events.includes(table))
+            .map(rule => rule.forge);
+
+          // Invalidate cache for affected forges
+          affectedForges.forEach(forge => {
+            this.invalidateForge(forge);
+          });
+        }
+      )
+      .subscribe();
+
+    this.subscriptions.set(table, channel);
+
+    logger.debug('CACHE_MANAGER', 'Subscribed to table', { table });
+  }
+
+  /**
+   * Disable realtime invalidation and cleanup subscriptions
+   */
+  disableRealtimeInvalidation(): void {
+    if (!this.isRealtimeEnabled) return;
+
+    logger.info('CACHE_MANAGER', 'Disabling realtime cache invalidation');
+
+    // Unsubscribe from all channels
+    this.subscriptions.forEach((channel, table) => {
+      if (this.supabase) {
+        this.supabase.removeChannel(channel);
+      }
+      logger.debug('CACHE_MANAGER', 'Unsubscribed from table', { table });
+    });
+
+    this.subscriptions.clear();
+    this.isRealtimeEnabled = false;
+    this.supabase = null;
+
+    logger.info('CACHE_MANAGER', 'Realtime cache invalidation disabled');
   }
 
   /**
@@ -93,6 +188,28 @@ export class CacheManager {
   }
 
   /**
+   * Invalidate cache based on a database table change
+   */
+  invalidateByTable(table: string): void {
+    logger.debug('CACHE_MANAGER', 'Manual table invalidation', { table });
+
+    // Find which forges are affected by this table
+    const affectedForges = this.invalidationRules
+      .filter(rule => rule.events.includes(table))
+      .map(rule => rule.forge);
+
+    // Invalidate cache for affected forges
+    affectedForges.forEach(forge => {
+      this.invalidateForge(forge);
+    });
+
+    logger.info('CACHE_MANAGER', 'Table cache invalidated', {
+      table,
+      affectedForges
+    });
+  }
+
+  /**
    * Get cache statistics
    */
   getStats() {
@@ -111,7 +228,9 @@ export class CacheManager {
     return {
       total: this.cache.size,
       fresh: freshEntries,
-      expired: expiredEntries
+      expired: expiredEntries,
+      realtimeEnabled: this.isRealtimeEnabled,
+      activeSubscriptions: this.subscriptions.size
     };
   }
 

@@ -335,7 +335,6 @@ export class UserKnowledgeBase {
       displayName: profile.display_name,
       fullName: profile.full_name,
       email: profile.email,
-      phoneNumber: profile.phone_number,
 
       // Physical Attributes
       age: calculateAge(profile.birthdate),
@@ -363,10 +362,8 @@ export class UserKnowledgeBase {
       language: profile.language,
       preferredLanguage: profile.preferred_language,
 
-      // Avatar/Body Scan Status (for coaching awareness)
+      // Body Scan Status (for coaching awareness)
       hasCompletedBodyScan: profile.has_completed_body_scan,
-      avatarStatus: profile.avatar_status,
-      portraitUrl: profile.portrait_url,
 
       // Metadata
       createdAt: profile.created_at,
@@ -384,7 +381,6 @@ export class UserKnowledgeBase {
       displayName: undefined,
       fullName: undefined,
       email: undefined,
-      phoneNumber: undefined,
 
       // Physical Attributes
       age: undefined,
@@ -412,10 +408,8 @@ export class UserKnowledgeBase {
       language: undefined,
       preferredLanguage: undefined,
 
-      // Avatar/Body Scan Status
+      // Body Scan Status
       hasCompletedBodyScan: false,
-      avatarStatus: 'none',
-      portraitUrl: undefined,
 
       // Metadata
       createdAt: undefined,

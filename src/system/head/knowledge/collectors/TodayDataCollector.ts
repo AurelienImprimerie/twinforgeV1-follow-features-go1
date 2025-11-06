@@ -34,6 +34,16 @@ export interface TodayMeal {
   consumedAt: string;
   calories: number;
   protein: number;
+  carbs: number;
+  fats: number;
+  items: Array<{
+    name: string;
+    category: string;
+    calories: number;
+    proteins: number;
+    carbs: number;
+    fats: number;
+  }>;
 }
 
 export interface TodayFastingSession {
@@ -174,7 +184,7 @@ export class TodayDataCollector {
   ): Promise<TodayMeal[]> {
     const { data: meals, error } = await this.supabase
       .from('meals')
-      .select('id, meal_name, meal_type, timestamp, total_kcal')
+      .select('id, meal_name, meal_type, timestamp, total_kcal, items')
       .eq('user_id', userId)
       .gte('timestamp', startOfDay.toISOString())
       .lte('timestamp', endOfDay.toISOString())
@@ -184,14 +194,54 @@ export class TodayDataCollector {
       return [];
     }
 
-    return meals.map((meal) => ({
-      id: meal.id,
-      name: meal.meal_name || 'Repas',
-      mealType: meal.meal_type || 'unknown',
-      consumedAt: meal.timestamp,
-      calories: meal.total_kcal || 0,
-      protein: 0
-    }));
+    return meals.map((meal) => {
+      // Parse items from JSONB
+      const items = this.parseMealItems(meal.items);
+
+      // Calculate totals from items
+      const totalProtein = items.reduce((sum, item) => sum + (item.proteins || 0), 0);
+      const totalCarbs = items.reduce((sum, item) => sum + (item.carbs || 0), 0);
+      const totalFats = items.reduce((sum, item) => sum + (item.fats || 0), 0);
+
+      return {
+        id: meal.id,
+        name: meal.meal_name || 'Repas',
+        mealType: meal.meal_type || 'unknown',
+        consumedAt: meal.timestamp,
+        calories: meal.total_kcal || 0,
+        protein: totalProtein,
+        carbs: totalCarbs,
+        fats: totalFats,
+        items
+      };
+    });
+  }
+
+  /**
+   * Parse meal items from JSONB
+   */
+  private parseMealItems(itemsData: any): Array<{
+    name: string;
+    category: string;
+    calories: number;
+    proteins: number;
+    carbs: number;
+    fats: number;
+  }> {
+    if (!itemsData || !Array.isArray(itemsData)) {
+      return [];
+    }
+
+    return itemsData
+      .filter(item => item && item.name)
+      .map(item => ({
+        name: item.name,
+        category: item.category || 'unknown',
+        calories: item.calories || 0,
+        proteins: item.proteins || 0,
+        carbs: item.carbs || 0,
+        fats: item.fats || 0
+      }));
   }
 
   /**

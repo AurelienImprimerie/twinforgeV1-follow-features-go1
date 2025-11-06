@@ -57,7 +57,6 @@ export interface ProfileKnowledge {
   displayName?: string;
   fullName?: string;
   email?: string;
-  phoneNumber?: string;
 
   // Physical Attributes
   age?: number;
@@ -85,10 +84,8 @@ export interface ProfileKnowledge {
   language?: string;
   preferredLanguage?: 'fr' | 'en';
 
-  // Avatar/Body Scan Status (for coaching awareness)
+  // Body Scan Status (for coaching awareness)
   hasCompletedBodyScan?: boolean;
-  avatarStatus?: 'none' | 'pending' | 'ready' | 'error';
-  portraitUrl?: string;
 
   // Metadata
   createdAt?: string;
@@ -126,6 +123,18 @@ export interface TrainingGoal {
   isActive: boolean;
 }
 
+export interface TrainingExerciseDetail {
+  id: string;
+  name: string;
+  sets: number;
+  reps: number | string;
+  load?: number | number[];
+  rest: number;
+  muscleGroups: string[];
+  coachTips?: string[];
+  executionCues?: string[];
+}
+
 export interface TrainingSessionSummary {
   sessionId: string;
   date: string;
@@ -134,6 +143,9 @@ export interface TrainingSessionSummary {
   duration: number;
   completed: boolean;
   avgRPE?: number;
+  exercises?: TrainingExerciseDetail[]; // Detailed exercises from prescription
+  sessionName?: string;
+  expectedRpe?: number;
 }
 
 export interface ExercisePreference {
@@ -182,6 +194,20 @@ export interface NutritionKnowledge {
   hasData: boolean;
 }
 
+export interface MealItem {
+  name: string;
+  category: string;
+  calories: number;
+  proteins: number;
+  carbs: number;
+  fats: number;
+  fiber?: number;
+  sugar?: number;
+  sodium?: number;
+  portion_size?: string;
+  confidence?: number;
+}
+
 export interface MealSummary {
   id: string;
   name: string;
@@ -191,6 +217,19 @@ export interface MealSummary {
   carbs: number;
   fats: number;
   mealType: string;
+  items: MealItem[];
+  photoUrl: string | null;
+}
+
+export interface RecipeDetailed {
+  title: string;
+  recipe: string;
+  ingredients: string[];
+  calories_est: number;
+  prep_time_min: number;
+  cook_time_min: number;
+  mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+  date: string;
 }
 
 export interface MealPlanSummary {
@@ -212,6 +251,7 @@ export interface MealPlanSummary {
     averageCaloriesPerDay?: number;
   };
   planData: any; // Full meal plan JSON structure
+  recipes: RecipeDetailed[]; // Extracted recipes from plan_data
   inventorySessionId: string | null;
   createdAt: string;
   updatedAt: string;

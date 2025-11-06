@@ -111,6 +111,9 @@ class BrainCoreService {
       // Setup event listeners for reactive coaching
       this.setupEventListeners();
 
+      // Enable realtime cache invalidation
+      this.cacheManager.enableRealtimeInvalidation(this.supabase);
+
       this.initialized = true;
 
       const initTime = Date.now() - startTime;
@@ -574,6 +577,11 @@ class BrainCoreService {
 
     // Flush and destroy performance monitor
     performanceMonitor.destroy();
+
+    // Disable realtime cache invalidation
+    if (this.cacheManager) {
+      this.cacheManager.disableRealtimeInvalidation();
+    }
 
     // Reset state
     this.initialized = false;

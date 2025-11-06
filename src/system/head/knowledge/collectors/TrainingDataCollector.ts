@@ -8,6 +8,7 @@ import logger from '../../../../lib/utils/logger';
 import type {
   TrainingKnowledge,
   TrainingSessionSummary,
+  TrainingExerciseDetail,
   ExercisePreference,
   ProgressionPattern,
   PersonalRecord,
@@ -73,12 +74,31 @@ export class TrainingDataCollector {
     }
 
     return (data || []).map(session => {
-      // Extract exercise count from prescription JSONB
+      // Extract exercise count and details from prescription JSONB
       let exerciseCount = 0;
+      let exercises: TrainingExerciseDetail[] = [];
+      let sessionName: string | undefined;
+      let expectedRpe: number | undefined;
+
       if (session.prescription && typeof session.prescription === 'object') {
         const prescription = session.prescription as any;
+        sessionName = prescription.sessionName;
+        expectedRpe = prescription.expectedRpe;
+
         if (Array.isArray(prescription.exercises)) {
           exerciseCount = prescription.exercises.length;
+          // Extract detailed exercises
+          exercises = prescription.exercises.map((ex: any) => ({
+            id: ex.id || '',
+            name: ex.name || 'Unknown',
+            sets: ex.sets || 0,
+            reps: ex.reps || 0,
+            load: ex.load,
+            rest: ex.rest || 0,
+            muscleGroups: ex.muscleGroups || [],
+            coachTips: ex.coachTips || [],
+            executionCues: ex.executionCues || []
+          }));
         } else if (Array.isArray(prescription.blocks)) {
           // For endurance sessions with blocks
           exerciseCount = prescription.blocks.length;
@@ -92,7 +112,10 @@ export class TrainingDataCollector {
         exerciseCount,
         duration: session.duration_actual_min || 0,
         completed: session.status === 'completed' || !!session.completed_at,
-        avgRPE: session.feedback?.avg_rpe
+        avgRPE: session.feedback?.avg_rpe,
+        exercises,
+        sessionName,
+        expectedRpe
       };
     });
   }

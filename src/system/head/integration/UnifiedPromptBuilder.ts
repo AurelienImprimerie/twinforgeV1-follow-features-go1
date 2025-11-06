@@ -161,12 +161,41 @@ export class UnifiedPromptBuilder {
       if (user.training.recentSessions.length > 0) {
         const completedCount = user.training.recentSessions.filter(s => s.completed).length;
         parts.push(`Séances récentes: ${completedCount}/${user.training.recentSessions.length} complétées`);
+
+        // Show last 2 sessions with exercise details
+        const lastSessions = user.training.recentSessions.slice(0, 2);
+        lastSessions.forEach((session, idx) => {
+          const date = new Date(session.date).toLocaleDateString('fr-FR', { weekday: 'short', month: 'short', day: 'numeric' });
+          const statusEmoji = session.completed ? '✅' : '🕒';
+          parts.push(`\n${statusEmoji} Séance ${idx + 1}: ${session.sessionName || session.discipline} - ${date}`);
+          parts.push(`   Durée: ${session.duration}min | Exercices: ${session.exerciseCount} | RPE: ${session.avgRPE || session.expectedRpe || 'N/A'}`);
+
+          // Show exercises if available
+          if (session.exercises && session.exercises.length > 0) {
+            parts.push(`   Exercices:`);
+            session.exercises.slice(0, 3).forEach(ex => {
+              const loadStr = Array.isArray(ex.load)
+                ? ex.load.join('/')
+                : ex.load
+                ? `${ex.load}kg`
+                : 'poids de corps';
+              parts.push(`     • ${ex.name}: ${ex.sets} x ${ex.reps} @ ${loadStr}`);
+              if (ex.muscleGroups && ex.muscleGroups.length > 0) {
+                parts.push(`       Muscles: ${ex.muscleGroups.slice(0, 2).join(', ')}`);
+              }
+            });
+
+            if (session.exercises.length > 3) {
+              parts.push(`     ... et ${session.exercises.length - 3} autres exercices`);
+            }
+          }
+        });
       }
       if (user.training.personalRecords && user.training.personalRecords.length > 0) {
-        parts.push(`Records personnels: ${user.training.personalRecords.length} établis`);
+        parts.push(`\nRecords personnels: ${user.training.personalRecords.length} établis`);
       }
       if (user.training.activeGoals && user.training.activeGoals.length > 0) {
-        parts.push(`Objectifs actifs: ${user.training.activeGoals.length}`);
+        parts.push(`\nObjectifs actifs: ${user.training.activeGoals.length}`);
         user.training.activeGoals.slice(0, 2).forEach(goal => {
           const progress = goal.currentValue && goal.targetValue
             ? Math.round((goal.currentValue / goal.targetValue) * 100)
@@ -193,21 +222,36 @@ export class UnifiedPromptBuilder {
     if (user.nutrition.hasData) {
       parts.push('\n### NUTRITION & CONTEXTE CULINAIRE');
 
-      // Meals
+      // Meals - Repas Scannés
       if (user.nutrition.recentMeals.length > 0) {
-        parts.push(`Repas récents: ${user.nutrition.recentMeals.length} enregistrés`);
+        parts.push(`\n  🍽️ Repas Scannés:`);
+        parts.push(`    • Total récents: ${user.nutrition.recentMeals.length} enregistrés`);
+
+        // Show last 3 meals with details
+        const lastMeals = user.nutrition.recentMeals.slice(0, 3);
+        lastMeals.forEach((meal, idx) => {
+          const date = new Date(meal.date).toLocaleDateString('fr-FR', { weekday: 'short', month: 'short', day: 'numeric' });
+          parts.push(`    ${idx + 1}. ${meal.name} (${meal.mealType}) - ${date}`);
+          parts.push(`       Calories: ${meal.calories} kcal | Protéines: ${Math.round(meal.protein)}g | Glucides: ${Math.round(meal.carbs)}g | Lipides: ${Math.round(meal.fats)}g`);
+
+          // Show items if available
+          if (meal.items && meal.items.length > 0) {
+            const itemNames = meal.items.map(item => item.name).join(', ');
+            parts.push(`       Aliments: ${itemNames}`);
+          }
+        });
       }
       if (user.nutrition.averageCalories > 0) {
-        parts.push(`Apport moyen: ${Math.round(user.nutrition.averageCalories)} kcal/jour`);
+        parts.push(`    • Apport moyen: ${Math.round(user.nutrition.averageCalories)} kcal/jour`);
       }
       if (user.nutrition.averageProtein > 0) {
-        parts.push(`Protéines moyennes: ${Math.round(user.nutrition.averageProtein)}g/jour`);
+        parts.push(`    • Protéines moyennes: ${Math.round(user.nutrition.averageProtein)}g/jour`);
       }
       if (user.nutrition.dietaryPreferences.length > 0) {
-        parts.push(`Préférences alimentaires: ${user.nutrition.dietaryPreferences.join(', ')}`);
+        parts.push(`    • Préférences alimentaires: ${user.nutrition.dietaryPreferences.join(', ')}`);
       }
       if (user.nutrition.scanFrequency > 0) {
-        parts.push(`Fréquence de scan: ${user.nutrition.scanFrequency} repas/semaine`);
+        parts.push(`    • Fréquence de scan: ${user.nutrition.scanFrequency} repas/30 jours`);
       }
 
       // Meal Plans
@@ -223,6 +267,32 @@ export class UnifiedPromptBuilder {
             }
             if (plan.nutritionalSummary.averageCaloriesPerDay) {
               parts.push(`    • Cible: ${Math.round(plan.nutritionalSummary.averageCaloriesPerDay)} kcal/jour`);
+            }
+
+            // Display all recipes from current week plan
+            if (plan.recipes && plan.recipes.length > 0) {
+              parts.push(`    • Recettes du plan (${plan.recipes.length} au total):`);
+
+              // Group by date for better organization
+              const recipesByDate: Record<string, typeof plan.recipes> = {};
+              plan.recipes.forEach(recipe => {
+                if (!recipesByDate[recipe.date]) {
+                  recipesByDate[recipe.date] = [];
+                }
+                recipesByDate[recipe.date].push(recipe);
+              });
+
+              // Display recipes organized by date (limit to 3 days for brevity)
+              const dates = Object.keys(recipesByDate).sort().slice(0, 3);
+              dates.forEach(date => {
+                const dayRecipes = recipesByDate[date];
+                const recipeTitles = dayRecipes.map(r => `${r.title} (${r.mealType})`).join(', ');
+                parts.push(`      - ${date}: ${recipeTitles}`);
+              });
+
+              if (Object.keys(recipesByDate).length > 3) {
+                parts.push(`      ... et ${Object.keys(recipesByDate).length - 3} autres jours`);
+              }
             }
           }
         }
@@ -267,13 +337,46 @@ export class UnifiedPromptBuilder {
         if (user.nutrition.fridgeScans.hasInventory) {
           parts.push(`    • Items disponibles: ${user.nutrition.fridgeScans.totalItemsInFridge}`);
 
-          // Show top items by category
+          // Organize items by category
           if (user.nutrition.fridgeScans.currentInventory.length > 0) {
-            const topItems = user.nutrition.fridgeScans.currentInventory
-              .slice(0, 5)
-              .map(item => item.name)
-              .join(', ');
-            parts.push(`    • Principaux: ${topItems}`);
+            const itemsByCategory: Record<string, string[]> = {};
+
+            user.nutrition.fridgeScans.currentInventory.forEach(item => {
+              const category = item.category || 'autre';
+              if (!itemsByCategory[category]) {
+                itemsByCategory[category] = [];
+              }
+              itemsByCategory[category].push(item.name);
+            });
+
+            // Display by category with limit of 30 items total
+            const categoryEmojis: Record<string, string> = {
+              'proteine': '🍗',
+              'legume': '🥬',
+              'fruit': '🍎',
+              'feculent': '🌾',
+              'produit_laitier': '🥛',
+              'condiment': '🧂',
+              'autre': '📦'
+            };
+
+            let totalDisplayed = 0;
+            const maxDisplay = 30;
+
+            Object.entries(itemsByCategory).forEach(([category, items]) => {
+              if (totalDisplayed >= maxDisplay) return;
+
+              const emoji = categoryEmojis[category] || '📦';
+              const displayItems = items.slice(0, Math.min(items.length, maxDisplay - totalDisplayed));
+              totalDisplayed += displayItems.length;
+
+              parts.push(`    ${emoji} ${category} (${items.length}): ${displayItems.join(', ')}`);
+            });
+
+            if (user.nutrition.fridgeScans.totalItemsInFridge > maxDisplay) {
+              const remaining = user.nutrition.fridgeScans.totalItemsInFridge - maxDisplay;
+              parts.push(`    ... et ${remaining} autres items`);
+            }
           }
         }
 
@@ -319,16 +422,13 @@ export class UnifiedPromptBuilder {
       }
     }
 
-    // Body Scan & Avatar (Enhanced)
+    // Body Scan & Composition
     if (user.bodyScan.hasData || user.profile.hasCompletedBodyScan) {
-      parts.push('\n### AVATAR & COMPOSITION CORPORELLE');
+      parts.push('\n### COMPOSITION CORPORELLE');
 
-      // Avatar Status
+      // Body Scan Status
       if (user.profile.hasCompletedBodyScan) {
-        parts.push(`🎯 Avatar 3D: ${user.profile.avatarStatus === 'ready' ? 'Généré et disponible' : 'En traitement'}`);
-        if (user.profile.portraitUrl) {
-          parts.push(`📸 Portrait: Disponible`);
-        }
+        parts.push(`🎯 Scan corporel complet: Réalisé`);
       }
 
       // Body Scan Data

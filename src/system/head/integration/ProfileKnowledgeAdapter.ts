@@ -62,16 +62,16 @@ export class ProfileKnowledgeAdapter {
         display_name: knowledge.profile.displayName || rawProfile.display_name,
         full_name: knowledge.profile.fullName || rawProfile.full_name,
         email: knowledge.profile.email || rawProfile.email,
-        phone_number: knowledge.profile.phoneNumber || rawProfile.phone_number,
+        phone_number: rawProfile.phone_number, // Keep in rawProfile but not in ProfileKnowledge
         language: knowledge.profile.language || rawProfile.language,
         preferred_language: knowledge.profile.preferredLanguage || rawProfile.preferred_language,
         timezone: rawProfile.timezone,
         body_fat_perc: knowledge.profile.bodyFatPerc || rawProfile.body_fat_perc,
         default_discipline: knowledge.profile.defaultDiscipline || rawProfile.default_discipline,
         has_completed_body_scan: knowledge.profile.hasCompletedBodyScan ?? rawProfile.has_completed_body_scan,
-        avatar_status: knowledge.profile.avatarStatus || rawProfile.avatar_status,
-        avatar_url: rawProfile.avatar_url,
-        portrait_url: knowledge.profile.portraitUrl || rawProfile.portrait_url,
+        avatar_status: rawProfile.avatar_status, // Keep in rawProfile but not in ProfileKnowledge
+        avatar_url: rawProfile.avatar_url, // Keep in rawProfile but not in ProfileKnowledge
+        portrait_url: rawProfile.portrait_url, // Keep in rawProfile but not in ProfileKnowledge
 
         // Metadata
         created_at: rawProfile.created_at,
