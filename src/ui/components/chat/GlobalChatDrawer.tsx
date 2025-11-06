@@ -21,6 +21,7 @@ import { chatConversationService } from '../../../system/services/chat/chatConve
 import { ChatWelcomeService } from '../../../system/services/chat/chatWelcomeService';
 import { usePerformanceMode } from '../../../system/context/PerformanceModeContext';
 import { chatIntegration } from '../../../system/head/integration/ChatIntegration';
+import { BrainStatusIndicator } from './BrainStatusIndicator';
 
 interface GlobalChatDrawerProps {
   chatButtonRef?: React.RefObject<HTMLButtonElement>;
@@ -514,9 +515,12 @@ const GlobalChatDrawer: React.FC<GlobalChatDrawerProps> = ({ chatButtonRef }) =>
                   <h3 className="text-white font-bold text-lg">
                     {modeConfig.displayName}
                   </h3>
-                  <p className="text-white/60 text-xs">
-                    {currentMode === 'general' ? 'En ligne • Avec toi' : 'En ligne • Prêt à aider'}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-white/60 text-xs">
+                      {currentMode === 'general' ? 'En ligne • Avec toi' : 'En ligne • Prêt à aider'}
+                    </p>
+                    <BrainStatusIndicator />
+                  </div>
                 </div>
               </div>
 

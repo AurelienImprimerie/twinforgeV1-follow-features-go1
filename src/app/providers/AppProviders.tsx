@@ -15,6 +15,7 @@ import { useUserStore } from '../../system/store/userStore';
 import logger from '../../lib/utils/logger';
 import { BackgroundManager } from '../../ui/components/BackgroundManager';
 import PerformanceRecommendationAlert, { usePerformanceRecommendationAlert } from '../../ui/components/PerformanceRecommendationAlert';
+import { BrainInitializer } from './BrainInitializer';
 
 // Create QueryClient with enhanced cache configuration for persistence
 // Export for use in stores and services
@@ -269,8 +270,10 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
                   <PerformanceInitializer>
                     <AutoSyncInitializer>
                       <TokenRefreshManager>
-                        <PerformanceAlertManager />
-                        {children}
+                        <BrainInitializer>
+                          <PerformanceAlertManager />
+                          {children}
+                        </BrainInitializer>
                       </TokenRefreshManager>
                     </AutoSyncInitializer>
                   </PerformanceInitializer>

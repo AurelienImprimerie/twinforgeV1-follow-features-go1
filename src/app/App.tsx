@@ -23,6 +23,7 @@ import GlobalLowTokensModal from '../ui/components/modals/GlobalLowTokensModal';
 import CentralActionsMenu from './shell/CentralActionsMenu';
 import FloatingChatButton from '../ui/components/chat/FloatingChatButton';
 import GlobalChatDrawer from '../ui/components/chat/GlobalChatDrawer';
+import { AppContextTracker } from '../system/head/integration/AppContextTracker';
 
 function AppContent() {
   const { isInstallable, isInstalled } = usePWAInstall();
@@ -170,11 +171,15 @@ function AppContent() {
 
 
   return (
-    <div
-      className="min-h-screen flex flex-col z-auto-important will-change-auto-important position-static-important transform-none-important filter-none-important perspective-none-important contain-none-important isolation-auto-important overflow-visible-important"
-      style={{ position: 'relative', zIndex: 0 }}
-    >
-      <Header />
+    <>
+      {/* Track app context for HEAD Brain system */}
+      <AppContextTracker />
+
+      <div
+        className="min-h-screen flex flex-col z-auto-important will-change-auto-important position-static-important transform-none-important filter-none-important perspective-none-important contain-none-important isolation-auto-important overflow-visible-important"
+        style={{ position: 'relative', zIndex: 0 }}
+      >
+        <Header />
 
       {/* Parent flex : on autorise la contraction des enfants */}
       <div className="flex-1 flex min-w-0 position-static-important overflow-visible-important transform-none-important filter-none-important perspective-none-important contain-none-important isolation-auto-important z-auto-important">
@@ -249,25 +254,26 @@ function AppContent() {
         updateInfo={updateInfo}
       />
 
-      <NewMobileBottomBar />
-      <GlobalExitModal />
-      <GlobalLowTokensModal />
+        <NewMobileBottomBar />
+        <GlobalExitModal />
+        <GlobalLowTokensModal />
 
-      {/* Welcome Tokens Notification - Shows to new users after account creation */}
-      <WelcomeTokensNotification />
+        {/* Welcome Tokens Notification - Shows to new users after account creation */}
+        <WelcomeTokensNotification />
 
-      {/* Central Actions Menu - Accessible depuis mobile (via bottom bar) et desktop (via header) */}
-      <CentralActionsMenu
-        isOpen={isCentralMenuOpen}
-        onClose={close}
-      />
+        {/* Central Actions Menu - Accessible depuis mobile (via bottom bar) et desktop (via header) */}
+        <CentralActionsMenu
+          isOpen={isCentralMenuOpen}
+          onClose={close}
+        />
 
-      {/* Floating Chat Button - Accessible from anywhere */}
-      <FloatingChatButton />
+        {/* Floating Chat Button - Accessible from anywhere */}
+        <FloatingChatButton />
 
-      {/* Global Chat Drawer - Unified Coach Interface with Realtime */}
-      <GlobalChatDrawer />
-    </div>
+        {/* Global Chat Drawer - Unified Coach Interface with Realtime */}
+        <GlobalChatDrawer />
+      </div>
+    </>
   );
 }
 

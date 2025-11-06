@@ -27,3 +27,4 @@ export { useWelcomeTokensToast } from './useWelcomeTokensToast';
 export { useRecipeImageRealtime } from './useRecipeImageRealtime';
 export { useActiveGenerationSession } from './useActiveGenerationSession';
 export { useHideFastingForBulking } from './useHideFastingForBulking';
+export { useBrainInitialization } from './useBrainInitialization';

@@ -74,6 +74,7 @@
 @import './components/chat/chat-notification-bubble.css';
 @import './components/chat/voice-coach-panel.css';
 @import './components/chat/unified-coach-drawer.css';
+@import './components/chat/brain-status-indicator.css';
 
 /* Buttons */
 @import './components/buttons/floating-chat-button.css';
