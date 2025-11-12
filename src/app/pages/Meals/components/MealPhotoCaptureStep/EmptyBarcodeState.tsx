@@ -190,7 +190,7 @@ const EmptyBarcodeState: React.FC<EmptyBarcodeStateProps> = ({
                 padding: '1rem'
               }}
             >
-              <div className="relative flex flex-col items-center justify-center gap-2">
+              <div className="relative flex items-center justify-center gap-3">
                 <SpatialIcon
                   Icon={ICONS.Camera}
                   size={28}
@@ -220,7 +220,7 @@ const EmptyBarcodeState: React.FC<EmptyBarcodeStateProps> = ({
                 padding: '1rem'
               }}
             >
-              <div className="relative flex flex-col items-center justify-center gap-2">
+              <div className="relative flex items-center justify-center gap-3">
                 <SpatialIcon
                   Icon={ICONS.Image}
                   size={24}
