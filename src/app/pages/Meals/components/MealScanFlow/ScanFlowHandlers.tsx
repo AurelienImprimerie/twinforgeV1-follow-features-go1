@@ -4,6 +4,7 @@ import { type UserProfileContext, type MealAnalysisRequest } from '../../../../.
 import logger from '../../../../../lib/utils/logger';
 import type { CapturedMealPhoto, ScanFlowState, ScannedProduct, ScannedBarcode } from './ScanFlowState';
 import { openFoodFactsService } from '../../../../../system/services/openFoodFactsService';
+import { useForgeXpRewards } from '../../../../../hooks/useForgeXpRewards';
 
 /**
  * Convert File to Base64 for API transmission
@@ -153,6 +154,9 @@ export function useScanFlowHandlers({
   onAnalysisError: (error: string) => void;
   onSuccess: () => void;
 }) {
+  // Use the XP rewards hook at the component level
+  const { awardForgeXpSilently } = useForgeXpRewards();
+
   // Gérer la capture de photo
   const handlePhotoCapture = React.useCallback(async (
     file: File,
@@ -449,9 +453,6 @@ export function useScanFlowHandlers({
 
       // Award XP for meal scan
       try {
-        const { useForgeXpRewards } = await import('../../../../../hooks/useForgeXpRewards');
-        const { awardForgeXpSilently } = useForgeXpRewards();
-
         if (scanFlowState.capturedPhoto) {
           await awardForgeXpSilently('meal_scan');
         }
@@ -489,7 +490,7 @@ export function useScanFlowHandlers({
       setScanFlowState(prev => ({ ...prev, isProcessing: false }));
       processingGuardRef.current = false;
     }
-  }, [scanFlowState.capturedPhoto, scanFlowState.scannedBarcodes, scanFlowState.scannedProducts, userId, profile, setScanFlowState, clientScanIdRef, processingGuardRef, onAnalysisError, onSuccess]);
+  }, [scanFlowState.capturedPhoto, scanFlowState.scannedBarcodes, scanFlowState.scannedProducts, userId, profile, setScanFlowState, clientScanIdRef, processingGuardRef, onAnalysisError, onSuccess, awardForgeXpSilently]);
 
   // Gérer l'ajout d'un produit scanné
   const handleProductScanned = React.useCallback((product: ScannedProduct) => {
