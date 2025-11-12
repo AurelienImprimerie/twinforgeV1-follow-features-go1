@@ -125,7 +125,7 @@ const RecipeLibraryCTA: React.FC = () => {
         >
           <GamingPointsBadge
             points={20}
-            forgeName="Forge Culinaire"
+            forgeName="Forge Nutritionnelle"
             size="large"
             animated={!isPerformanceMode}
           />
