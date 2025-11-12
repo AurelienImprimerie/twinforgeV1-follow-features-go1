@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { usePerformanceMode } from '../../system/context/PerformanceModeContext';
 import SpatialIcon from '../../ui/icons/SpatialIcon';
 import { ICONS } from '../../ui/icons/registry';
-import { getForgeColor } from './gamingColors';
+import { getForgeColor, GAMING_COLORS } from './gamingColors';
 
 interface GamingPointsBadgeProps {
   points: number;
@@ -12,6 +12,7 @@ interface GamingPointsBadgeProps {
   showIcon?: boolean;
   animated?: boolean;
   className?: string;
+  useUniversalColors?: boolean; // Utiliser les couleurs gaming universelles (orange/jaune)
 }
 
 /**
@@ -24,10 +25,11 @@ const GamingPointsBadge: React.FC<GamingPointsBadgeProps> = ({
   size = 'medium',
   showIcon = true,
   animated = true,
-  className = ''
+  className = '',
+  useUniversalColors = false
 }) => {
   const { isPerformanceMode } = usePerformanceMode();
-  const forgeColor = getForgeColor(forgeName);
+  const forgeColor = useUniversalColors ? GAMING_COLORS.UNIVERSAL_GAMING : getForgeColor(forgeName);
 
   const MotionDiv = isPerformanceMode || !animated ? 'div' : motion.div;
 
@@ -67,7 +69,7 @@ const GamingPointsBadge: React.FC<GamingPointsBadgeProps> = ({
           Icon={ICONS.Trophy}
           size={iconSizes[size]}
           style={{
-            color: forgeColor.primary,
+            color: useUniversalColors ? forgeColor.secondary : forgeColor.primary,
             filter: isPerformanceMode
               ? 'none'
               : `drop-shadow(0 0 6px ${forgeColor.glow})`

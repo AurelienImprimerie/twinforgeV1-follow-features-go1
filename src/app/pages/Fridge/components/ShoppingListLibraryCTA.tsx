@@ -128,6 +128,7 @@ const ShoppingListLibraryCTA: React.FC = () => {
             forgeName="Forge Culinaire"
             size="large"
             animated={!isPerformanceMode}
+            useUniversalColors={true}
           />
         </MotionDiv>
 
