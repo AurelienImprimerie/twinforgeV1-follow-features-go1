@@ -44,14 +44,14 @@ export default function GamingProjectionAndStats({
   bodyProjection,
   futureLevelTitles
 }: GamingProjectionAndStatsProps) {
-  if (!prediction) return null;
+  if (!prediction || !prediction.predictions) return null;
 
   const confidenceColor = CONFIDENCE_COLORS[prediction.confidence];
 
   const timelineEntries = [
-    { days: 30, dataXp: prediction.predictions.days30, dataBody: bodyProjection?.projections.days30, color: '#F7931E' },
-    { days: 60, dataXp: prediction.predictions.days60, dataBody: bodyProjection?.projections.days60, color: '#FBBF24' },
-    { days: 90, dataXp: prediction.predictions.days90, dataBody: bodyProjection?.projections.days90, color: '#F59E0B' },
+    { days: 30, dataXp: prediction.predictions.days30, dataBody: bodyProjection?.projections?.days30, color: '#F7931E' },
+    { days: 60, dataXp: prediction.predictions.days60, dataBody: bodyProjection?.projections?.days60, color: '#FBBF24' },
+    { days: 90, dataXp: prediction.predictions.days90, dataBody: bodyProjection?.projections?.days90, color: '#F59E0B' },
   ];
 
   return (
