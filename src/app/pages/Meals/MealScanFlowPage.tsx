@@ -404,6 +404,42 @@ const MealScanFlowPage: React.FC = () => {
         timestamp: new Date().toISOString()
       });
 
+      // Award XP for meal scan completion (async IIFE to not block UI)
+      (async () => {
+        try {
+          if (userId) {
+            const { gamificationService } = await import('../../../services/dashboard/coeur');
+            await gamificationService.awardMealScanXp(userId, {
+              mealId: savedMeal.id,
+              scanType: scanFlowState.scanType,
+              totalCalories: totalCalories,
+              itemsCount: hasPhotoAnalysisResults
+                ? scanFlowState.analysisResults.detected_foods?.length
+                : 1,
+              timestamp: new Date().toISOString()
+            });
+
+            logger.info('MEAL_SCAN_SAVE', 'XP awarded for meal scan', {
+              mealId: savedMeal.id,
+              scanType: scanFlowState.scanType,
+              xpAwarded: 25,
+              timestamp: new Date().toISOString()
+            });
+
+            // Invalidate gamification queries to refresh gaming widget immediately
+            await queryClient.invalidateQueries({ queryKey: ['gamification-progress'] });
+            await queryClient.invalidateQueries({ queryKey: ['xp-events'] });
+            await queryClient.invalidateQueries({ queryKey: ['daily-actions'] });
+          }
+        } catch (xpError) {
+          logger.warn('MEAL_SCAN_SAVE', 'Failed to award XP for meal scan', {
+            error: xpError instanceof Error ? xpError.message : 'Unknown error',
+            mealId: savedMeal.id,
+            timestamp: new Date().toISOString()
+          });
+        }
+      })();
+
       // CRITIQUE: Ne pas naviguer ici si on est dans un contexte d'exit modal
       // La navigation sera gérée par handleSaveAndExit
       // Si on est dans le flux normal (bouton "Sauvegarder"), on navigue

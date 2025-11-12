@@ -285,6 +285,41 @@ export const useShoppingListStore = create<ShoppingListState>()(
             adviceCount: data.advice?.length || 0
           });
 
+          // Award XP for shopping list generation (async IIFE to not block UI)
+          (async () => {
+            try {
+              if (user?.id && totalItems > 0) {
+                const { gamificationService } = await import('../../services/dashboard/coeur');
+                await gamificationService.awardShoppingListGeneratedXp(user.id, {
+                  mealPlanId: selectedMealPlanId,
+                  generationMode,
+                  itemsGenerated: totalItems,
+                  categoriesCount: categories.length,
+                  timestamp: new Date().toISOString()
+                });
+
+                logger.info('SHOPPING_LIST_STORE', 'XP awarded for shopping list generation', {
+                  mealPlanId: selectedMealPlanId,
+                  itemsGenerated: totalItems,
+                  xpAwarded: 15,
+                  timestamp: new Date().toISOString()
+                });
+
+                // Invalidate gamification queries to refresh gaming widget immediately
+                const { queryClient } = await import('../../app/providers/AppProviders');
+                await queryClient.invalidateQueries({ queryKey: ['gamification-progress'] });
+                await queryClient.invalidateQueries({ queryKey: ['xp-events'] });
+                await queryClient.invalidateQueries({ queryKey: ['daily-actions'] });
+              }
+            } catch (xpError) {
+              logger.warn('SHOPPING_LIST_STORE', 'Failed to award XP for shopping list generation', {
+                error: xpError instanceof Error ? xpError.message : 'Unknown error',
+                mealPlanId: selectedMealPlanId,
+                timestamp: new Date().toISOString()
+              });
+            }
+          })();
+
         } catch (error) {
           logger.error('Shopping list generation failed', error);
           logger.error('SHOPPING_LIST_STORE', 'Failed to generate shopping list', { error });

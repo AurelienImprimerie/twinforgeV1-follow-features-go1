@@ -151,6 +151,43 @@ export function useBarcodePipelineHandlers({
         calories: mealItem.calories,
       });
 
+      // Award XP for barcode scan completion (async IIFE to not block UI)
+      (async () => {
+        try {
+          const { supabase } = await import('../../../../../system/supabase/client');
+          const { data: { user } } = await supabase.auth.getUser();
+
+          if (user?.id) {
+            const { gamificationService } = await import('../../../../../services/dashboard/coeur');
+            await gamificationService.awardBarcodeScanXp(user.id, {
+              barcode: barcodeItem.barcode,
+              productName: result.product.name,
+              clientScanId,
+              timestamp: new Date().toISOString()
+            });
+
+            logger.info('BARCODE_PIPELINE', 'XP awarded for barcode scan', {
+              clientScanId,
+              barcode: barcodeItem.barcode,
+              xpAwarded: 15,
+              timestamp: new Date().toISOString()
+            });
+
+            // Invalidate gamification queries to refresh gaming widget immediately
+            const { queryClient } = await import('../../../../../app/providers/AppProviders');
+            await queryClient.invalidateQueries({ queryKey: ['gamification-progress'] });
+            await queryClient.invalidateQueries({ queryKey: ['xp-events'] });
+            await queryClient.invalidateQueries({ queryKey: ['daily-actions'] });
+          }
+        } catch (xpError) {
+          logger.warn('BARCODE_PIPELINE', 'Failed to award XP for barcode scan', {
+            error: xpError instanceof Error ? xpError.message : 'Unknown error',
+            clientScanId,
+            timestamp: new Date().toISOString()
+          });
+        }
+      })();
+
     } catch (error) {
       logger.error('BARCODE_PIPELINE', 'Analysis failed', {
         clientScanId,

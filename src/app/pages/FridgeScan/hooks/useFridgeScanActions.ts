@@ -368,9 +368,44 @@ export const useFridgeScanActions = ({
       });
 
       processVisionResults(fridgeItems, suggestedFridgeItems);
-      
+
       // Reset loading state after successful processing
       setLoadingState('idle');
+
+      // Award XP for fridge scan completion (async IIFE to not block UI)
+      (async () => {
+        try {
+          const userId = session?.user?.id;
+          if (userId && fridgeItems.length > 0) {
+            const { gamificationService } = await import('../../../../services/dashboard/coeur');
+            await gamificationService.awardFridgeScanXp(userId, {
+              sessionId: currentSessionId,
+              itemsDetected: fridgeItems.length,
+              suggestedItemsCount: suggestedFridgeItems.length,
+              timestamp: new Date().toISOString()
+            });
+
+            logger.info('FRIDGE_SCAN_PAGE', 'XP awarded for fridge scan', {
+              sessionId: currentSessionId,
+              itemsDetected: fridgeItems.length,
+              xpAwarded: 30,
+              timestamp: new Date().toISOString()
+            });
+
+            // Invalidate gamification queries to refresh gaming widget immediately
+            const { queryClient } = await import('../../../../app/providers/AppProviders');
+            await queryClient.invalidateQueries({ queryKey: ['gamification-progress'] });
+            await queryClient.invalidateQueries({ queryKey: ['xp-events'] });
+            await queryClient.invalidateQueries({ queryKey: ['daily-actions'] });
+          }
+        } catch (xpError) {
+          logger.warn('FRIDGE_SCAN_PAGE', 'Failed to award XP for fridge scan', {
+            error: xpError instanceof Error ? xpError.message : 'Unknown error',
+            sessionId: currentSessionId,
+            timestamp: new Date().toISOString()
+          });
+        }
+      })();
       
     } catch (error) {
       logger.error('FRIDGE_SCAN_PAGE', 'Photo analysis failed', {

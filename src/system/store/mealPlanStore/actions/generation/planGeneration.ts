@@ -325,28 +325,40 @@ export const generateMealPlanCore = async (
     });
 
     // Award XP for meal plan generation
-    try {
-      const { useForgeXpRewards } = await import('../../../../../hooks/useForgeXpRewards');
-      const { awardForgeXpSilently } = useForgeXpRewards();
-      await awardForgeXpSilently('meal_plan_generated');
+    (async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user?.id && readyDays.length === 7) {
+          const { gamificationService } = await import('../../../../../services/dashboard/coeur');
+          await gamificationService.awardMealPlanGeneratedXp(user.id, {
+            weekNumber,
+            planId: mealPlanData.id,
+            daysGenerated: readyDays.length,
+            timestamp: new Date().toISOString()
+          });
 
-      // Force immediate refresh of gaming widget
-      const { queryClient } = await import('../../../../../app/providers/AppProviders');
-      await queryClient.invalidateQueries({ queryKey: ['gamification-progress'] });
-      await queryClient.invalidateQueries({ queryKey: ['xp-events'] });
-      await queryClient.invalidateQueries({ queryKey: ['daily-actions'] });
+          logger.info('MEAL_PLAN_STORE', 'XP awarded for meal plan generation', {
+            weekNumber,
+            planId: mealPlanData.id,
+            daysGenerated: readyDays.length,
+            xpAwarded: 35,
+            timestamp: new Date().toISOString()
+          });
 
-      logger.info('MEAL_PLAN_STORE', 'XP awarded and gaming widget refreshed', {
-        action: 'meal_plan_generated',
-        xpAwarded: 35,
-        weekNumber,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      logger.warn('MEAL_PLAN_STORE', 'Failed to award XP for meal plan', {
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
+          // Invalidate gamification queries to refresh gaming widget immediately
+          const { queryClient } = await import('../../../../../app/providers/AppProviders');
+          await queryClient.invalidateQueries({ queryKey: ['gamification-progress'] });
+          await queryClient.invalidateQueries({ queryKey: ['xp-events'] });
+          await queryClient.invalidateQueries({ queryKey: ['daily-actions'] });
+        }
+      } catch (xpError) {
+        logger.warn('MEAL_PLAN_STORE', 'Failed to award XP for meal plan generation', {
+          error: xpError instanceof Error ? xpError.message : 'Unknown error',
+          weekNumber,
+          timestamp: new Date().toISOString()
+        });
+      }
+    })();
 
     return mealPlanData;
 
