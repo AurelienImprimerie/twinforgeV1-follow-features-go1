@@ -14,6 +14,18 @@ export const GAMING_COLORS = {
       background: 'color-mix(in srgb, #EC4899 20%, transparent)',
       border: 'color-mix(in srgb, #EC4899 40%, transparent)',
       text: '#EC4899',
+    },
+    hint: {
+      background: 'color-mix(in srgb, #EC4899 10%, transparent)',
+      border: 'color-mix(in srgb, #EC4899 25%, transparent)',
+      iconBackground: 'color-mix(in srgb, #EC4899 15%, transparent)',
+      iconBorder: 'color-mix(in srgb, #EC4899 30%, transparent)',
+    },
+    success: {
+      background: 'color-mix(in srgb, #EC4899 12%, transparent)',
+      border: 'color-mix(in srgb, #EC4899 35%, transparent)',
+      iconBackground: 'color-mix(in srgb, #EC4899 20%, transparent)',
+      iconBorder: 'color-mix(in srgb, #EC4899 45%, transparent)',
     }
   },
 
@@ -26,6 +38,18 @@ export const GAMING_COLORS = {
       background: 'color-mix(in srgb, #10B981 20%, transparent)',
       border: 'color-mix(in srgb, #10B981 40%, transparent)',
       text: '#10B981',
+    },
+    hint: {
+      background: 'color-mix(in srgb, #10B981 10%, transparent)',
+      border: 'color-mix(in srgb, #10B981 25%, transparent)',
+      iconBackground: 'color-mix(in srgb, #10B981 15%, transparent)',
+      iconBorder: 'color-mix(in srgb, #10B981 30%, transparent)',
+    },
+    success: {
+      background: 'color-mix(in srgb, #10B981 12%, transparent)',
+      border: 'color-mix(in srgb, #10B981 35%, transparent)',
+      iconBackground: 'color-mix(in srgb, #10B981 20%, transparent)',
+      iconBorder: 'color-mix(in srgb, #10B981 45%, transparent)',
     }
   },
 
@@ -38,6 +62,18 @@ export const GAMING_COLORS = {
       background: 'color-mix(in srgb, #3B82F6 20%, transparent)',
       border: 'color-mix(in srgb, #3B82F6 40%, transparent)',
       text: '#3B82F6',
+    },
+    hint: {
+      background: 'color-mix(in srgb, #3B82F6 10%, transparent)',
+      border: 'color-mix(in srgb, #3B82F6 25%, transparent)',
+      iconBackground: 'color-mix(in srgb, #3B82F6 15%, transparent)',
+      iconBorder: 'color-mix(in srgb, #3B82F6 30%, transparent)',
+    },
+    success: {
+      background: 'color-mix(in srgb, #3B82F6 12%, transparent)',
+      border: 'color-mix(in srgb, #3B82F6 35%, transparent)',
+      iconBackground: 'color-mix(in srgb, #3B82F6 20%, transparent)',
+      iconBorder: 'color-mix(in srgb, #3B82F6 45%, transparent)',
     }
   },
 
@@ -50,6 +86,18 @@ export const GAMING_COLORS = {
       background: 'color-mix(in srgb, #F59E0B 20%, transparent)',
       border: 'color-mix(in srgb, #F59E0B 40%, transparent)',
       text: '#F59E0B',
+    },
+    hint: {
+      background: 'color-mix(in srgb, #F59E0B 10%, transparent)',
+      border: 'color-mix(in srgb, #F59E0B 25%, transparent)',
+      iconBackground: 'color-mix(in srgb, #F59E0B 15%, transparent)',
+      iconBorder: 'color-mix(in srgb, #F59E0B 30%, transparent)',
+    },
+    success: {
+      background: 'color-mix(in srgb, #F59E0B 12%, transparent)',
+      border: 'color-mix(in srgb, #F59E0B 35%, transparent)',
+      iconBackground: 'color-mix(in srgb, #F59E0B 20%, transparent)',
+      iconBorder: 'color-mix(in srgb, #F59E0B 45%, transparent)',
     }
   },
 
@@ -79,6 +127,18 @@ export const GAMING_COLORS = {
       background: 'color-mix(in srgb, #8B5CF6 20%, transparent)',
       border: 'color-mix(in srgb, #8B5CF6 40%, transparent)',
       text: '#8B5CF6',
+    },
+    hint: {
+      background: 'color-mix(in srgb, #8B5CF6 10%, transparent)',
+      border: 'color-mix(in srgb, #8B5CF6 25%, transparent)',
+      iconBackground: 'color-mix(in srgb, #8B5CF6 15%, transparent)',
+      iconBorder: 'color-mix(in srgb, #8B5CF6 30%, transparent)',
+    },
+    success: {
+      background: 'color-mix(in srgb, #8B5CF6 12%, transparent)',
+      border: 'color-mix(in srgb, #8B5CF6 35%, transparent)',
+      iconBackground: 'color-mix(in srgb, #8B5CF6 20%, transparent)',
+      iconBorder: 'color-mix(in srgb, #8B5CF6 45%, transparent)',
     }
   }
 } as const;
