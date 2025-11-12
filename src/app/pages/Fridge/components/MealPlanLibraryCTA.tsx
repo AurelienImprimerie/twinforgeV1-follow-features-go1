@@ -9,6 +9,7 @@ import SpatialIcon from '../../../../ui/icons/SpatialIcon';
 import { ICONS } from '../../../../ui/icons/registry';
 import { useFeedback } from '../../../../hooks/useFeedback';
 import ActiveGenerationBanner from './ActiveGenerationBanner';
+import GamingPointsBadge from '../../../../components/dashboard/GamingPointsBadge';
 
 const MealPlanLibraryCTA: React.FC = () => {
   const navigate = useNavigate();
@@ -128,6 +129,22 @@ const MealPlanLibraryCTA: React.FC = () => {
             />
           </MotionDiv>
         </div>
+
+        {/* Badge Points Gaming */}
+        <MotionDiv
+          {...(!isPerformanceMode && {
+            initial: { scale: 0.8, opacity: 0 },
+            animate: { scale: 1, opacity: 1 },
+            transition: { duration: 0.4, delay: 0.1 }
+          })}
+        >
+          <GamingPointsBadge
+            points={35}
+            forgeName="Forge Culinaire"
+            size="large"
+            animated={!isPerformanceMode}
+          />
+        </MotionDiv>
 
         {/* Titre et Description */}
         <MotionDiv

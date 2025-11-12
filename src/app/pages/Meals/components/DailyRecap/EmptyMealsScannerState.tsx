@@ -8,6 +8,7 @@ import GlassCard from '../../../../../ui/cards/GlassCard';
 import SpatialIcon from '../../../../../ui/icons/SpatialIcon';
 import { ICONS } from '../../../../../ui/icons/registry';
 import ProfileNudgeCTA from '../../../../../ui/components/ProfileNudgeCTA';
+import GamingPointsBadge from '../../../../../components/dashboard/GamingPointsBadge';
 
 const EmptyMealsScannerState: React.FC = () => {
   const navigate = useNavigate();
@@ -57,6 +58,22 @@ const EmptyMealsScannerState: React.FC = () => {
         }}
       >
         <div className="space-y-6 flex flex-col items-center">
+          {/* Badge Points Gaming */}
+          <MotionDiv
+            {...(!isPerformanceMode && {
+              initial: { scale: 0.8, opacity: 0 },
+              animate: { scale: 1, opacity: 1 },
+              transition: { duration: 0.4, delay: 0.1 }
+            })}
+          >
+            <GamingPointsBadge
+              points={25}
+              forgeName="Forge Nutritionnelle"
+              size="large"
+              animated={!isPerformanceMode}
+            />
+          </MotionDiv>
+
           {/* Main Icon */}
           <div
             className="w-20 h-20 mx-auto rounded-2xl flex items-center justify-center"

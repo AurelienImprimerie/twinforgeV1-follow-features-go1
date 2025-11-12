@@ -8,6 +8,7 @@ import { ICONS } from '../../../../ui/icons/registry';
 import { useFeedback } from '../../../../hooks/useFeedback';
 import { supabase } from '../../../../system/supabase/client';
 import logger from '../../../../lib/utils/logger';
+import GamingPointsBadge from '../../../../components/dashboard/GamingPointsBadge';
 
 /**
  * FridgeScanMainCTA - Composant CTA Principal pour Scanner un Frigo
@@ -156,6 +157,22 @@ const FridgeScanMainCTA: React.FC = () => {
             />
           </MotionDiv>
         </div>
+
+        {/* Badge Points Gaming */}
+        <MotionDiv
+          {...(!isPerformanceMode && {
+            initial: { scale: 0.8, opacity: 0 },
+            animate: { scale: 1, opacity: 1 },
+            transition: { duration: 0.4, delay: 0.1 }
+          })}
+        >
+          <GamingPointsBadge
+            points={30}
+            forgeName="Forge Culinaire"
+            size="large"
+            animated={!isPerformanceMode}
+          />
+        </MotionDiv>
 
         {/* Titre et Description */}
         <MotionDiv
