@@ -4,6 +4,7 @@ import { type UserProfileContext, type MealAnalysisRequest } from '../../../../.
 import logger from '../../../../../lib/utils/logger';
 import type { CapturedMealPhoto, ScanFlowState, ScannedProduct, ScannedBarcode } from './ScanFlowState';
 import { openFoodFactsService } from '../../../../../system/services/openFoodFactsService';
+import { useForgeXpRewards } from '../../../../../hooks/useForgeXpRewards';
 
 /**
  * Convert File to Base64 for API transmission
@@ -153,6 +154,8 @@ export function useScanFlowHandlers({
   onAnalysisError: (error: string) => void;
   onSuccess: () => void;
 }) {
+  // Hook for awarding XP for forge actions
+  const { awardForgeXpSilently } = useForgeXpRewards();
 
   // Gérer la capture de photo
   const handlePhotoCapture = React.useCallback(async (
