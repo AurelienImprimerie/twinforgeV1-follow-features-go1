@@ -48,122 +48,115 @@ export default function CalorieBalanceEmptyStateV2() {
       subtitle: 'Track tes calories pour atteindre ton surplus',
       route: '/fridge',
       xp: 10,
-      color: '#3B82F6',
-      glowColor: '#60A5FA',
+      color: '#F97316',
+      glowColor: '#FB923C',
     };
   };
 
   const cta = getMainCTAConfig();
 
   return (
-    <motion.div
-      className="glass-card-premium p-8 rounded-3xl space-y-8 relative overflow-hidden"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      {performanceMode === 'premium' && (
-        <div
-          className="absolute top-0 right-0 w-96 h-96 blur-3xl pointer-events-none opacity-30"
-          style={{
-            background: `radial-gradient(circle at center, ${cta.color}, transparent)`,
-          }}
-        />
-      )}
+    <div className="space-y-6">
+      {/* Hero Section with Metrics - Wrapped in Glass Card */}
+      <motion.div
+        className="glass-card-premium p-8 rounded-3xl space-y-8 relative overflow-hidden"
+        style={{
+          background: `
+            radial-gradient(circle at 30% 30%, ${cta.color}15 0%, transparent 60%),
+            radial-gradient(circle at 70% 70%, ${cta.color}10 0%, transparent 65%),
+            rgba(255, 255, 255, 0.04)
+          `,
+          backdropFilter: 'blur(20px) saturate(150%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+          border: `2px solid ${cta.color}40`,
+          boxShadow: `
+            0 8px 32px rgba(0, 0, 0, 0.3),
+            0 0 0 1px rgba(255, 255, 255, 0.05),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1)
+          `
+        }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* Background - Static */}
 
-      {/* Hero Section */}
-      <div className="relative z-10 text-center space-y-4">
-        <div className="flex items-center justify-center mb-6">
-          <motion.div
-            className="w-24 h-24 rounded-3xl flex items-center justify-center backdrop-blur-sm relative"
-            style={{
-              background: `linear-gradient(135deg, ${cta.color}40, ${cta.color}25)`,
-              border: `2px solid ${cta.color}50`,
-              boxShadow: `0 0 40px ${cta.glowColor}60`,
-            }}
-            animate={
-              performanceMode !== 'low'
-                ? {
-                    scale: [1, 1.05, 1],
-                    rotate: [0, 3, -3, 0],
-                  }
-                : {}
-            }
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-          >
-            <SpatialIcon name="Flame" size={48} color={cta.color} glowColor={cta.glowColor} variant="pure" />
-            {performanceMode !== 'low' && (
-              <motion.div
-                className="absolute inset-0 rounded-3xl"
-                style={{
-                  background: `radial-gradient(circle at center, ${cta.glowColor}40, transparent)`,
-                }}
-                animate={{
-                  opacity: [0.3, 0.6, 0.3],
-                  scale: [1, 1.2, 1],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                }}
-              />
-            )}
-          </motion.div>
+        {/* Hero Section */}
+        <div className="relative z-10 text-center space-y-4">
+          <div className="flex items-center justify-center mb-6">
+            <div
+              className="w-24 h-24 rounded-3xl flex items-center justify-center backdrop-blur-sm relative"
+              style={{
+                background: `linear-gradient(135deg, ${cta.color}40, ${cta.color}25)`,
+                border: `2px solid ${cta.color}50`,
+                boxShadow: `0 0 20px ${cta.glowColor}40`,
+              }}
+            >
+              <SpatialIcon name="Flame" size={48} color={cta.color} glowColor={cta.glowColor} variant="pure" />
+            </div>
+          </div>
+
+          <h2 className="text-3xl font-black text-white">{getObjectiveMessage()}</h2>
+          <p className="text-lg text-white/70 max-w-xl mx-auto">
+            Track chaque calorie pour atteindre ton objectif avec précision
+          </p>
         </div>
 
-        <h2 className="text-3xl font-black text-white">{getObjectiveMessage()}</h2>
-        <p className="text-lg text-white/70 max-w-xl mx-auto">
-          Track chaque calorie pour atteindre ton objectif avec précision
-        </p>
-      </div>
+        {/* Key Metrics */}
+        {biometrics && (
+          <div className="grid grid-cols-3 gap-4 relative z-10">
+            <motion.div
+              className="glass-card rounded-2xl p-5 text-center"
+              style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.1)'
+              }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <SpatialIcon name="Scale" size={24} color="#F97316" className="mx-auto mb-2" />
+              <p className="text-xs text-white/60 mb-1">Poids Actuel</p>
+              <p className="text-2xl font-black text-white">{biometrics.weight} kg</p>
+              {biometrics.targetWeight && (
+                <p className="text-xs text-orange-400 mt-1">→ {biometrics.targetWeight} kg</p>
+              )}
+            </motion.div>
 
-      {/* Key Metrics */}
-      {biometrics && (
-        <div className="grid grid-cols-3 gap-4">
-          <motion.div
-            className="glass-card-premium rounded-2xl p-5 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <SpatialIcon name="Scale" size={24} color="#A78BFA" className="mx-auto mb-2" />
-            <p className="text-xs text-white/60 mb-1">Poids Actuel</p>
-            <p className="text-2xl font-black text-white">{biometrics.weight} kg</p>
-            {biometrics.targetWeight && (
-              <p className="text-xs text-purple-400 mt-1">→ {biometrics.targetWeight} kg</p>
-            )}
-          </motion.div>
+            <motion.div
+              className="glass-card rounded-2xl p-5 text-center"
+              style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.1)'
+              }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <SpatialIcon name="Flame" size={24} color="#FB923C" className="mx-auto mb-2" />
+              <p className="text-xs text-white/60 mb-1">Métabolisme</p>
+              <p className="text-2xl font-black text-white">{biometrics.bmr}</p>
+              <p className="text-xs text-orange-400 mt-1">kcal/jour</p>
+            </motion.div>
 
-          <motion.div
-            className="glass-card-premium rounded-2xl p-5 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <SpatialIcon name="Flame" size={24} color="#FB923C" className="mx-auto mb-2" />
-            <p className="text-xs text-white/60 mb-1">Métabolisme</p>
-            <p className="text-2xl font-black text-white">{biometrics.bmr}</p>
-            <p className="text-xs text-orange-400 mt-1">kcal/jour</p>
-          </motion.div>
-
-          <motion.div
-            className="glass-card-premium rounded-2xl p-5 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <SpatialIcon name="Target" size={24} color="#10B981" className="mx-auto mb-2" />
-            <p className="text-xs text-white/60 mb-1">Objectif</p>
-            <p className="text-2xl font-black text-white">{biometrics.tdee}</p>
-            <p className="text-xs text-green-400 mt-1">TDEE</p>
-          </motion.div>
-        </div>
-      )}
+            <motion.div
+              className="glass-card rounded-2xl p-5 text-center"
+              style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.1)'
+              }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <SpatialIcon name="Target" size={24} color="#10B981" className="mx-auto mb-2" />
+              <p className="text-xs text-white/60 mb-1">Objectif</p>
+              <p className="text-2xl font-black text-white">{biometrics.tdee}</p>
+              <p className="text-xs text-green-400 mt-1">TDEE</p>
+            </motion.div>
+          </div>
+        )}
+      </motion.div>
 
       {/* Main CTA - Emphasized */}
       <motion.button
@@ -181,26 +174,9 @@ export default function CalorieBalanceEmptyStateV2() {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.5, type: 'spring', stiffness: 300 }}
-        whileHover={{ scale: performanceMode !== 'low' ? 1.02 : 1, y: -4 }}
+        whileHover={{ scale: 1.02, y: -4 }}
         whileTap={{ scale: 0.98 }}
       >
-        {performanceMode === 'premium' && (
-          <motion.div
-            className="absolute inset-0"
-            style={{
-              background: `radial-gradient(circle at 50% 50%, ${cta.color}30 0%, transparent 70%)`,
-            }}
-            animate={{
-              scale: [1, 1.3, 1],
-              opacity: [0, 0.4, 0],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-          />
-        )}
 
         <div className="absolute top-4 right-4 px-3 py-1.5 rounded-xl backdrop-blur-sm" style={{ background: `${cta.color}30`, border: `1px solid ${cta.color}50` }}>
           <span className="text-sm font-black" style={{ color: cta.color }}>
@@ -246,8 +222,8 @@ export default function CalorieBalanceEmptyStateV2() {
           whileHover={{ scale: 1.02 }}
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
-              <SpatialIcon name="Activity" size={20} color="#3B82F6" />
+            <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center border border-orange-500/30">
+              <SpatialIcon name="Activity" size={20} color="#F97316" />
             </div>
             <div className="text-left flex-1">
               <p className="text-sm font-bold text-white">Logger Activité</p>
@@ -271,7 +247,7 @@ export default function CalorieBalanceEmptyStateV2() {
               </div>
               <div className="text-left flex-1">
                 <p className="text-sm font-bold text-white">Lancer Jeûne</p>
-                <p className="text-xs text-white/60">+25-50 points</p>
+                <p className="text-xs text-white/60">+15 points</p>
               </div>
             </div>
           </motion.button>
@@ -326,6 +302,6 @@ export default function CalorieBalanceEmptyStateV2() {
           !
         </p>
       </motion.div>
-    </motion.div>
+    </div>
   );
 }

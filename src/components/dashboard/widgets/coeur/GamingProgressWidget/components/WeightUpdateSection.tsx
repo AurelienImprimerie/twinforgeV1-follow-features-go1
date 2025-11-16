@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import SpatialIcon from '@/ui/icons/SpatialIcon';
 import { ICONS } from '@/ui/icons/registry';
 import WidgetHeader from '../../../shared/WidgetHeader';
+import BodyMetricsSection from './BodyMetricsSection';
 
 interface WeightUpdateSectionProps {
   weight: number;
@@ -11,6 +12,12 @@ interface WeightUpdateSectionProps {
   hasActiveAbsence?: boolean;
   pendingXp?: number;
   isReconciling?: boolean;
+  // Weight update availability
+  isWeightUpdateAvailable?: boolean;
+  daysUntilAvailable?: number;
+  isFirstUpdate?: boolean;
+  availabilityMessage?: string;
+  availabilityLoading?: boolean;
   onIncrement: (amount: number) => void;
   onSubmit: () => void;
   onWeightChange?: (weight: number) => void;
@@ -22,6 +29,11 @@ export default function WeightUpdateSection({
   hasActiveAbsence = false,
   pendingXp = 0,
   isReconciling = false,
+  isWeightUpdateAvailable = true,
+  daysUntilAvailable = 0,
+  isFirstUpdate = false,
+  availabilityMessage = '',
+  availabilityLoading = false,
   onIncrement,
   onSubmit,
   onWeightChange
@@ -30,8 +42,11 @@ export default function WeightUpdateSection({
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const isChanged = weight !== currentWeight;
 
+  // Determine if submit should be allowed
+  const canSubmit = isChanged && !isReconciling && isWeightUpdateAvailable;
+
   const handleSubmitClick = () => {
-    if (isChanged && !isReconciling) {
+    if (canSubmit) {
       setShowConfirmModal(true);
     }
   };
@@ -59,9 +74,15 @@ export default function WeightUpdateSection({
         </div>
       </div>
 
-      <div
-        id="weight-update-section"
-        className="glass-card-premium rounded-3xl p-6 sm:p-8 space-y-6 relative overflow-hidden"
+      {/* Grid for Body Metrics and Weight Update */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Body Metrics Section */}
+        <BodyMetricsSection />
+
+        {/* Weight Update Section */}
+        <div
+          id="weight-update-section"
+          className="glass-card-premium rounded-3xl p-6 sm:p-8 space-y-6 relative overflow-hidden"
         style={{
           background: `
             radial-gradient(circle at 30% 30%, rgba(247, 147, 30, 0.15) 0%, transparent 50%),
@@ -80,12 +101,25 @@ export default function WeightUpdateSection({
           mainColor="#F7931E"
           glowColor="#FBBF24"
           title="Mise à jour Poids"
-          subtitle={hasActiveAbsence ? `Débloque ${pendingXp} points en attente` : 'Gagne 30 points par mise à jour'}
+          subtitle={
+            availabilityLoading
+              ? 'Vérification...'
+              : !isWeightUpdateAvailable
+              ? availabilityMessage
+              : hasActiveAbsence
+              ? `Débloque ${pendingXp} points en attente`
+              : 'Gagne 15 points'
+          }
           animationType="glow"
-          badge={hasActiveAbsence && pendingXp > 0 && !isReconciling ? {
-            label: `${pendingXp} pts`,
-            color: '#FB923C'
-          } : undefined}
+          badge={
+            availabilityLoading
+              ? { label: 'Chargement...', color: '#9CA3AF' }
+              : !isWeightUpdateAvailable
+              ? { label: `Dans ${daysUntilAvailable}j`, color: '#EF4444' }
+              : hasActiveAbsence && pendingXp > 0 && !isReconciling
+              ? { label: `${pendingXp} pts`, color: '#FB923C' }
+              : { label: 'Disponible', color: '#10B981' }
+          }
         />
 
       <div className="flex flex-col items-stretch gap-3">
@@ -124,16 +158,33 @@ export default function WeightUpdateSection({
           </button>
         </div>
 
+        {/* Availability Info Banner (when not available) */}
+        {!isWeightUpdateAvailable && !availabilityLoading && (
+          <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30">
+            <div className="flex items-start gap-3">
+              <SpatialIcon name="Clock" size={20} color="#EF4444" className="flex-shrink-0 mt-0.5" />
+              <div className="flex-1 space-y-1">
+                <p className="text-white font-semibold text-sm">
+                  {isFirstUpdate ? 'Première pesée' : 'Prochaine pesée'}
+                </p>
+                <p className="text-white/70 text-xs leading-relaxed">
+                  {availabilityMessage}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Bouton Valider le poids */}
         <motion.button
           onClick={handleSubmitClick}
-          disabled={!isChanged || isReconciling}
+          disabled={!canSubmit || availabilityLoading}
           className="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-yellow-500 text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed shadow-lg relative overflow-hidden"
           style={{
-            boxShadow: isChanged ? '0 4px 20px rgba(247, 147, 30, 0.4)' : 'none'
+            boxShadow: canSubmit ? '0 4px 20px rgba(247, 147, 30, 0.4)' : 'none'
           }}
-          whileHover={{ scale: isChanged && !isReconciling ? 1.02 : 1 }}
-          whileTap={{ scale: isChanged && !isReconciling ? 0.98 : 1 }}
+          whileHover={{ scale: canSubmit ? 1.02 : 1 }}
+          whileTap={{ scale: canSubmit ? 0.98 : 1 }}
         >
           {isReconciling && (
             <motion.div
@@ -143,7 +194,17 @@ export default function WeightUpdateSection({
             />
           )}
           <div className="relative flex items-center justify-center gap-2">
-            {isReconciling ? (
+            {availabilityLoading ? (
+              <>
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                >
+                  <SpatialIcon Icon={ICONS.Loader2} size={18} color="white" />
+                </motion.div>
+                <span>Vérification...</span>
+              </>
+            ) : isReconciling ? (
               <>
                 <motion.div
                   animate={{ rotate: 360 }}
@@ -153,10 +214,15 @@ export default function WeightUpdateSection({
                 </motion.div>
                 <span>Calcul en cours...</span>
               </>
+            ) : !isWeightUpdateAvailable ? (
+              <>
+                <SpatialIcon name="Lock" size={18} color="white" />
+                <span>Indisponible (dans {daysUntilAvailable}j)</span>
+              </>
             ) : (
               <>
                 <SpatialIcon name="Check" size={18} color="white" />
-                <span>{hasActiveAbsence ? 'Débloquer points' : 'Valider'}</span>
+                <span>{hasActiveAbsence ? 'Débloquer points' : 'Valider (+15 pts)'}</span>
               </>
             )}
           </div>
@@ -164,7 +230,8 @@ export default function WeightUpdateSection({
 
         {/* Séparateur */}
       </div>
-    </div>
+        </div>
+      </div>
 
       {/* Modal de confirmation */}
       <AnimatePresence>

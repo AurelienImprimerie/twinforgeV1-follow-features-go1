@@ -14,6 +14,7 @@ import { ConditionalMotion } from '@/lib/motion';
 import { usePerformanceMode } from '@/system/context/PerformanceModeContext';
 import { useTodaysCompletedActions } from '@/hooks/coeur/useDailyActionsTracking';
 import { useUserStore } from '@/system/store/userStore';
+import { GamingSounds } from '@/audio';
 
 interface ActionButton {
   id: string;
@@ -151,6 +152,9 @@ export default function GamingActionsWidget({ showOnlyCategory = null }: GamingA
   };
 
   const handleAction = (action: ActionButton) => {
+    // Play action sound based on category
+    GamingSounds.actionCompleted(action.category, false);
+
     // Navigation only - tracking will happen after actual completion
     navigate(action.route);
   };
@@ -211,6 +215,24 @@ export default function GamingActionsWidget({ showOnlyCategory = null }: GamingA
   const totalDailyActionsToday = completedActions.filter(action => {
     return dailyActions.some(da => da.id === action.action_id);
   }).length;
+
+  // Check for combo (multiple daily actions completed)
+  const previousDailyCount = React.useRef(totalDailyActionsToday);
+  React.useEffect(() => {
+    if (totalDailyActionsToday > previousDailyCount.current && totalDailyActionsToday >= 2) {
+      // Play combo sound for multiple completions
+      GamingSounds.comboActivated(totalDailyActionsToday);
+    }
+
+    // Check for perfect day (all daily actions completed)
+    if (completedDailyCount === totalDailyCount && totalDailyCount > 0 && completedDailyCount > previousDailyCount.current) {
+      setTimeout(() => {
+        GamingSounds.perfectDay();
+      }, 500);
+    }
+
+    previousDailyCount.current = totalDailyActionsToday;
+  }, [totalDailyActionsToday, completedDailyCount, totalDailyCount]);
 
   return (
     <div className="space-y-6">

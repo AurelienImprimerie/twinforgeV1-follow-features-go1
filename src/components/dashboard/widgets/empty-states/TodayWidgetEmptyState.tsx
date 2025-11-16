@@ -36,9 +36,10 @@ export function TodayWidgetEmptyState() {
       >
         <div className="relative inline-block">
           <div
-            className="absolute inset-0 blur-2xl opacity-40"
+            className="absolute inset-0 blur-2xl opacity-40 pointer-events-none"
             style={{
-              background: 'radial-gradient(circle, #10B981 0%, transparent 70%)'
+              background: 'radial-gradient(circle, #10B981 0%, transparent 70%)',
+              pointerEvents: 'none'
             }}
           />
           <SpatialIcon name="Calendar" size={56} className="relative" color="#10B981" />

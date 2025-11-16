@@ -39,9 +39,10 @@ export function NextActionsEmptyState({ onRefresh }: NextActionsEmptyStateProps)
       >
         <div className="relative inline-block">
           <motion.div
-            className="absolute inset-0 blur-3xl"
+            className="absolute inset-0 blur-3xl pointer-events-none"
             style={{
-              background: 'radial-gradient(circle, #F59E0B 0%, transparent 70%)'
+              background: 'radial-gradient(circle, #F59E0B 0%, transparent 70%)',
+              pointerEvents: 'none'
             }}
             animate={{
               scale: [1, 1.2, 1],

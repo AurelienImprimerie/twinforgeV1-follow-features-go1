@@ -7,7 +7,12 @@ import type { WeightValidationResult } from '@/services/dashboard/suivi/WeightVa
 import { useAbsenceStatus } from '@/hooks/useAbsenceStatus';
 import { useAbsenceReconciliation } from '@/hooks/useAbsenceReconciliation';
 import type { CoachMessage } from '@/services/dashboard/coeur/absence/AbsenceRecoveryCoachingService';
+import { weightUpdateAvailabilityService } from '@/services/dashboard/coeur/WeightUpdateAvailabilityService';
+import type { WeightUpdateAvailabilityStatus } from '@/services/dashboard/coeur/WeightUpdateAvailabilityService';
+import { useWeeklyActions } from '@/hooks/coeur/useWeeklyActions';
+import { WEIGHT_UPDATE_TOAST_MESSAGES, WEIGHT_UPDATE_CONSTANTS } from '@/constants/weightUpdate';
 import logger from '@/lib/utils/logger';
+import { GamingSounds } from '@/audio';
 
 interface WeightUpdateState {
   weight: number;
@@ -15,6 +20,7 @@ interface WeightUpdateState {
   validationResult: WeightValidationResult | null;
   showCelebration: boolean;
   coachMessages: CoachMessage[];
+  availabilityStatus: WeightUpdateAvailabilityStatus | null;
 }
 
 export function useWeightUpdate(weightHistory: any, onReconciliationSuccess?: (messages: CoachMessage[]) => void) {
@@ -23,7 +29,8 @@ export function useWeightUpdate(weightHistory: any, onReconciliationSuccess?: (m
     showValidationModal: false,
     validationResult: null,
     showCelebration: false,
-    coachMessages: []
+    coachMessages: [],
+    availabilityStatus: null
   });
 
   const { profile } = useUserStore();
@@ -34,11 +41,28 @@ export function useWeightUpdate(weightHistory: any, onReconciliationSuccess?: (m
   const { data: absenceStatus } = useAbsenceStatus();
   const absenceReconciliation = useAbsenceReconciliation();
 
+  // Weekly actions availability
+  const { availability: weeklyAvailability, isLoading: weeklyAvailabilityLoading } = useWeeklyActions();
+
   useEffect(() => {
     if (profile?.weight_kg) {
       setState(prev => ({ ...prev, weight: profile.weight_kg }));
     }
   }, [profile?.weight_kg]);
+
+  // Check weight update availability on mount and when weekly availability changes
+  useEffect(() => {
+    const checkAvailability = async () => {
+      try {
+        const status = await weightUpdateAvailabilityService.checkAvailability();
+        setState(prev => ({ ...prev, availabilityStatus: status }));
+      } catch (error) {
+        logger.error('WEIGHT_UPDATE', 'Failed to check availability', { error });
+      }
+    };
+
+    checkAvailability();
+  }, [weeklyAvailability]);
 
   const handleIncrement = (amount: number) => {
     setState(prev => ({
@@ -56,6 +80,31 @@ export function useWeightUpdate(weightHistory: any, onReconciliationSuccess?: (m
 
   const handleWeightSubmit = async () => {
     if (state.weight === profile?.weight_kg) return;
+
+    // CRITICAL: Validate weekly availability FIRST
+    const validationResult = await weightUpdateAvailabilityService.validateUpdateAttempt();
+    if (!validationResult.valid) {
+      logger.warn('WEIGHT_UPDATE', 'Weight update blocked - not available', {
+        daysRemaining: validationResult.daysRemaining,
+        isFirstUpdate: validationResult.isFirstUpdate
+      });
+
+      // Show error toast with appropriate message
+      if (validationResult.isFirstUpdate) {
+        showToast({
+          title: WEIGHT_UPDATE_TOAST_MESSAGES.ERROR_FIRST_TOO_EARLY.title,
+          message: WEIGHT_UPDATE_TOAST_MESSAGES.ERROR_FIRST_TOO_EARLY.getMessage(validationResult.daysRemaining),
+          type: 'error'
+        });
+      } else {
+        showToast({
+          title: WEIGHT_UPDATE_TOAST_MESSAGES.ERROR_TOO_FREQUENT.title,
+          message: WEIGHT_UPDATE_TOAST_MESSAGES.ERROR_TOO_FREQUENT.getMessage(validationResult.daysRemaining),
+          type: 'error'
+        });
+      }
+      return;
+    }
 
     // Check if user has active absence - use reconciliation flow instead
     if (absenceStatus?.hasActiveAbsence) {
@@ -118,6 +167,23 @@ export function useWeightUpdate(weightHistory: any, onReconciliationSuccess?: (m
         (profile?.objective === 'fat_loss' && weightDelta && weightDelta < 0) ||
         (profile?.objective === 'muscle_gain' && weightDelta && weightDelta > 0);
 
+      // Play weight update success sound
+      GamingSounds.weightUpdateSuccess();
+
+      // Play XP gain sound
+      if (result.xpResult.xpAwarded > 0) {
+        setTimeout(() => {
+          GamingSounds.xpGain(result.xpResult.xpAwarded, result.xpResult.multiplier > 1);
+        }, 200);
+      }
+
+      // Play level up sound if leveled up
+      if (result.xpResult.leveledUp) {
+        setTimeout(() => {
+          GamingSounds.levelUp(result.xpResult.newLevel);
+        }, 500);
+      }
+
       if (isPositiveProgress || result.weightUpdate.isMilestone) {
         setState(prev => ({ ...prev, showCelebration: true }));
         setTimeout(() => {
@@ -126,12 +192,16 @@ export function useWeightUpdate(weightHistory: any, onReconciliationSuccess?: (m
       }
 
       showToast({
-        title: result.weightUpdate.isMilestone ? '🎯 Milestone atteint!' : '✅ Poids mis à jour!',
-        message: `+${result.xpResult.xpAwarded} points${
-          result.xpResult.leveledUp ? ` 🎉 Level Up! Niveau ${result.xpResult.newLevel}` : ''
-        }`,
+        title: result.weightUpdate.isMilestone ? '🎯 Milestone atteint!' : WEIGHT_UPDATE_TOAST_MESSAGES.SUCCESS.title,
+        message: result.weightUpdate.isMilestone
+          ? `+${result.xpResult.xpAwarded} points${result.xpResult.leveledUp ? ` 🎉 Level Up! Niveau ${result.xpResult.newLevel}` : ''}`
+          : WEIGHT_UPDATE_TOAST_MESSAGES.SUCCESS.getMessage(result.xpResult.xpAwarded),
         type: 'success'
       });
+
+      // Refresh availability status after successful update
+      const newStatus = await weightUpdateAvailabilityService.checkAvailability();
+      setState(prev => ({ ...prev, availabilityStatus: newStatus }));
 
       setState(prev => ({ ...prev, showValidationModal: false }));
     } catch (error: any) {
@@ -209,6 +279,14 @@ export function useWeightUpdate(weightHistory: any, onReconciliationSuccess?: (m
         messagesCount: result.coachMessages.length
       });
 
+      // Play absence reconciliation sound
+      GamingSounds.absenceReconciliation(result.totalAwardedXp);
+
+      // Play XP gain sound after reconciliation
+      setTimeout(() => {
+        GamingSounds.xpGain(result.totalAwardedXp, result.bonusXp > 0);
+      }, 400);
+
       // Store coach messages for display
       setState(prev => ({
         ...prev,
@@ -254,6 +332,16 @@ export function useWeightUpdate(weightHistory: any, onReconciliationSuccess?: (m
     hasActiveAbsence: absenceStatus?.hasActiveAbsence || false,
     pendingXp: absenceStatus?.pendingXp || 0,
     isReconciling: absenceReconciliation.isPending,
+    // Weight update availability
+    isWeightUpdateAvailable: state.availabilityStatus?.isAvailable || false,
+    daysUntilAvailable: state.availabilityStatus?.daysUntilAvailable || 0,
+    isFirstUpdate: state.availabilityStatus?.isFirstUpdate || true,
+    availabilityMessage: state.availabilityStatus?.message || '',
+    availabilityLoading: weeklyAvailabilityLoading,
+    firstEligibleDate: state.availabilityStatus?.firstEligibleDate,
+    lastUpdateDate: state.availabilityStatus?.lastUpdateDate,
+    daysSinceRegistration: state.availabilityStatus?.daysSinceRegistration || 0,
+    // Actions
     handleIncrement,
     handleWeightChange,
     handleWeightSubmit,

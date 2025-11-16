@@ -20,11 +20,12 @@ export default function CelebrationEffect({ show, performanceMode }: Celebration
           {[...Array(30)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute w-3 h-3 rounded-full"
+              className="absolute w-3 h-3 rounded-full pointer-events-none"
               style={{
                 background: ['#F7931E', '#FBBF24', '#F59E0B', '#FCD34D'][i % 4],
                 left: '50%',
                 top: '50%',
+                pointerEvents: 'none'
               }}
               animate={{
                 x: Math.cos((i * 2 * Math.PI) / 30) * (100 + Math.random() * 100),

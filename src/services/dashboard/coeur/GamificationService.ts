@@ -608,6 +608,43 @@ class GamificationService {
     }
   }
 
+  /**
+   * Get level milestone with gendered title and description based on user's gender
+   * @param userId - User ID to determine gender
+   * @param level - Level number
+   * @returns Level milestone with appropriate gendered content
+   */
+  async getLevelMilestoneForUser(userId: string, level: number): Promise<LevelMilestone | null> {
+    try {
+      const { data, error } = await supabase
+        .rpc('get_level_milestone_for_user', {
+          p_user_id: userId,
+          p_level: level
+        })
+        .maybeSingle();
+
+      if (error) throw error;
+      if (!data) return null;
+
+      return {
+        level: data.level,
+        xpRequired: data.xp_required,
+        xpToNext: data.xp_to_next,
+        milestoneName: data.milestone_name,
+        milestoneDescription: data.milestone_description,
+        unlockFeatures: data.unlock_features,
+        badgeIcon: data.badge_icon,
+        badgeColor: data.badge_color,
+        isMajorMilestone: data.is_major_milestone,
+        createdAt: data.created_at || new Date().toISOString()
+      };
+    } catch (error) {
+      logger.error('GAMIFICATION', 'Failed to get gendered level milestone', { userId, level, error });
+      // Fallback to non-gendered version
+      return this.getLevelMilestone(level);
+    }
+  }
+
   async getAllLevelMilestones(): Promise<LevelMilestone[]> {
     try {
       const { data, error } = await supabase
@@ -632,6 +669,58 @@ class GamificationService {
     } catch (error) {
       logger.error('GAMIFICATION', 'Failed to get all level milestones', { error });
       throw error;
+    }
+  }
+
+  /**
+   * Get all level milestones with gendered titles and descriptions based on user's gender
+   * @param userId - User ID to determine gender
+   * @returns Array of level milestones with appropriate gendered content
+   */
+  async getAllLevelMilestonesForUser(userId: string): Promise<LevelMilestone[]> {
+    try {
+      // Get user gender first
+      const { data: profile, error: profileError } = await supabase
+        .from('user_profile')
+        .select('sex')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (profileError) {
+        logger.error('GAMIFICATION', 'Failed to get user profile for gendered milestones', { userId, error: profileError });
+        return this.getAllLevelMilestones();
+      }
+
+      const userGender = profile?.sex;
+
+      // Get all milestones
+      const { data, error } = await supabase
+        .from('level_milestones')
+        .select('*')
+        .order('level', { ascending: true });
+
+      if (error) throw error;
+
+      return (data || []).map((milestone) => ({
+        level: milestone.level,
+        xpRequired: milestone.xp_required,
+        xpToNext: milestone.xp_to_next,
+        milestoneName: userGender === 'female' && milestone.milestone_name_feminine
+          ? milestone.milestone_name_feminine
+          : milestone.milestone_name,
+        milestoneDescription: userGender === 'female' && milestone.milestone_description_feminine
+          ? milestone.milestone_description_feminine
+          : milestone.milestone_description,
+        unlockFeatures: milestone.unlock_features,
+        badgeIcon: milestone.badge_icon,
+        badgeColor: milestone.badge_color,
+        isMajorMilestone: milestone.is_major_milestone,
+        createdAt: milestone.created_at
+      }));
+    } catch (error) {
+      logger.error('GAMIFICATION', 'Failed to get all gendered level milestones', { userId, error });
+      // Fallback to non-gendered version
+      return this.getAllLevelMilestones();
     }
   }
 

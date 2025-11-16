@@ -12,6 +12,7 @@ import EmptyGamificationState from '../../empty-states/EmptyGamificationState';
 import WidgetHeader from '../../shared/WidgetHeader';
 import WeightValidationModal from '../WeightValidationModal';
 import SpatialIcon from '@/ui/icons/SpatialIcon';
+import { useStreakMilestoneAudio } from '@/hooks/coeur/useStreakMilestoneAudio';
 
 import { useGamingData } from './hooks/useGamingData';
 import { useWeightUpdate } from './hooks/useWeightUpdate';
@@ -53,12 +54,20 @@ export default function GamingProgressWidget({ onReconciliationSuccess }: Gaming
     hasActiveAbsence,
     pendingXp,
     isReconciling,
+    isWeightUpdateAvailable,
+    daysUntilAvailable,
+    isFirstUpdate,
+    availabilityMessage,
+    availabilityLoading,
     handleIncrement,
     handleWeightChange,
     handleWeightSubmit,
     closeValidationModal,
     confirmWeightUpdate
   } = useWeightUpdate(weightHistory, onReconciliationSuccess);
+
+  // Play streak milestone sounds automatically
+  useStreakMilestoneAudio(gamification?.currentStreakDays);
 
   // Loading state
   if (gamificationLoading || !gamification) {
@@ -79,6 +88,7 @@ export default function GamingProgressWidget({ onReconciliationSuccess }: Gaming
 
   return (
     <motion.div
+      data-tour-target="gaming-widget"
       className="glass-card-premium p-6 sm:p-8 rounded-3xl space-y-6 relative overflow-hidden"
       style={{
         background: `
@@ -95,32 +105,7 @@ export default function GamingProgressWidget({ onReconciliationSuccess }: Gaming
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Animated Background Glow */}
-      {performanceMode === 'premium' && (
-        <>
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-orange-500/10 via-yellow-500/10 to-orange-500/10"
-            animate={{ x: ['-100%', '200%'] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-          />
-          <motion.div
-            className="absolute top-0 right-0 w-32 h-32 bg-orange-500/20 rounded-full blur-3xl"
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.5, 0.3]
-            }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <motion.div
-            className="absolute bottom-0 left-0 w-40 h-40 bg-yellow-500/20 rounded-full blur-3xl"
-            animate={{
-              scale: [1.2, 1, 1.2],
-              opacity: [0.5, 0.3, 0.5]
-            }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-          />
-        </>
-      )}
+      {/* Background - Static */}
 
       {/* Celebration Effect */}
       <CelebrationEffect show={showCelebration} performanceMode={performanceMode} />
@@ -144,103 +129,22 @@ export default function GamingProgressWidget({ onReconciliationSuccess }: Gaming
             </span>
           </div>
 
-          {/* Niveau principal avec icône améliorée */}
+          {/* Niveau principal avec icône - Statique */}
           <div className="space-y-2">
             <div className="flex items-center justify-center gap-3">
-              <motion.div
-                className="relative w-24 h-24 flex items-center justify-center"
-                animate={
-                  performanceMode !== 'low'
-                    ? {
-                        scale: [1, 1.05, 1],
-                        rotate: [0, 5, 0, -5, 0],
-                      }
-                    : {}
-                }
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                }}
-              >
-                {/* Cercles de fond animés */}
-                {performanceMode !== 'low' && (
-                  <>
-                    <motion.div
-                      className="absolute inset-0 rounded-full blur-xl"
-                      style={{
-                        background: 'radial-gradient(circle, rgba(247, 147, 30, 0.3), rgba(251, 191, 36, 0.2))',
-                      }}
-                      animate={{
-                        scale: [1, 1.2, 1],
-                        opacity: [0.3, 0.5, 0.3],
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: 'easeInOut',
-                      }}
-                    />
-                    <motion.div
-                      className="absolute inset-0 rounded-full blur-2xl"
-                      style={{
-                        background: 'radial-gradient(circle, rgba(251, 191, 36, 0.2), transparent)',
-                      }}
-                      animate={{
-                        scale: [1.2, 1, 1.2],
-                        opacity: [0.5, 0.3, 0.5],
-                      }}
-                      transition={{
-                        duration: 2.5,
-                        repeat: Infinity,
-                        ease: 'easeInOut',
-                        delay: 0.5,
-                      }}
-                    />
-                  </>
-                )}
-
-                {/* Icône principale */}
+              <div className="relative w-24 h-24 flex items-center justify-center">
+                {/* Icône principale - Statique */}
                 <div
                   className="relative w-20 h-20 rounded-3xl flex items-center justify-center backdrop-blur-sm"
                   style={{
                     background: 'linear-gradient(135deg, rgba(247, 147, 30, 0.4), rgba(247, 147, 30, 0.2))',
                     border: '2px solid rgba(247, 147, 30, 0.5)',
-                    boxShadow: '0 0 40px rgba(247, 147, 30, 0.4)',
+                    boxShadow: '0 0 20px rgba(247, 147, 30, 0.3)',
                   }}
                 >
                   <SpatialIcon name="Hammer" size={40} color="#F7931E" glowColor="#FBBF24" variant="pure" />
                 </div>
-
-                {/* Étoiles flottantes */}
-                {performanceMode !== 'low' && (
-                  <>
-                    {[...Array(3)].map((_, i) => (
-                      <motion.div
-                        key={i}
-                        className="absolute w-3 h-3"
-                        style={{
-                          left: `${20 + i * 30}%`,
-                          top: `${10 + i * 20}%`,
-                        }}
-                        animate={{
-                          y: [0, -20, 0],
-                          opacity: [0, 1, 0],
-                          scale: [0, 1, 0],
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          delay: i * 0.4,
-                          ease: 'easeInOut',
-                        }}
-                      >
-                        <SpatialIcon name="Sparkles" size={12} color="#FBBF24" />
-                      </motion.div>
-                    ))}
-                  </>
-                )}
-              </motion.div>
+              </div>
             </div>
             <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight">
               {levelInfo.title}
@@ -320,6 +224,11 @@ export default function GamingProgressWidget({ onReconciliationSuccess }: Gaming
         hasActiveAbsence={hasActiveAbsence}
         pendingXp={pendingXp}
         isReconciling={isReconciling}
+        isWeightUpdateAvailable={isWeightUpdateAvailable}
+        daysUntilAvailable={daysUntilAvailable}
+        isFirstUpdate={isFirstUpdate}
+        availabilityMessage={availabilityMessage}
+        availabilityLoading={availabilityLoading}
         onIncrement={handleIncrement}
         onWeightChange={handleWeightChange}
         onSubmit={handleWeightSubmit}

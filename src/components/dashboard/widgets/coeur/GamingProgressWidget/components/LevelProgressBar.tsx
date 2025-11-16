@@ -30,7 +30,8 @@ export default function LevelProgressBar({ levelProgress, xpToNextLevel, perform
         >
           {performanceMode !== 'low' && (
             <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none"
+              style={{ pointerEvents: 'none' }}
               animate={{
                 x: ['-100%', '200%'],
               }}

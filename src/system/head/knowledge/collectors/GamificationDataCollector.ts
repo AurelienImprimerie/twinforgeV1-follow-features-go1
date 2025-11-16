@@ -143,10 +143,12 @@ export class GamificationDataCollector {
     const progress = await this.getUserProgress(userId);
     if (!progress) return null;
 
+    // Use RPC function to get gendered milestone
     const { data, error } = await this.supabase
-      .from('level_milestones')
-      .select('milestone_name, milestone_description, badge_color, is_major_milestone')
-      .eq('level', progress.current_level)
+      .rpc('get_level_milestone_for_user', {
+        p_user_id: userId,
+        p_level: progress.current_level
+      })
       .maybeSingle();
 
     if (error || !data) return null;
@@ -165,10 +167,12 @@ export class GamificationDataCollector {
 
     const nextLevel = progress.current_level + 1;
 
+    // Use RPC function to get gendered milestone
     const { data, error } = await this.supabase
-      .from('level_milestones')
-      .select('milestone_name, xp_required')
-      .eq('level', nextLevel)
+      .rpc('get_level_milestone_for_user', {
+        p_user_id: userId,
+        p_level: nextLevel
+      })
       .maybeSingle();
 
     if (error || !data) return null;

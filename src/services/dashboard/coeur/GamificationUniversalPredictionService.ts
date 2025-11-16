@@ -74,7 +74,11 @@ class GamificationUniversalPredictionService {
 
       // Si pas assez de données (moins de 3 jours d'activité)
       if (history.length < 3) {
-        return this.generateEmptyStatePrediction(currentData);
+        logger.info('GAMIFICATION_PREDICTION', 'Not enough XP history for prediction', {
+          userId,
+          historyLength: history.length
+        });
+        return null;
       }
 
       // Calculer la moyenne quotidienne et la tendance
@@ -328,29 +332,6 @@ class GamificationUniversalPredictionService {
     return `Tu maintiens un excellent rythme de ${Math.round(averageDailyXp)} pts/jour!`;
   }
 
-  /**
-   * Générer prédiction pour état vide (pas assez de données)
-   */
-  private generateEmptyStatePrediction(currentData: any): UniversalPrediction {
-    return {
-      current: {
-        level: currentData.current_level,
-        xp: currentData.current_xp,
-        xpToNext: 100 - currentData.current_xp,
-        totalXp: currentData.total_xp_earned,
-      },
-      predictions: {
-        days30: { estimatedLevel: 1, estimatedXp: 0, daysToReach: 30, confidenceScore: 0.2 },
-        days60: { estimatedLevel: 2, estimatedXp: 0, daysToReach: 60, confidenceScore: 0.2 },
-        days90: { estimatedLevel: 3, estimatedXp: 0, daysToReach: 90, confidenceScore: 0.2 },
-      },
-      confidence: 'low',
-      averageDailyXp: 0,
-      trendDirection: 'stable',
-      message: 'Commence dès aujourd\'hui pour voir ta progression!',
-      encouragement: 'Scanne ton premier repas et gagne tes premiers XP!',
-    };
-  }
 
   /**
    * Obtenir message selon objectif utilisateur

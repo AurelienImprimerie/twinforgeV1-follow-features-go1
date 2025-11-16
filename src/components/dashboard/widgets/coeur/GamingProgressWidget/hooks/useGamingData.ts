@@ -46,6 +46,9 @@ export function useGamingData() {
     ? ((gamification.currentXp / (gamification.currentXp + gamification.xpToNextLevel)) * 100)
     : 0;
 
+  // Flag to determine if user has gaming data (used for empty state)
+  const hasGamingData = gamification && gamification.totalXpEarned > 0;
+
   return {
     gamification,
     gamificationLoading,
@@ -57,6 +60,7 @@ export function useGamingData() {
     weightHistory,
     levelInfo,
     futureLevelTitles,
-    levelProgress
+    levelProgress,
+    hasGamingData
   };
 }

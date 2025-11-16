@@ -10,6 +10,8 @@ import SpatialIcon from '@/ui/icons/SpatialIcon';
 import PredictionTimeline from './GamingProgressWidget/components/PredictionTimeline';
 import { CONFIDENCE_COLORS } from './GamingProgressWidget/types';
 import WidgetHeader from '../shared/WidgetHeader';
+import { ProjectionEmptyState } from '../empty-states/ProjectionEmptyState';
+import { usePerformanceMode } from '@/system/context/PerformanceModeContext';
 
 interface Projection {
   days30: any;
@@ -44,30 +46,38 @@ export default function GamingProjectionAndStats({
   bodyProjection,
   futureLevelTitles
 }: GamingProjectionAndStatsProps) {
-  if (!prediction || !prediction.predictions) return null;
+  const { performanceMode } = usePerformanceMode();
+  const hasValidPrediction = prediction && prediction.predictions;
 
-  const confidenceColor = CONFIDENCE_COLORS[prediction.confidence];
+  const confidenceColor = hasValidPrediction ? CONFIDENCE_COLORS[prediction.confidence] : undefined;
 
-  const timelineEntries = [
+  const timelineEntries = hasValidPrediction ? [
     { days: 30, dataXp: prediction.predictions.days30, dataBody: bodyProjection?.projections?.days30, color: '#F7931E' },
     { days: 60, dataXp: prediction.predictions.days60, dataBody: bodyProjection?.projections?.days60, color: '#FBBF24' },
     { days: 90, dataXp: prediction.predictions.days90, dataBody: bodyProjection?.projections?.days90, color: '#F59E0B' },
-  ];
+  ] : [];
+
+  // Titre et sous-titre dynamiques selon l'état
+  const title = hasValidPrediction ? 'Projection de Progression' : 'Actions Prioritaires';
+  const subtitle = hasValidPrediction ? 'Évolution estimée sur 90 jours' : 'Gagne tes premiers XP pour débloquer tes prédictions';
+
+  // En mode performance, on laisse le CSS gérer le background pour éviter les inline styles
+  const containerStyle = performanceMode === 'high' ? {} : {
+    background: `
+      radial-gradient(circle at 30% 30%, rgba(251, 146, 60, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 70% 70%, rgba(245, 158, 11, 0.12) 0%, transparent 50%),
+      rgba(255, 255, 255, 0.03)
+    `,
+    backdropFilter: 'blur(20px) saturate(150%)',
+    WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+    border: '1px solid rgba(251, 146, 60, 0.3)',
+    boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.1)`
+  };
 
   return (
     <motion.div
       className="glass-card-premium p-6 sm:p-8 rounded-3xl space-y-6 relative overflow-hidden"
-      style={{
-        background: `
-          radial-gradient(circle at 30% 30%, rgba(251, 146, 60, 0.15) 0%, transparent 50%),
-          radial-gradient(circle at 70% 70%, rgba(245, 158, 11, 0.12) 0%, transparent 50%),
-          rgba(255, 255, 255, 0.03)
-        `,
-        backdropFilter: 'blur(20px) saturate(150%)',
-        WebkitBackdropFilter: 'blur(20px) saturate(150%)',
-        border: '1px solid rgba(251, 146, 60, 0.3)',
-        boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.1)`
-      }}
+      style={containerStyle}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
@@ -77,38 +87,42 @@ export default function GamingProjectionAndStats({
         icon="TrendingUp"
         mainColor="#F7931E"
         glowColor="#FBBF24"
-        title="Projection de Progression"
-        subtitle="Évolution estimée sur 90 jours"
+        title={title}
+        subtitle={subtitle}
         animationType="glow"
-        badge={{
+        badge={hasValidPrediction && confidenceColor ? {
           label: confidenceColor.text,
           color: confidenceColor.bg
-        }}
+        } : undefined}
       />
 
-      {/* Projection Section */}
-      <div className="space-y-4">
-        {/* Message */}
-        <div className="text-center px-4">
-          <p className="text-base font-normal text-white/90">
-            {bodyProjection ? bodyProjection.message : prediction.message}
-          </p>
-        </div>
+      {/* Empty State or Projection Section */}
+      {!hasValidPrediction ? (
+        <ProjectionEmptyState />
+      ) : (
+        <div className="space-y-4">
+          {/* Message */}
+          <div className="text-center px-4">
+            <p className="text-base font-normal text-white/90">
+              {bodyProjection ? bodyProjection.message : prediction.message}
+            </p>
+          </div>
 
-        {/* Prediction Timeline */}
-        <PredictionTimeline
-          entries={timelineEntries}
-          futureLevelTitles={futureLevelTitles}
-          targetWeight={bodyProjection?.targetWeight}
-        />
+          {/* Prediction Timeline */}
+          <PredictionTimeline
+            entries={timelineEntries}
+            futureLevelTitles={futureLevelTitles}
+            targetWeight={bodyProjection?.targetWeight}
+          />
 
-        {/* Motivational Message */}
-        <div className="w-full pt-4 border-t border-white/10">
-          <p className="text-sm text-white/90 italic">
-            💡 {bodyProjection ? bodyProjection.motivationalMessage : prediction.encouragement}
-          </p>
+          {/* Motivational Message */}
+          <div className="w-full pt-4 border-t border-white/10">
+            <p className="text-sm text-white/90 italic">
+              💡 {bodyProjection ? bodyProjection.motivationalMessage : prediction.encouragement}
+            </p>
+          </div>
         </div>
-      </div>
+      )}
     </motion.div>
   );
 }

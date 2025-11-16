@@ -13,6 +13,8 @@ import SpatialIcon from '@/ui/icons/SpatialIcon';
 import { usePerformanceMode } from '@/system/context/PerformanceModeContext';
 import { useUserStore } from '@/system/store/userStore';
 import { useTodaysCompletedActions } from '@/hooks/coeur/useDailyActionsTracking';
+import { useWeeklyActions } from '@/hooks/coeur/useWeeklyActions';
+import '@/styles/components/dashboard/gaming-cta-effects.css';
 
 interface ActionButton {
   id: string;
@@ -33,7 +35,7 @@ const DAILY_ACTIONS: ActionButton[] = [
     id: 'meal-scan',
     label: 'Scanner un Repas',
     icon: 'UtensilsCrossed',
-    xp: 25,
+    xp: 10,
     route: '/meals/scan',
     description: 'Track tes calories automatiquement',
     color: '#F59E0B',
@@ -97,27 +99,19 @@ const SECONDARY_ACTIONS: ActionButton[] = [
       { label: '+60 pts', type: 'xp' }
     ]
   },
-  {
-    id: 'body-scan-3d',
-    label: 'Scanner Corporel 3D',
-    icon: 'Scan',
-    xp: 0,
-    route: '/body-scan',
-    description: 'Twin numérique : Analyse morphologique complète et projections corporelles',
-    color: '#F59E0B',
-    glowColor: '#FBBF24',
-    isPrimary: false,
-    badges: [
-      { label: '1 fois par semaine', type: 'count' }
-    ]
-  },
 ];
+
+const ACTION_TOUR_TARGETS: Record<string, string> = {
+  'culinary-forge': 'culinary-forge',
+  'training-live': 'training-forge'
+};
 
 export default function ActionCommandPanel() {
   const navigate = useNavigate();
   const { profile } = useUserStore();
   const { performanceMode } = usePerformanceMode();
   const { data: completedActions = [] } = useTodaysCompletedActions();
+  const { availability, isLoading: weeklyActionsLoading } = useWeeklyActions();
 
   const isActionCompleted = (actionId: string) => {
     return completedActions.some(action => action.action_id === actionId && action.is_first_of_day);
@@ -127,9 +121,56 @@ export default function ActionCommandPanel() {
     return completedActions.filter(action => action.action_id === actionId).length;
   };
 
-  const handleAction = (action: ActionButton) => {
+  const handleAction = (action: ActionButton, event: React.MouseEvent<HTMLButtonElement>) => {
+    // Create ripple effect at click position
+    if (performanceMode !== 'low') {
+      createRipple(event);
+    }
+
     // Navigation only - tracking will happen after actual completion
     navigate(action.route);
+  };
+
+  const createRipple = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const button = event.currentTarget;
+    const rect = button.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const x = event.clientX - rect.left - size / 2;
+    const y = event.clientY - rect.top - size / 2;
+
+    const ripple = document.createElement('span');
+    ripple.className = 'gaming-cta-ripple';
+    ripple.style.width = ripple.style.height = `${size}px`;
+    ripple.style.left = `${x}px`;
+    ripple.style.top = `${y}px`;
+
+    button.appendChild(ripple);
+
+    setTimeout(() => {
+      ripple.remove();
+    }, 600);
+  };
+
+  const handleWeightUpdateClick = () => {
+    // Smooth scroll to weight update section
+    const weightSection = document.getElementById('weight-update-section');
+    if (weightSection) {
+      // Add slight delay to ensure DOM is ready
+      setTimeout(() => {
+        weightSection.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+
+        // Add temporary highlight effect
+        weightSection.style.transition = 'box-shadow 0.3s ease';
+        weightSection.style.boxShadow = '0 0 0 3px rgba(247, 147, 30, 0.5), 0 0 20px rgba(247, 147, 30, 0.3)';
+
+        setTimeout(() => {
+          weightSection.style.boxShadow = '';
+        }, 2000);
+      }, 100);
+    }
   };
 
   // Filter fasting for non-fat_loss objectives
@@ -147,7 +188,12 @@ export default function ActionCommandPanel() {
   const totalActionsToday = completedActions.length;
 
   return (
-    <div id="gaming-actions-widget" className="space-y-5">
+    <div
+      id="gaming-actions-widget"
+      data-tour-target="gaming-actions"
+      data-performance-mode={performanceMode}
+      className="space-y-5"
+    >
       {/* Divider - Daily Actions Priority */}
       <div className="relative py-2">
         <div className="absolute inset-0 flex items-center">
@@ -162,6 +208,173 @@ export default function ActionCommandPanel() {
         </div>
       </div>
 
+      {/* Weekly Actions - Body Scan & Weight Update */}
+      {(availability?.bodyScanAvailable || availability?.weightUpdateAvailable) && (
+        <div className="grid grid-cols-1 gap-3 mb-3">
+          {/* Body Scan Button - Always visible when available */}
+          {availability?.bodyScanAvailable && (
+            <motion.button
+              onClick={(e) => {
+                if (performanceMode !== 'low') createRipple(e);
+                navigate('/body-scan');
+              }}
+              className="gaming-cta-button gaming-cta-weekly-available w-full glass-card p-4 rounded-xl relative overflow-hidden group text-left"
+              style={{
+                background: `
+                  linear-gradient(135deg, #F7931E20 0%, #F7931E10 50%, rgba(0, 0, 0, 0.3) 100%),
+                  radial-gradient(circle at 30% 30%, #F7931E15 0%, transparent 50%),
+                  rgba(255, 255, 255, 0.03)
+                `,
+                backdropFilter: 'blur(20px) saturate(150%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+                border: '1px solid #F7931E40',
+                boxShadow: `
+                  0 4px 16px #F7931E30,
+                  0 2px 8px rgba(0, 0, 0, 0.4),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                  inset 0 -1px 0 rgba(0, 0, 0, 0.3)
+                `,
+                '--action-color': '#F7931E',
+                '--action-color-alpha-70': 'rgba(247, 147, 30, 0.7)',
+                '--action-color-alpha-60': 'rgba(247, 147, 30, 0.6)',
+                '--action-color-alpha-40': 'rgba(247, 147, 30, 0.4)',
+                '--action-color-alpha-30': 'rgba(247, 147, 30, 0.3)',
+                '--action-color-alpha-20': 'rgba(247, 147, 30, 0.2)',
+                '--action-color-alpha-10': 'rgba(247, 147, 30, 0.1)',
+                '--action-color-alpha-0': 'rgba(247, 147, 30, 0)',
+              } as React.CSSProperties}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <div className="gaming-cta-shimmer" />
+              <div className="gaming-cta-hover-glow" />
+
+              <div className="relative flex items-center gap-4">
+                <div className="relative flex-shrink-0">
+                  <div
+                    className="gaming-cta-icon w-12 h-12 rounded-xl flex items-center justify-center"
+                    style={{
+                      background: 'linear-gradient(135deg, #F7931E30, #F7931E20)',
+                      border: '1px solid #F7931E40',
+                      boxShadow: '0 0 12px #F7931E30'
+                    }}
+                  >
+                    <SpatialIcon
+                      name="Scan"
+                      size={24}
+                      color="#F7931E"
+                      glowColor="#FBBF24"
+                      variant="pure"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <h4 className="font-bold text-white text-sm">Scanner Corporel</h4>
+                    <div
+                      className="gaming-cta-badge flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-bold"
+                      style={{
+                        background: '#F7931E20',
+                        color: '#F7931E',
+                        border: '1px solid #F7931E30'
+                      }}
+                    >
+                      +25 pts
+                    </div>
+                  </div>
+                  <p className="text-xs text-white/70">Scanner ton corps en 3D</p>
+                </div>
+              </div>
+            </motion.button>
+          )}
+
+          {/* Weight Update Button - Only visible when available and not empty state */}
+          {availability?.weightUpdateAvailable && profile?.weight_kg && (
+            <motion.button
+              onClick={(e) => {
+                if (performanceMode !== 'low') createRipple(e);
+                handleWeightUpdateClick();
+              }}
+              className="gaming-cta-button gaming-cta-weekly-available w-full glass-card p-4 rounded-xl relative overflow-hidden group text-left"
+              style={{
+                background: `
+                  linear-gradient(135deg, #F7931E20 0%, #F7931E10 50%, rgba(0, 0, 0, 0.3) 100%),
+                  radial-gradient(circle at 30% 30%, #F7931E15 0%, transparent 50%),
+                  rgba(255, 255, 255, 0.03)
+                `,
+                backdropFilter: 'blur(20px) saturate(150%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+                border: '1px solid #F7931E40',
+                boxShadow: `
+                  0 4px 16px #F7931E30,
+                  0 2px 8px rgba(0, 0, 0, 0.4),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                  inset 0 -1px 0 rgba(0, 0, 0, 0.3)
+                `,
+                '--action-color': '#F7931E',
+                '--action-color-alpha-70': 'rgba(247, 147, 30, 0.7)',
+                '--action-color-alpha-60': 'rgba(247, 147, 30, 0.6)',
+                '--action-color-alpha-40': 'rgba(247, 147, 30, 0.4)',
+                '--action-color-alpha-30': 'rgba(247, 147, 30, 0.3)',
+                '--action-color-alpha-20': 'rgba(247, 147, 30, 0.2)',
+                '--action-color-alpha-10': 'rgba(247, 147, 30, 0.1)',
+                '--action-color-alpha-0': 'rgba(247, 147, 30, 0)',
+              } as React.CSSProperties}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: 0.05 }}
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <div className="gaming-cta-shimmer" />
+              <div className="gaming-cta-hover-glow" />
+
+              <div className="relative flex items-center gap-4">
+                <div className="relative flex-shrink-0">
+                  <div
+                    className="gaming-cta-icon w-12 h-12 rounded-xl flex items-center justify-center"
+                    style={{
+                      background: 'linear-gradient(135deg, #F7931E30, #F7931E20)',
+                      border: '1px solid #F7931E40',
+                      boxShadow: '0 0 12px #F7931E30'
+                    }}
+                  >
+                    <SpatialIcon
+                      name="Scale"
+                      size={24}
+                      color="#F7931E"
+                      glowColor="#FBBF24"
+                      variant="pure"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <h4 className="font-bold text-white text-sm">Mise à jour Poids</h4>
+                    <div
+                      className="gaming-cta-badge flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-bold"
+                      style={{
+                        background: '#F7931E20',
+                        color: '#F7931E',
+                        border: '1px solid #F7931E30'
+                      }}
+                    >
+                      +15 pts
+                    </div>
+                  </div>
+                  <p className="text-xs text-white/70">Mettre à jour ton poids hebdo</p>
+                </div>
+              </div>
+            </motion.button>
+          )}
+        </div>
+      )}
+
       {/* Daily Actions - Priority */}
       <div className="grid grid-cols-1 gap-3">
         {filteredDailyActions.map((action, index) => {
@@ -170,8 +383,8 @@ export default function ActionCommandPanel() {
           return (
             <motion.button
               key={action.id}
-              onClick={() => handleAction(action)}
-              className="w-full glass-card p-4 rounded-xl relative overflow-hidden group text-left"
+              onClick={(e) => handleAction(action, e)}
+              className="gaming-cta-button gaming-cta-priority w-full glass-card p-4 rounded-xl relative overflow-hidden group text-left"
               style={{
                 background: `
                   linear-gradient(135deg, ${action.color}20 0%, ${action.color}10 50%, rgba(0, 0, 0, 0.3) 100%),
@@ -186,29 +399,40 @@ export default function ActionCommandPanel() {
                   0 2px 8px rgba(0, 0, 0, 0.4),
                   inset 0 1px 0 rgba(255, 255, 255, 0.2),
                   inset 0 -1px 0 rgba(0, 0, 0, 0.3)
-                `
-              }}
+                `,
+                '--action-color': action.color,
+                '--action-color-alpha-60': `${action.color}99`,
+                '--action-color-alpha-50': `${action.color}80`,
+                '--action-color-alpha-40': `${action.color}66`,
+                '--action-color-alpha-30': `${action.color}4D`,
+                '--action-color-alpha-25': `${action.color}40`,
+                '--action-color-alpha-20': `${action.color}33`,
+                '--action-color-alpha-15': `${action.color}26`,
+                '--action-color-alpha-12': `${action.color}1F`,
+                '--action-color-alpha-10': `${action.color}1A`,
+                '--action-color-alpha-0': `${action.color}00`,
+              } as React.CSSProperties}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3, delay: index * 0.05 }}
               whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
             >
+              <div className="gaming-cta-shimmer" />
+              <div className="gaming-cta-particles" />
+              <div className="gaming-cta-hover-glow" />
               {performanceMode === 'premium' && (
-                <motion.div
-                  className="absolute inset-0"
-                  style={{
-                    background: `linear-gradient(90deg, ${action.color}05, ${action.color}12, ${action.color}05)`
-                  }}
-                  animate={{ x: ['-100%', '100%'] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                />
+                <>
+                  <div className="gaming-cta-spark" style={{ top: '20%', left: '10%' }} />
+                  <div className="gaming-cta-spark" style={{ top: '30%', right: '15%' }} />
+                  <div className="gaming-cta-spark" style={{ bottom: '25%', left: '20%' }} />
+                </>
               )}
 
               <div className="relative flex items-center gap-4">
                 <div className="relative flex-shrink-0">
                   <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center"
+                    className="gaming-cta-icon w-12 h-12 rounded-xl flex items-center justify-center"
                     style={{
                       background: `linear-gradient(135deg, ${action.color}30, ${action.color}20)`,
                       border: `1px solid ${action.color}40`,
@@ -228,7 +452,7 @@ export default function ActionCommandPanel() {
                     if (occurrences > 0) {
                       return (
                         <motion.div
-                          className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center border-2 border-white/20"
+                          className="gaming-cta-occurrence absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center border-2 border-white/20"
                           style={{
                             background: `linear-gradient(135deg, ${action.color}, ${action.glowColor})`
                           }}
@@ -248,7 +472,7 @@ export default function ActionCommandPanel() {
                   <div className="flex items-center justify-between gap-2 mb-1">
                     <h4 className="font-bold text-white text-sm">{action.label}</h4>
                     <div
-                      className="flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-bold"
+                      className="gaming-cta-badge flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-bold"
                       style={{
                         background: `${action.color}20`,
                         color: action.color,
@@ -299,18 +523,19 @@ export default function ActionCommandPanel() {
         </div>
         <div className="relative flex justify-center">
           <span className="px-3 text-xs text-white/40 bg-gradient-to-r from-transparent via-black/20 to-transparent">
-            Actions pour forger votre corps et progresser
+            Forges de Progression
           </span>
         </div>
       </div>
 
       {/* Secondary Actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {SECONDARY_ACTIONS.map((action, index) => (
           <motion.button
             key={action.id}
-            onClick={() => handleAction(action)}
-            className="glass-card p-4 rounded-xl relative overflow-hidden group text-left"
+            data-tour-target={ACTION_TOUR_TARGETS[action.id]}
+            onClick={(e) => handleAction(action, e)}
+            className="gaming-cta-button gaming-cta-secondary glass-card p-4 rounded-xl relative overflow-hidden group text-left"
             style={{
               background: `
                 linear-gradient(135deg, ${action.color}18 0%, ${action.color}08 50%, rgba(0, 0, 0, 0.25) 100%),
@@ -325,17 +550,24 @@ export default function ActionCommandPanel() {
                 0 1px 6px rgba(0, 0, 0, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.15),
                 inset 0 -1px 0 rgba(0, 0, 0, 0.2)
-              `
-            }}
+              `,
+              '--action-color': action.color,
+              '--action-color-alpha-30': `${action.color}4D`,
+              '--action-color-alpha-25': `${action.color}40`,
+              '--action-color-alpha-20': `${action.color}33`,
+              '--action-color-alpha-15': `${action.color}26`,
+              '--action-color-alpha-10': `${action.color}1A`,
+            } as React.CSSProperties}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, delay: 0.15 + index * 0.05 }}
             whileHover={{ scale: 1.02, y: -2 }}
             whileTap={{ scale: 0.98 }}
           >
+            <div className="gaming-cta-hover-glow" />
             <div className="relative space-y-3">
               <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
+                className="gaming-cta-icon w-10 h-10 rounded-lg flex items-center justify-center"
                 style={{
                   background: `linear-gradient(135deg, ${action.color}25, ${action.color}15)`,
                   border: `1px solid ${action.color}30`

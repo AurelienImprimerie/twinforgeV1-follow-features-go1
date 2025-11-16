@@ -78,9 +78,33 @@ export function useLevelMilestone(level?: number) {
   });
 }
 
+/**
+ * Hook to get level milestone with gendered title and description
+ * Automatically uses the user's gender to return appropriate content
+ */
+export function useLevelMilestoneForUser(level?: number) {
+  const { data: session } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { data } = await supabase.auth.getSession();
+      return data.session;
+    }
+  });
+
+  return useQuery({
+    queryKey: ['level-milestone-gendered', session?.user?.id, level],
+    queryFn: async () => {
+      if (!level || !session?.user?.id) return null;
+      return gamificationService.getLevelMilestoneForUser(session.user.id, level);
+    },
+    enabled: !!level && !!session?.user?.id,
+    staleTime: 60 * 60 * 1000
+  });
+}
+
 export function useCurrentLevelTitle() {
   const { data: gamification } = useGamificationProgress();
-  const { data: milestone } = useLevelMilestone(gamification?.currentLevel);
+  const { data: milestone } = useLevelMilestoneForUser(gamification?.currentLevel);
 
   return {
     title: milestone?.milestoneName || `Niveau ${gamification?.currentLevel || 1}`,
@@ -93,6 +117,30 @@ export function useAllLevelMilestones() {
   return useQuery({
     queryKey: ['all-level-milestones'],
     queryFn: () => gamificationService.getAllLevelMilestones(),
+    staleTime: 60 * 60 * 1000
+  });
+}
+
+/**
+ * Hook to get all level milestones with gendered titles and descriptions
+ * Automatically uses the user's gender to return appropriate content
+ */
+export function useAllLevelMilestonesForUser() {
+  const { data: session } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { data } = await supabase.auth.getSession();
+      return data.session;
+    }
+  });
+
+  return useQuery({
+    queryKey: ['all-level-milestones-gendered', session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return [];
+      return gamificationService.getAllLevelMilestonesForUser(session.user.id);
+    },
+    enabled: !!session?.user?.id,
     staleTime: 60 * 60 * 1000
   });
 }
@@ -160,7 +208,17 @@ export function useUpdateWeight() {
         objective
       );
     },
-    onSuccess: async () => {
+    onSuccess: async (data) => {
+      // Mark action as completed in daily_actions_completion
+      try {
+        await supabase.rpc('mark_daily_action_completed_v2', {
+          p_action_id: 'weight-update-weekly',
+          p_xp_earned: data.xpResult.xpAwarded,
+        });
+      } catch (error) {
+        console.warn('Failed to mark weight update action as completed:', error);
+      }
+
       // Invalidate React Query caches
       queryClient.invalidateQueries({ queryKey: ['gamification-progress'] });
       queryClient.invalidateQueries({ queryKey: ['xp-events'] });
@@ -168,6 +226,8 @@ export function useUpdateWeight() {
       queryClient.invalidateQueries({ queryKey: ['xp-stats'] });
       queryClient.invalidateQueries({ queryKey: ['profile'] });
       queryClient.invalidateQueries({ queryKey: ['body-scan'] });
+      queryClient.invalidateQueries({ queryKey: ['daily-actions'] });
+      queryClient.invalidateQueries({ queryKey: ['weekly-actions-availability'] });
 
       // CRITICAL: Manually refresh userStore profile to sync with database
       const { useUserStore } = await import('@/system/store/userStore');
@@ -236,11 +296,26 @@ export function useAwardBodyScanXp() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user?.id) throw new Error('No user');
 
-      return gamificationService.awardBodyScanXp(session.user.id, scanData);
+      // Award XP for body scan
+      const result = await gamificationService.awardBodyScanXp(session.user.id, scanData);
+
+      // Mark action as completed in daily_actions_completion
+      try {
+        await supabase.rpc('mark_daily_action_completed_v2', {
+          p_action_id: 'body-scan',
+          p_xp_earned: result.xpAwarded,
+        });
+      } catch (error) {
+        console.warn('Failed to mark body scan action as completed:', error);
+      }
+
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['gamification-progress'] });
       queryClient.invalidateQueries({ queryKey: ['xp-events'] });
+      queryClient.invalidateQueries({ queryKey: ['daily-actions'] });
+      queryClient.invalidateQueries({ queryKey: ['weekly-actions-availability'] });
     }
   });
 }
