@@ -359,35 +359,49 @@ export const createGenerationActions = (
                 }
               : null;
 
-            // Award XP for recipe generation using Supabase RPC
+            // Award XP for recipe generation using GamificationService
+            // This ensures proper integration with the gaming system and correct XP values (20 XP per recipe)
             (async () => {
               try {
                 const { supabase } = await import('../../../supabase/client');
                 const { data: { user } } = await supabase.auth.getUser();
 
-                if (user) {
-                  // Call the Supabase RPC function to award XP
-                  const { error: xpError } = await supabase.rpc('award_forge_xp', {
-                    p_user_id: user.id,
-                    p_action: 'recipe_generated',
-                    p_source: 'recipe_generation'
+                if (user && state.recipeCandidate) {
+                  const { gamificationService } = await import('../../../../services/dashboard/coeur');
+
+                  // Award XP for recipe generation with detailed metadata
+                  const xpResult = await gamificationService.awardRecipeGeneratedXp(user.id, {
+                    recipe_id: state.recipeCandidate.id,
+                    recipe_title: state.recipeCandidate.title,
+                    source: 'recipe_generation_pipeline',
+                    ingredients_count: state.recipeCandidate.ingredients?.length || 0,
+                    timestamp: new Date().toISOString()
                   });
 
-                  if (xpError) {
-                    logger.warn('RECIPE_GENERATION_PIPELINE', 'Failed to award XP for recipe', {
-                      error: xpError.message
-                    });
-                  } else {
-                    logger.info('RECIPE_GENERATION_PIPELINE', 'XP awarded for recipe generation', {
-                      userId: user.id,
-                      timestamp: new Date().toISOString()
-                    });
-                  }
+                  logger.info('RECIPE_GENERATION_PIPELINE', 'XP awarded successfully via GamificationService', {
+                    recipeId: state.recipeCandidate.id,
+                    recipeTitle: state.recipeCandidate.title,
+                    xpAwarded: xpResult.xpAwarded,
+                    baseXp: xpResult.baseXp,
+                    multiplier: xpResult.multiplier,
+                    leveledUp: xpResult.leveledUp,
+                    newLevel: xpResult.newLevel,
+                    userId: user.id,
+                    timestamp: new Date().toISOString()
+                  });
+
+                  // Force immediate refresh of gaming widget
+                  const { queryClient } = await import('../../../../app/providers/AppProviders');
+                  await queryClient.invalidateQueries({ queryKey: ['gamification-progress'] });
+                  await queryClient.invalidateQueries({ queryKey: ['xp-events'] });
+                  await queryClient.invalidateQueries({ queryKey: ['daily-actions'] });
                 }
               } catch (error) {
-                logger.warn('RECIPE_GENERATION_PIPELINE', 'Failed to award XP for recipe', {
-                  error: error instanceof Error ? error.message : 'Unknown error'
+                logger.warn('RECIPE_GENERATION_PIPELINE', 'Failed to award XP for recipe generation', {
+                  error: error instanceof Error ? error.message : 'Unknown error',
+                  timestamp: new Date().toISOString()
                 });
+                // Don't throw - XP attribution failure should not block user workflow
               }
             })();
 

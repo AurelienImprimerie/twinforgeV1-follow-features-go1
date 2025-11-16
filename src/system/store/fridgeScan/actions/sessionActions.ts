@@ -241,28 +241,58 @@ export const createSessionActions = (
         timestamp: new Date().toISOString()
       });
 
-      // Award XP for fridge scan
-      try {
-        const { useForgeXpRewards } = await import('../../../../hooks/useForgeXpRewards');
-        const { awardForgeXpSilently } = useForgeXpRewards();
-        await awardForgeXpSilently('fridge_scan');
+      // Award XP for fridge scan using GamificationService
+      // This ensures proper integration with the gaming system
+      (async () => {
+        try {
+          const { useUserStore } = await import('../../userStore');
+          const userId = useUserStore.getState().session?.user?.id;
 
-        // Force immediate refresh of gaming widget
-        const { queryClient } = await import('../../../../app/providers/AppProviders');
-        await queryClient.invalidateQueries({ queryKey: ['gamification-progress'] });
-        await queryClient.invalidateQueries({ queryKey: ['xp-events'] });
-        await queryClient.invalidateQueries({ queryKey: ['daily-actions'] });
+          if (!userId) {
+            logger.warn('FRIDGE_SCAN_PIPELINE', 'Cannot award XP: user not authenticated', {
+              sessionId: state.currentSessionId
+            });
+            return;
+          }
 
-        logger.info('FRIDGE_SCAN_PIPELINE', 'XP awarded and gaming widget refreshed', {
-          action: 'fridge_scan',
-          xpAwarded: 30,
-          timestamp: new Date().toISOString()
-        });
-      } catch (error) {
-        logger.warn('FRIDGE_SCAN_PIPELINE', 'Failed to award XP for fridge scan', {
-          error: error instanceof Error ? error.message : 'Unknown error'
-        });
-      }
+          const { gamificationService } = await import('../../../../services/dashboard/coeur');
+          const xpResult = await gamificationService.awardFridgeScanXp(userId, {
+            session_id: state.currentSessionId,
+            items_detected: state.userEditedInventory.length,
+            photo_count: state.capturedPhotos.length,
+            timestamp: new Date().toISOString(),
+            source: 'fridge_scan_pipeline'
+          });
+
+          logger.info('FRIDGE_SCAN_PIPELINE', 'XP awarded successfully via GamificationService', {
+            sessionId: state.currentSessionId,
+            xpAwarded: xpResult.xpAwarded,
+            baseXp: xpResult.baseXp,
+            multiplier: xpResult.multiplier,
+            leveledUp: xpResult.leveledUp,
+            newLevel: xpResult.newLevel,
+            timestamp: new Date().toISOString()
+          });
+
+          // Force immediate refresh of gaming widget
+          const { queryClient } = await import('../../../../app/providers/AppProviders');
+          await queryClient.invalidateQueries({ queryKey: ['gamification-progress'] });
+          await queryClient.invalidateQueries({ queryKey: ['xp-events'] });
+          await queryClient.invalidateQueries({ queryKey: ['daily-actions'] });
+
+          logger.info('FRIDGE_SCAN_PIPELINE', 'Gaming widget queries invalidated', {
+            sessionId: state.currentSessionId,
+            timestamp: new Date().toISOString()
+          });
+        } catch (error) {
+          logger.warn('FRIDGE_SCAN_PIPELINE', 'Failed to award XP for fridge scan', {
+            error: error instanceof Error ? error.message : 'Unknown error',
+            sessionId: state.currentSessionId,
+            timestamp: new Date().toISOString()
+          });
+          // Don't throw - XP attribution failure should not block user workflow
+        }
+      })();
 
       // Update meal plan store with new inventory
       try {

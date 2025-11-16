@@ -445,28 +445,59 @@ export const useShoppingListGenerationPipeline = create<ShoppingListGenerationPi
         current_step: 'validation'
       });
 
-      // Award XP for shopping list generation
-      try {
-        const { useForgeXpRewards } = await import('../../../hooks/useForgeXpRewards');
-        const { awardForgeXpSilently } = useForgeXpRewards();
-        await awardForgeXpSilently('shopping_list_generated');
+      // Award XP for shopping list generation using GamificationService
+      // This ensures proper integration with the gaming system and correct XP values (15 XP)
+      (async () => {
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
 
-        // Force immediate refresh of gaming widget
-        const { queryClient } = await import('../../../app/providers/AppProviders');
-        await queryClient.invalidateQueries({ queryKey: ['gamification-progress'] });
-        await queryClient.invalidateQueries({ queryKey: ['xp-events'] });
-        await queryClient.invalidateQueries({ queryKey: ['daily-actions'] });
+          if (!user) {
+            logger.warn('SHOPPING_LIST_PIPELINE', 'Cannot award XP: user not authenticated', {
+              sessionId: currentSessionId
+            });
+            return;
+          }
 
-        logger.info('SHOPPING_LIST_PIPELINE', 'XP awarded and gaming widget refreshed', {
-          action: 'shopping_list_generated',
-          xpAwarded: 15,
-          timestamp: new Date().toISOString()
-        });
-      } catch (error) {
-        logger.warn('SHOPPING_LIST_PIPELINE', 'Failed to award XP for shopping list', {
-          error: error instanceof Error ? error.message : 'Unknown error'
-        });
-      }
+          const { gamificationService } = await import('../../../services/dashboard/coeur');
+
+          // Award XP for shopping list generation with detailed metadata
+          const xpResult = await gamificationService.awardShoppingListGeneratedXp(user.id, {
+            list_id: shoppingListCandidate.id,
+            list_name: shoppingListCandidate.name,
+            total_items: shoppingListCandidate.totalItems,
+            categories_count: shoppingListCandidate.categories.length,
+            generation_mode: shoppingListCandidate.generationMode,
+            session_id: currentSessionId,
+            meal_plan_id: config.selectedMealPlanId,
+            timestamp: new Date().toISOString()
+          });
+
+          logger.info('SHOPPING_LIST_PIPELINE', 'XP awarded successfully via GamificationService', {
+            sessionId: currentSessionId,
+            listId: shoppingListCandidate.id,
+            totalItems: shoppingListCandidate.totalItems,
+            xpAwarded: xpResult.xpAwarded,
+            baseXp: xpResult.baseXp,
+            multiplier: xpResult.multiplier,
+            leveledUp: xpResult.leveledUp,
+            newLevel: xpResult.newLevel,
+            timestamp: new Date().toISOString()
+          });
+
+          // Force immediate refresh of gaming widget
+          const { queryClient } = await import('../../../app/providers/AppProviders');
+          await queryClient.invalidateQueries({ queryKey: ['gamification-progress'] });
+          await queryClient.invalidateQueries({ queryKey: ['xp-events'] });
+          await queryClient.invalidateQueries({ queryKey: ['daily-actions'] });
+        } catch (error) {
+          logger.warn('SHOPPING_LIST_PIPELINE', 'Failed to award XP for shopping list generation', {
+            error: error instanceof Error ? error.message : 'Unknown error',
+            sessionId: currentSessionId,
+            timestamp: new Date().toISOString()
+          });
+          // Don't throw - XP attribution failure should not block user workflow
+        }
+      })();
 
     } catch (error) {
       logger.error('SHOPPING_LIST_PIPELINE', 'Generation failed', { error });

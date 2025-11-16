@@ -610,41 +610,51 @@ export const createRecipeGenerationActions = (
               isActive: false
             });
 
-            // Award XP for recipe generation using Supabase RPC directly (no React Hooks)
+            // Award XP for recipe generation using GamificationService
+            // This ensures proper integration with the gaming system and correct XP values (20 XP per recipe)
             (async () => {
               try {
                 const { supabase } = await import('../../../supabase/client');
                 const { data: { user } } = await supabase.auth.getUser();
 
                 if (user && totalRecipesReceived > 0) {
-                  // Call the Supabase RPC function directly to award XP
-                  const { error: xpError } = await supabase.rpc('award_forge_xp', {
-                    p_user_id: user.id,
-                    p_action: 'recipe_generated',
-                    p_source: 'fridge_scan'
+                  const { gamificationService } = await import('../../../../services/dashboard/coeur');
+
+                  // Award XP for recipe generation with detailed metadata
+                  const xpResult = await gamificationService.awardRecipeGeneratedXp(user.id, {
+                    session_id: state.currentSessionId,
+                    recipes_generated: totalRecipesReceived,
+                    source: 'fridge_scan_pipeline',
+                    inventory_count: state.userEditedInventory.length,
+                    timestamp: new Date().toISOString()
                   });
 
-                  if (xpError) {
-                    logger.warn('FRIDGE_SCAN_PIPELINE', 'Failed to award XP for fridge scan', {
-                      error: xpError.message,
-                      sessionId: state.currentSessionId,
-                      timestamp: new Date().toISOString()
-                    });
-                  } else {
-                    logger.info('FRIDGE_SCAN_PIPELINE', 'XP awarded for recipe generation', {
-                      sessionId: state.currentSessionId,
-                      recipesGenerated: totalRecipesReceived,
-                      userId: user.id,
-                      timestamp: new Date().toISOString()
-                    });
-                  }
+                  logger.info('FRIDGE_SCAN_PIPELINE', 'XP awarded successfully via GamificationService', {
+                    sessionId: state.currentSessionId,
+                    recipesGenerated: totalRecipesReceived,
+                    xpAwarded: xpResult.xpAwarded,
+                    baseXp: xpResult.baseXp,
+                    multiplier: xpResult.multiplier,
+                    leveledUp: xpResult.leveledUp,
+                    newLevel: xpResult.newLevel,
+                    userId: user.id,
+                    timestamp: new Date().toISOString()
+                  });
+
+                  // Force immediate refresh of gaming widget
+                  const { queryClient } = await import('../../../../app/providers/AppProviders');
+                  await queryClient.invalidateQueries({ queryKey: ['gamification-progress'] });
+                  await queryClient.invalidateQueries({ queryKey: ['xp-events'] });
+                  await queryClient.invalidateQueries({ queryKey: ['daily-actions'] });
                 }
               } catch (xpError) {
-                logger.warn('FRIDGE_SCAN_PIPELINE', 'Failed to award XP for fridge scan', {
+                logger.warn('FRIDGE_SCAN_PIPELINE', 'Failed to award XP for recipe generation', {
                   error: xpError instanceof Error ? xpError.message : 'Unknown error',
                   sessionId: state.currentSessionId,
+                  recipesGenerated: totalRecipesReceived,
                   timestamp: new Date().toISOString()
                 });
+                // Don't throw - XP attribution failure should not block user workflow
               }
             })();
           } catch (error) {
