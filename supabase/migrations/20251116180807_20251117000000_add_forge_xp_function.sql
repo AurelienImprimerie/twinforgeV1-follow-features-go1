@@ -9,7 +9,7 @@
 
   1. Function
     - `award_forge_xp(p_user_id, p_action, p_source)` - Awards XP for Forge actions
-    - Integrates with existing gamification system (user_gamification_progress, xp_events_log)
+    - Integrates with existing gamification system (user_stats, xp_events_log)
     - Supports idempotency to prevent duplicate XP awards
     - Automatically levels up users when XP thresholds are reached
 
@@ -28,7 +28,7 @@
   ## Notes
   - Integrates seamlessly with existing gamification system in coeur/ migrations
   - Uses xp_events_log for audit trail
-  - Updates user_gamification_progress with new XP and level
+  - Updates user_stats with new XP and level
 */
 
 -- Create forge_xp_actions table to define XP rewards
@@ -72,14 +72,13 @@ SECURITY DEFINER
 AS $$
 DECLARE
   v_xp_reward integer;
-  v_current_xp bigint;
+  v_current_xp integer;
   v_current_level integer;
-  v_new_xp bigint;
+  v_new_xp integer;
   v_new_level integer;
-  v_xp_to_next_level integer;
+  v_xp_for_next_level integer;
   v_event_id uuid;
-  v_user_progress_exists boolean;
-  v_event_category text;
+  v_user_stats_exists boolean;
 BEGIN
   -- Validate user exists
   IF NOT EXISTS (SELECT 1 FROM auth.users WHERE id = p_user_id) THEN
@@ -101,41 +100,30 @@ BEGIN
     );
   END IF;
 
-  -- Determine event category based on action
-  v_event_category := CASE
-    WHEN p_action IN ('recipe_generated', 'meal_plan_created', 'shopping_list_created', 'fridge_scanned', 'meal_logged') THEN 'nutrition'
-    WHEN p_action IN ('body_scan_completed') THEN 'body_scan'
-    WHEN p_action IN ('training_session_completed') THEN 'training'
-    WHEN p_action IN ('daily_goal_reached') THEN 'general'
-    ELSE 'general'
-  END;
-
-  -- Check if user_gamification_progress exists
+  -- Check if user_stats exists
   SELECT EXISTS(
-    SELECT 1 FROM user_gamification_progress WHERE user_id = p_user_id
-  ) INTO v_user_progress_exists;
+    SELECT 1 FROM user_stats WHERE user_id = p_user_id
+  ) INTO v_user_stats_exists;
 
-  -- Initialize user_gamification_progress if not exists
-  IF NOT v_user_progress_exists THEN
-    INSERT INTO user_gamification_progress (
+  -- Initialize user_stats if not exists
+  IF NOT v_user_stats_exists THEN
+    INSERT INTO user_stats (
       user_id,
-      current_xp,
+      total_xp,
       current_level,
-      xp_to_next_level,
-      total_xp_earned
+      xp_for_next_level
     ) VALUES (
       p_user_id,
       0,
       1,
-      100,
-      0
+      100
     );
   END IF;
 
   -- Get current stats
-  SELECT current_xp, current_level, xp_to_next_level
-  INTO v_current_xp, v_current_level, v_xp_to_next_level
-  FROM user_gamification_progress
+  SELECT total_xp, current_level, xp_for_next_level
+  INTO v_current_xp, v_current_level, v_xp_for_next_level
+  FROM user_stats
   WHERE user_id = p_user_id;
 
   -- Calculate new XP
@@ -143,51 +131,48 @@ BEGIN
   v_new_level := v_current_level;
 
   -- Level up logic: check if new XP exceeds threshold
-  WHILE v_new_xp >= v_xp_to_next_level LOOP
-    v_new_xp := v_new_xp - v_xp_to_next_level;
+  WHILE v_new_xp >= v_xp_for_next_level LOOP
+    v_new_xp := v_new_xp - v_xp_for_next_level;
     v_new_level := v_new_level + 1;
     -- Calculate next level requirement (increases by 10% each level)
-    v_xp_to_next_level := FLOOR(100 * POWER(1.1, v_new_level - 1));
+    v_xp_for_next_level := FLOOR(100 * POWER(1.1, v_new_level - 1));
   END LOOP;
 
-  -- Update user_gamification_progress
-  UPDATE user_gamification_progress
+  -- Update user_stats
+  UPDATE user_stats
   SET
-    current_xp = v_new_xp,
-    total_xp_earned = total_xp_earned + v_xp_reward,
+    total_xp = total_xp + v_xp_reward,
     current_level = v_new_level,
-    xp_to_next_level = v_xp_to_next_level,
-    last_activity_date = CURRENT_DATE,
+    xp_for_next_level = v_xp_for_next_level,
     updated_at = now()
   WHERE user_id = p_user_id;
 
-  -- Log XP event with correct schema
-  INSERT INTO xp_events_log (
-    user_id,
-    event_type,
-    event_category,
-    base_xp,
-    multiplier,
-    final_xp,
-    event_date,
-    event_metadata
-  ) VALUES (
-    p_user_id,
-    p_action,
-    v_event_category,
-    v_xp_reward,
-    1.0,
-    v_xp_reward,
-    now(),
-    jsonb_build_object(
-      'action', p_action,
-      'source', p_source,
-      'xp_reward', v_xp_reward,
-      'level_before', v_current_level,
-      'level_after', v_new_level
+  -- Log XP event (if xp_events_log table exists)
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_name = 'xp_events_log'
+  ) THEN
+    INSERT INTO xp_events_log (
+      user_id,
+      event_type,
+      xp_earned,
+      source_action,
+      metadata
+    ) VALUES (
+      p_user_id,
+      p_action,
+      v_xp_reward,
+      p_source,
+      jsonb_build_object(
+        'action', p_action,
+        'source', p_source,
+        'xp_reward', v_xp_reward,
+        'level_before', v_current_level,
+        'level_after', v_new_level
+      )
     )
-  )
-  RETURNING id INTO v_event_id;
+    RETURNING id INTO v_event_id;
+  END IF;
 
   -- Return success with details
   RETURN jsonb_build_object(
@@ -212,9 +197,17 @@ $$;
 -- Grant execute permissions
 GRANT EXECUTE ON FUNCTION award_forge_xp TO authenticated, service_role;
 
--- Create index on xp_events_log for faster queries
-CREATE INDEX IF NOT EXISTS idx_xp_events_log_user_action
-  ON xp_events_log(user_id, event_type);
+-- Create index on xp_events_log for faster queries (if table exists)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_name = 'xp_events_log'
+  ) THEN
+    CREATE INDEX IF NOT EXISTS idx_xp_events_log_user_action
+      ON xp_events_log(user_id, event_type);
 
-CREATE INDEX IF NOT EXISTS idx_xp_events_log_created_at
-  ON xp_events_log(created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_xp_events_log_created_at
+      ON xp_events_log(created_at DESC);
+  END IF;
+END $$;
