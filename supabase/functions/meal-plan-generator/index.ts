@@ -486,8 +486,126 @@ Deno.serve(async (req) => {
 
     console.log('MEAL_PLAN_GENERATOR Supabase client initialized');
 
-    // Check token balance before OpenAI call (estimate ~50 tokens for meal plan)
-    const estimatedTokens = 50;
+    // Generate cache key for meal plan
+    const cacheKeyData = {
+      user_id: requestData.user_id,
+      week_number: requestData.week_number,
+      start_date: requestData.start_date,
+      inventory_session_id: requestData.inventory_session_id,
+      batch_cooking_enabled: requestData.batch_cooking_enabled,
+      version: 'meal_plan_v1'
+    };
+    const encoder = new TextEncoder();
+    const cacheKeyBuffer = encoder.encode(JSON.stringify(cacheKeyData));
+    const cacheKeyHash = await crypto.subtle.digest('SHA-256', cacheKeyBuffer);
+    const cacheKey = Array.from(new Uint8Array(cacheKeyHash))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+
+    console.log('MEAL_PLAN_GENERATOR Cache key generated:', { cache_key: cacheKey });
+
+    // Check cache first (7-day TTL for meal plans)
+    const { data: cachedResult } = await supabase
+      .from('ai_analysis_jobs')
+      .select('result_payload, created_at')
+      .eq('input_hash', cacheKey)
+      .eq('analysis_type', 'meal_plan_generation')
+      .eq('status', 'completed')
+      .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+      .single();
+
+    if (cachedResult?.result_payload) {
+      console.log('MEAL_PLAN_GENERATOR Cache hit - returning cached meal plan', {
+        user_id: requestData.user_id,
+        cache_key: cacheKey,
+        cached_at: cachedResult.created_at,
+        timestamp: new Date().toISOString()
+      });
+
+      // Consume tokens for cache hit (reduced rate - covers server costs)
+      // Fixed cost: 20 tokens = 0.020$ (no OpenAI cost, just server/bandwidth/storage)
+      const CACHE_HIT_COST_USD = 0.004; // Equivalent to 20 tokens at x5 margin
+      const requestId = crypto.randomUUID();
+      await consumeTokensAtomic(supabase, {
+        userId: requestData.user_id,
+        edgeFunctionName: 'meal-plan-generator',
+        operationType: 'meal_plan_generation_cache',
+        openaiModel: 'cached',
+        openaiCostUsd: CACHE_HIT_COST_USD,
+        metadata: {
+          cache_hit: true,
+          cache_key: cacheKey,
+          week_number: requestData.week_number,
+          days_count: cachedResult.result_payload.days?.length || 0
+        }
+      }, requestId);
+
+      console.log('MEAL_PLAN_GENERATOR Cache hit tokens consumed', {
+        user_id: requestData.user_id,
+        tokens_charged: 20,
+        cost_usd: CACHE_HIT_COST_USD,
+        cache_key: cacheKey,
+        timestamp: new Date().toISOString()
+      });
+
+      // Return cached meal plan via streaming format
+      const cachedPlan = cachedResult.result_payload;
+      const cachedStream = new ReadableStream({
+        async start(controller) {
+          const encoder = new TextEncoder();
+
+          // Send progress event
+          const progressChunk = `data: ${JSON.stringify({
+            type: 'progress',
+            data: { phase: 'cache_hit', message: 'Plan alimentaire récupéré du cache', progress: 10 }
+          })}\n\n`;
+          controller.enqueue(encoder.encode(progressChunk));
+
+          // Stream each cached day
+          for (const day of cachedPlan.days || []) {
+            const dayChunk = `data: ${JSON.stringify({ type: 'day', data: day })}\n\n`;
+            controller.enqueue(encoder.encode(dayChunk));
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+
+          // Send completion with summary
+          const completionChunk = `data: ${JSON.stringify({
+            type: 'complete',
+            data: {
+              weekly_summary: cachedPlan.weekly_summary,
+              nutritional_highlights: cachedPlan.nutritional_highlights,
+              shopping_optimization: cachedPlan.shopping_optimization,
+              avg_calories_per_day: cachedPlan.avg_calories_per_day,
+              ai_explanation: cachedPlan.ai_explanation,
+              cached: true
+            }
+          })}\n\n`;
+          controller.enqueue(encoder.encode(completionChunk));
+          controller.close();
+        }
+      });
+
+      return new Response(cachedStream, {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+          'X-Accel-Buffering': 'no',
+        },
+      });
+    }
+
+    console.log('MEAL_PLAN_GENERATOR Cache miss - proceeding with AI generation', {
+      user_id: requestData.user_id,
+      cache_key: cacheKey
+    });
+
+    // Check token balance before OpenAI call
+    // Realistic estimate: 7 days × ~18 tokens/day + 1 summary × ~16 tokens = ~142 tokens
+    // Adding 15% safety buffer to prevent negative balances
+    const estimatedTokens = 150;
     const tokenCheck = await checkTokenBalance(supabase, requestData.user_id, estimatedTokens);
 
     if (!tokenCheck.hasEnoughTokens) {
@@ -636,6 +754,23 @@ Deno.serve(async (req) => {
           totalTokenUsage.input += summaryTokenUsage.input;
           totalTokenUsage.output += summaryTokenUsage.output;
           totalTokenUsage.costUsd += summaryTokenUsage.costUsd;
+
+          // Monitor estimation vs reality for accuracy tracking
+          const totalTokensActual = totalTokenUsage.input + totalTokenUsage.output;
+          const estimationAccuracy = ((totalTokensActual - estimatedTokens) / estimatedTokens * 100).toFixed(1);
+          const estimationStatus = Math.abs(parseFloat(estimationAccuracy)) > 20 ? '⚠️ HIGH_DISCREPANCY' : '✅ ACCEPTABLE';
+
+          console.log('MEAL_PLAN_GENERATOR Token estimation vs reality', {
+            userId: requestData.user_id,
+            estimated: estimatedTokens,
+            actual_input: totalTokenUsage.input,
+            actual_output: totalTokenUsage.output,
+            actual_total: totalTokensActual,
+            actual_cost_usd: totalTokenUsage.costUsd.toFixed(6),
+            discrepancy_percent: estimationAccuracy + '%',
+            status: estimationStatus,
+            timestamp: new Date().toISOString()
+          });
 
           console.log('MEAL_PLAN_GENERATOR Plan generation completed', {
             userId: requestData.user_id,

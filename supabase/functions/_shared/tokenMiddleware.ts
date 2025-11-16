@@ -283,6 +283,10 @@ export async function consumeTokensAtomic(
         "chat-completion": 20,
         "recipe_generation": 80,  // Updated: realistic estimate with buffer
         "recipe_generation_cache": 15,  // Cache hit
+        "recipe_detail_enrichment": 35,  // Updated: realistic estimate for detailed recipes
+        "recipe_detail_enrichment_cache": 10,  // Cache hit for recipe details
+        "meal_plan_generation": 150,  // Updated: 7 days + summary with 15% buffer
+        "meal_plan_generation_cache": 20,  // Cache hit for meal plans
         "body-scan-analysis": 150,
         "meal-analysis": 100,
         "training-analysis": 120,

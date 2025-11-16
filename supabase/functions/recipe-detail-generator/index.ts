@@ -317,7 +317,38 @@ serve(async (req) => {
       .single()
 
     if (cachedJob?.result_payload) {
-      console.log('Using cached detailed recipe')
+      console.log('RECIPE_DETAIL_GENERATOR Cache hit - returning cached recipe detail', {
+        user_id: request.user_id,
+        meal_title: request.meal_title,
+        cached_at: cachedJob.created_at,
+        timestamp: new Date().toISOString()
+      });
+
+      // Consume tokens for cache hit (reduced rate - covers server costs)
+      // Fixed cost: 10 tokens = 0.010$ (no OpenAI cost, just server/bandwidth/storage)
+      const CACHE_HIT_COST_USD = 0.002; // Equivalent to 10 tokens at x5 margin
+      const requestId = crypto.randomUUID();
+      await consumeTokensAtomic(supabase, {
+        userId: request.user_id,
+        edgeFunctionName: 'recipe-detail-generator',
+        operationType: 'recipe_detail_enrichment_cache',
+        openaiModel: 'cached',
+        openaiCostUsd: CACHE_HIT_COST_USD,
+        metadata: {
+          cache_hit: true,
+          cache_key: cacheKey,
+          meal_title: request.meal_title,
+          meal_type: request.meal_type
+        }
+      }, requestId);
+
+      console.log('RECIPE_DETAIL_GENERATOR Cache hit tokens consumed', {
+        user_id: request.user_id,
+        tokens_charged: 10,
+        cost_usd: CACHE_HIT_COST_USD,
+        timestamp: new Date().toISOString()
+      });
+
       return new Response(JSON.stringify({
         recipe: cachedJob.result_payload,
         cached: true,
@@ -327,8 +358,10 @@ serve(async (req) => {
       })
     }
 
-    // Check token balance before OpenAI call (estimate ~15 tokens)
-    const estimatedTokens = 15
+    // Check token balance before OpenAI call
+    // Realistic estimate: detailed recipe with ~2000-2500 tokens output = ~30 tokens
+    // Adding 17% safety buffer to prevent negative balances
+    const estimatedTokens = 35
     const tokenCheck = await checkTokenBalance(supabase, request.user_id, estimatedTokens)
 
     if (!tokenCheck.hasEnoughTokens) {
@@ -350,9 +383,27 @@ serve(async (req) => {
     console.log('Generating detailed recipe with GPT-5-mini for:', request.meal_title)
     const { recipe, tokenUsage } = await generateDetailedRecipe(request, request.user_id, supabase)
 
+    // Monitor estimation vs reality for accuracy tracking
+    const totalTokensActual = tokenUsage.input + tokenUsage.output;
+    const estimationAccuracy = ((totalTokensActual - estimatedTokens) / estimatedTokens * 100).toFixed(1);
+    const estimationStatus = Math.abs(parseFloat(estimationAccuracy)) > 20 ? '⚠️ HIGH_DISCREPANCY' : '✅ ACCEPTABLE';
+
+    console.log('RECIPE_DETAIL_GENERATOR Token estimation vs reality', {
+      userId: request.user_id,
+      meal_title: request.meal_title,
+      estimated: estimatedTokens,
+      actual_input: tokenUsage.input,
+      actual_output: tokenUsage.output,
+      actual_total: totalTokensActual,
+      actual_cost_usd: tokenUsage.costUsd.toFixed(6),
+      discrepancy_percent: estimationAccuracy + '%',
+      status: estimationStatus,
+      timestamp: new Date().toISOString()
+    });
+
     // Consume tokens after successful generation
     const requestId = crypto.randomUUID();
-await consumeTokensAtomic(supabase, {
+    await consumeTokensAtomic(supabase, {
       userId: request.user_id,
       edgeFunctionName: 'recipe-detail-generator',
       operationType: 'recipe_detail_enrichment',
