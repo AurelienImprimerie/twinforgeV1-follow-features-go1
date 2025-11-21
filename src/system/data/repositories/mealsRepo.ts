@@ -609,8 +609,8 @@ export const mealsRepo = {
    * Get user's meals for a date range
    */
   async getUserMeals(
-    userId: string, 
-    startDate: Date, 
+    userId: string,
+    startDate: Date,
     endDate: Date,
     limit: number = 100
   ): Promise<MealData[]> {
@@ -619,6 +619,14 @@ export const mealsRepo = {
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
       limit
+    });
+
+    console.log('MEALS_REPO_DEBUG', 'Query parameters', {
+      userId,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      limit,
+      now: new Date().toISOString()
     });
 
     try {
@@ -639,6 +647,14 @@ export const mealsRepo = {
         });
         throw new Error(`Failed to fetch meals: ${error.message}`);
       }
+
+      console.log('MEALS_REPO_DEBUG', 'Query results', {
+        userId,
+        mealsCount: data?.length || 0,
+        mealsIds: data?.map(m => m.id) || [],
+        mealsTimestamps: data?.map(m => m.timestamp) || [],
+        timestamp: new Date().toISOString()
+      });
 
       logger.debug('MEALS_REPO', 'Meals fetched successfully', {
         userId,

@@ -157,8 +157,21 @@ const ProgressionTab: React.FC = () => {
 
   // État vide - Pas assez de données
   if (!weekMeals || weekMeals.length < 3) {
+    console.log('PROGRESSION_DEBUG', 'Not enough meals', {
+      weekMealsLength: weekMeals?.length,
+      weekMeals: weekMeals,
+      userId,
+      timestamp: new Date().toISOString()
+    });
     return <EmptyMealProgressionState />;
   }
+
+  console.log('PROGRESSION_DEBUG', 'Sufficient meals found', {
+    weekMealsLength: weekMeals.length,
+    monthMealsLength: monthMeals?.length,
+    userId,
+    timestamp: new Date().toISOString()
+  });
 
   return (
     <MotionDiv

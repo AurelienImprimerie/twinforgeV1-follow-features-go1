@@ -95,8 +95,22 @@ const MealInsightsTab: React.FC<MealInsightsTabProps> = ({ onLoadingChange }) =>
 
   // État vide - Pas assez de données pour l'IA
   if (!weekMeals || weekMeals.length < 3) {
+    console.log('INSIGHTS_DEBUG', 'Not enough meals', {
+      weekMealsLength: weekMeals?.length,
+      weekMeals: weekMeals,
+      userId,
+      timestamp: new Date().toISOString()
+    });
     return <EmptyMealInsightsState />;
   }
+
+  console.log('INSIGHTS_DEBUG', 'Sufficient meals found', {
+    weekMealsLength: weekMeals.length,
+    userId,
+    isAnalysisLoading,
+    hasTrendAnalysis: !!trendAnalysis,
+    timestamp: new Date().toISOString()
+  });
 
   // Afficher le squelette de chargement seulement si l'analyse est en cours ET qu'on n'a pas encore de résultats
   if (isAnalysisLoading && !trendAnalysis) {
